@@ -30,9 +30,11 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
         ChangeNotifierProvider(create: (context) => BookmarkProvider()),
+        ChangeNotifierProvider(create: (context) => FontSizeProvider()),
+
       ],
-      child: Consumer2<ThemeProvider, BookmarkProvider>(
-        builder: (context, themeProvider, bookmarkProvider, _) => MaterialApp(
+      child: Consumer3<ThemeProvider, BookmarkProvider, FontSizeProvider>(
+        builder: (context, themeProvider, bookmarkProvider, fontSizeProvider, _) => MaterialApp(
           title: 'حج التمتع',
           debugShowCheckedModeBanner: false,
           themeMode: themeProvider.themeMode,

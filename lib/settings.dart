@@ -25,3 +25,15 @@ class BookmarkProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
+
+// font size provider
+class FontSizeProvider extends ChangeNotifier {
+  double _size = 20;
+
+  double get fontSize => _size;
+
+  set fontSize(double size) {
+    _size = size;
+    notifyListeners();
+  }
+}

@@ -45,11 +45,63 @@ class _QuestionPageState extends State<QuestionPage> {
   Widget build(BuildContext context) {
     BookmarkProvider bookmarkProvider =
         Provider.of<BookmarkProvider>(context, listen: false);
+    final fontSizeProvider =
+        Provider.of<FontSizeProvider>(context, listen: false);
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
           appBar: AppBar(
             actions: [
+              IconButton(
+                  onPressed: () {
+                    showModalBottomSheet(
+                        context: context,
+                        builder: (context) {
+                          return Directionality(
+                            textDirection: TextDirection.rtl,
+                            child: Scaffold(
+                              appBar:
+                                  AppBar(title: const Text("تغيير حجم الخط")),
+                              body: ListView(
+                                padding: const EdgeInsets.all(16),
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      // add two segmented buttons to increase and decrease the font size
+                                      IconButton.outlined(
+                                          onPressed: () {
+                                            if (fontSizeProvider.fontSize >
+                                                20) {
+                                              fontSizeProvider.fontSize -= 1;
+                                            }
+                                          },
+                                          icon: const Icon(Icons.remove)),
+                                      Center(
+                                          child: Text(
+                                              fontSizeProvider.fontSize
+                                                  .toString(),
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .displayLarge!)),
+                                      IconButton.outlined(
+                                          onPressed: () {
+                                            if (fontSizeProvider.fontSize <
+                                                40) {
+                                              fontSizeProvider.fontSize += 1;
+                                            }
+                                          },
+                                          icon: const Icon(Icons.add)),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        });
+                  },
+                  icon: const Icon(Icons.text_fields)),
               IconButton(
                   onPressed: () async {
                     await shareQuestion(widget.question);
@@ -147,7 +199,8 @@ class _QuestionPageState extends State<QuestionPage> {
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyLarge!
-                                  .copyWith(fontSize: 20)),
+                                  .copyWith(
+                                      fontSize: fontSizeProvider.fontSize)),
                         ),
                       ),
                     ),
