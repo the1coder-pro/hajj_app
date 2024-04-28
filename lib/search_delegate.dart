@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:hajj_app/main.dart';
 import 'package:hajj_app/question_model.dart';
+import 'package:hajj_app/question_page.dart';
 
 class QuestionSearch extends SearchDelegate<String> {
   final List<QuestionModel> questions;
