@@ -1,0 +1,444 @@
+name: hajj_app
+description: "A new Flutter project."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.6
+  community_material_icon: ^5.9.55
+  just_audio: ^0.9.37
+  just_audio_web: ^0.4.9
+  url_launcher: ^6.2.5
+  provider: ^6.1.2
+  http: ^1.2.1
+  share_plus: ^6.3.0
+  animations: ^2.0.11
+  path_provider: ^2.1.3
+  widgets_to_image: ^1.0.0
+  auto_size_text: ^3.0.0
+  carousel_slider: ^4.2.1
+  get: ^4.6.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^3.0.0
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    - assets/main_banner_light.jpg
+    - assets/main_banner_dark.jpg
+
+    - assets/contact_banner_light.jpg
+    - assets/contact_banner_dark.jpg
+    - assets/question_background.png
+
+    - assets/data.json
+
+    # load files from 1 to 322.mp3
+
+    - assets/audiofiles/1.mp3
+    - assets/audiofiles/2.mp3
+    - assets/audiofiles/3.mp3
+    - assets/audiofiles/4.mp3
+    - assets/audiofiles/5.mp3
+    - assets/audiofiles/6.mp3
+    - assets/audiofiles/7.mp3
+    - assets/audiofiles/8.mp3
+    - assets/audiofiles/9.mp3
+    - assets/audiofiles/10.mp3
+    - assets/audiofiles/11.mp3
+    - assets/audiofiles/12.mp3
+    - assets/audiofiles/13.mp3
+    - assets/audiofiles/14.mp3
+    - assets/audiofiles/15.mp3
+    - assets/audiofiles/16.mp3
+    - assets/audiofiles/17.mp3
+    - assets/audiofiles/18.mp3
+    - assets/audiofiles/19.mp3
+    - assets/audiofiles/20.mp3
+    - assets/audiofiles/21.mp3
+    - assets/audiofiles/22.mp3
+    - assets/audiofiles/23.mp3
+    - assets/audiofiles/24.mp3
+    - assets/audiofiles/25.mp3
+    - assets/audiofiles/26.mp3
+    - assets/audiofiles/27.mp3
+    - assets/audiofiles/28.mp3
+    - assets/audiofiles/29.mp3
+    - assets/audiofiles/30.mp3
+    - assets/audiofiles/31.mp3
+    - assets/audiofiles/32.mp3
+    - assets/audiofiles/33.mp3
+    - assets/audiofiles/34.mp3
+    - assets/audiofiles/35.mp3
+    - assets/audiofiles/36.mp3
+    - assets/audiofiles/37.mp3
+    - assets/audiofiles/38.mp3
+    - assets/audiofiles/39.mp3
+    - assets/audiofiles/40.mp3
+    - assets/audiofiles/41.mp3
+    - assets/audiofiles/42.mp3
+    - assets/audiofiles/43.mp3
+    - assets/audiofiles/44.mp3
+    - assets/audiofiles/45.mp3
+    - assets/audiofiles/46.mp3
+    - assets/audiofiles/47.mp3
+    - assets/audiofiles/48.mp3
+    - assets/audiofiles/49.mp3
+    - assets/audiofiles/50.mp3
+    - assets/audiofiles/51.mp3
+    - assets/audiofiles/52.mp3
+    - assets/audiofiles/53.mp3
+    - assets/audiofiles/54.mp3
+    - assets/audiofiles/55.mp3
+    - assets/audiofiles/56.mp3
+    - assets/audiofiles/57.mp3
+    - assets/audiofiles/58.mp3
+    - assets/audiofiles/59.mp3
+    - assets/audiofiles/60.mp3
+    - assets/audiofiles/61.mp3
+    - assets/audiofiles/62.mp3
+    - assets/audiofiles/63.mp3
+    - assets/audiofiles/64.mp3
+    - assets/audiofiles/65.mp3
+    - assets/audiofiles/66.mp3
+    - assets/audiofiles/67.mp3
+    - assets/audiofiles/68.mp3
+    - assets/audiofiles/69.mp3
+    - assets/audiofiles/70.mp3
+    - assets/audiofiles/71.mp3
+    - assets/audiofiles/72.mp3
+    - assets/audiofiles/73.mp3
+    - assets/audiofiles/74.mp3
+    - assets/audiofiles/75.mp3
+    - assets/audiofiles/76.mp3
+    - assets/audiofiles/77.mp3
+    - assets/audiofiles/78.mp3
+    - assets/audiofiles/79.mp3
+    - assets/audiofiles/80.mp3
+    - assets/audiofiles/81.mp3
+    - assets/audiofiles/82.mp3
+    - assets/audiofiles/83.mp3
+    - assets/audiofiles/84.mp3
+    - assets/audiofiles/85.mp3
+    - assets/audiofiles/86.mp3
+    - assets/audiofiles/87.mp3
+    - assets/audiofiles/88.mp3
+    - assets/audiofiles/89.mp3
+    - assets/audiofiles/90.mp3
+    - assets/audiofiles/91.mp3
+    - assets/audiofiles/92.mp3
+    - assets/audiofiles/93.mp3
+    - assets/audiofiles/94.mp3
+    - assets/audiofiles/95.mp3
+    - assets/audiofiles/96.mp3
+    - assets/audiofiles/97.mp3
+    - assets/audiofiles/98.mp3
+    - assets/audiofiles/99.mp3
+    - assets/audiofiles/100.mp3
+    - assets/audiofiles/101.mp3
+    - assets/audiofiles/102.mp3
+    - assets/audiofiles/103.mp3
+    - assets/audiofiles/104.mp3
+    - assets/audiofiles/105.mp3
+    - assets/audiofiles/106.mp3
+    - assets/audiofiles/107.mp3
+    - assets/audiofiles/108.mp3
+    - assets/audiofiles/109.mp3
+    - assets/audiofiles/110.mp3
+    - assets/audiofiles/111.mp3
+    - assets/audiofiles/112.mp3
+    - assets/audiofiles/113.mp3
+    - assets/audiofiles/114.mp3
+    - assets/audiofiles/115.mp3
+    - assets/audiofiles/116.mp3
+    - assets/audiofiles/117.mp3
+    - assets/audiofiles/118.mp3
+    - assets/audiofiles/119.mp3
+    - assets/audiofiles/120.mp3
+    - assets/audiofiles/121.mp3
+    - assets/audiofiles/122.mp3
+    - assets/audiofiles/123.mp3
+    - assets/audiofiles/124.mp3
+    - assets/audiofiles/125.mp3
+    - assets/audiofiles/126.mp3
+    - assets/audiofiles/127.mp3
+    - assets/audiofiles/128.mp3
+    - assets/audiofiles/129.mp3
+    - assets/audiofiles/130.mp3
+    - assets/audiofiles/131.mp3
+    - assets/audiofiles/132.mp3
+    - assets/audiofiles/133.mp3
+    - assets/audiofiles/134.mp3
+    - assets/audiofiles/135.mp3
+    - assets/audiofiles/136.mp3
+    - assets/audiofiles/137.mp3
+    - assets/audiofiles/138.mp3
+    - assets/audiofiles/139.mp3
+    - assets/audiofiles/140.mp3
+    - assets/audiofiles/141.mp3
+    - assets/audiofiles/142.mp3
+    - assets/audiofiles/143.mp3
+    - assets/audiofiles/144.mp3
+    - assets/audiofiles/145.mp3
+    - assets/audiofiles/146.mp3
+    - assets/audiofiles/147.mp3
+    - assets/audiofiles/148.mp3
+    - assets/audiofiles/149.mp3
+    - assets/audiofiles/150.mp3
+    - assets/audiofiles/151.mp3
+    - assets/audiofiles/152.mp3
+    - assets/audiofiles/153.mp3
+    - assets/audiofiles/154.mp3
+    - assets/audiofiles/155.mp3
+    - assets/audiofiles/156.mp3
+    - assets/audiofiles/157.mp3
+    - assets/audiofiles/158.mp3
+    - assets/audiofiles/159.mp3
+    - assets/audiofiles/160.mp3
+    - assets/audiofiles/161.mp3
+    - assets/audiofiles/162.mp3
+    - assets/audiofiles/163.mp3
+    - assets/audiofiles/164.mp3
+    - assets/audiofiles/165.mp3
+    - assets/audiofiles/166.mp3
+    - assets/audiofiles/167.mp3
+    - assets/audiofiles/168.mp3
+    - assets/audiofiles/169.mp3
+    - assets/audiofiles/170.mp3
+    - assets/audiofiles/171.mp3
+    - assets/audiofiles/172.mp3
+    - assets/audiofiles/173.mp3
+    - assets/audiofiles/174.mp3
+    - assets/audiofiles/175.mp3
+    - assets/audiofiles/176.mp3
+    - assets/audiofiles/177.mp3
+    - assets/audiofiles/178.mp3
+    - assets/audiofiles/179.mp3
+    - assets/audiofiles/180.mp3
+    - assets/audiofiles/181.mp3
+    - assets/audiofiles/182.mp3
+    - assets/audiofiles/183.mp3
+    - assets/audiofiles/184.mp3
+    - assets/audiofiles/185.mp3
+    - assets/audiofiles/186.mp3
+    - assets/audiofiles/187.mp3
+    - assets/audiofiles/188.mp3
+    - assets/audiofiles/189.mp3
+    - assets/audiofiles/190.mp3
+    - assets/audiofiles/191.mp3
+    - assets/audiofiles/192.mp3
+    - assets/audiofiles/193.mp3
+    - assets/audiofiles/194.mp3
+    - assets/audiofiles/195.mp3
+    - assets/audiofiles/196.mp3
+    - assets/audiofiles/197.mp3
+    - assets/audiofiles/198.mp3
+    - assets/audiofiles/199.mp3
+    - assets/audiofiles/200.mp3
+    - assets/audiofiles/201.mp3
+    - assets/audiofiles/202.mp3
+    - assets/audiofiles/203.mp3
+    - assets/audiofiles/204.mp3
+    - assets/audiofiles/205.mp3
+    - assets/audiofiles/206.mp3
+    - assets/audiofiles/207.mp3
+    - assets/audiofiles/208.mp3
+    - assets/audiofiles/209.mp3
+    - assets/audiofiles/210.mp3
+    - assets/audiofiles/211.mp3
+    - assets/audiofiles/212.mp3
+    - assets/audiofiles/213.mp3
+    - assets/audiofiles/214.mp3
+    - assets/audiofiles/215.mp3
+    - assets/audiofiles/216.mp3
+    - assets/audiofiles/217.mp3
+    - assets/audiofiles/218.mp3
+    - assets/audiofiles/219.mp3
+    - assets/audiofiles/220.mp3
+    - assets/audiofiles/221.mp3
+    - assets/audiofiles/222.mp3
+    - assets/audiofiles/223.mp3
+    - assets/audiofiles/224.mp3
+    - assets/audiofiles/225.mp3
+    - assets/audiofiles/226.mp3
+    - assets/audiofiles/227.mp3
+    - assets/audiofiles/228.mp3
+    - assets/audiofiles/229.mp3
+    - assets/audiofiles/230.mp3
+    - assets/audiofiles/231.mp3
+    - assets/audiofiles/232.mp3
+    - assets/audiofiles/233.mp3
+    - assets/audiofiles/234.mp3
+    - assets/audiofiles/235.mp3
+    - assets/audiofiles/236.mp3
+    - assets/audiofiles/237.mp3
+    - assets/audiofiles/238.mp3
+    - assets/audiofiles/239.mp3
+    - assets/audiofiles/240.mp3
+    - assets/audiofiles/241.mp3
+    - assets/audiofiles/242.mp3
+    - assets/audiofiles/243.mp3
+    - assets/audiofiles/244.mp3
+    - assets/audiofiles/245.mp3
+    - assets/audiofiles/246.mp3
+    - assets/audiofiles/247.mp3
+    - assets/audiofiles/248.mp3
+    - assets/audiofiles/249.mp3
+    - assets/audiofiles/250.mp3
+    - assets/audiofiles/251.mp3
+    - assets/audiofiles/252.mp3
+    - assets/audiofiles/253.mp3
+    - assets/audiofiles/254.mp3
+    - assets/audiofiles/255.mp3
+    - assets/audiofiles/256.mp3
+    - assets/audiofiles/257.mp3
+    - assets/audiofiles/258.mp3
+    - assets/audiofiles/259.mp3
+    - assets/audiofiles/260.mp3
+    - assets/audiofiles/261.mp3
+    - assets/audiofiles/262.mp3
+    - assets/audiofiles/263.mp3
+    - assets/audiofiles/264.mp3
+    - assets/audiofiles/265.mp3
+    - assets/audiofiles/266.mp3
+    - assets/audiofiles/267.mp3
+    - assets/audiofiles/268.mp3
+    - assets/audiofiles/269.mp3
+    - assets/audiofiles/270.mp3
+    - assets/audiofiles/271.mp3
+    - assets/audiofiles/272.mp3
+    - assets/audiofiles/273.mp3
+    - assets/audiofiles/274.mp3
+    - assets/audiofiles/275.mp3
+    - assets/audiofiles/276.mp3
+    - assets/audiofiles/277.mp3
+    - assets/audiofiles/278.mp3
+    - assets/audiofiles/279.mp3
+    - assets/audiofiles/280.mp3
+    - assets/audiofiles/281.mp3
+    - assets/audiofiles/282.mp3
+    - assets/audiofiles/283.mp3
+    - assets/audiofiles/284.mp3
+    - assets/audiofiles/285.mp3
+    - assets/audiofiles/286.mp3
+    - assets/audiofiles/287.mp3
+    - assets/audiofiles/288.mp3
+    - assets/audiofiles/289.mp3
+    - assets/audiofiles/290.mp3
+    - assets/audiofiles/291.mp3
+    - assets/audiofiles/292.mp3
+    - assets/audiofiles/293.mp3
+    - assets/audiofiles/294.mp3
+    - assets/audiofiles/295.mp3
+    - assets/audiofiles/296.mp3
+    - assets/audiofiles/297.mp3
+    - assets/audiofiles/298.mp3
+    - assets/audiofiles/299.mp3
+    - assets/audiofiles/300.mp3
+    - assets/audiofiles/301.mp3
+    - assets/audiofiles/302.mp3
+    - assets/audiofiles/303.mp3
+    - assets/audiofiles/304.mp3
+    - assets/audiofiles/305.mp3
+    - assets/audiofiles/306.mp3
+    - assets/audiofiles/307.mp3
+    - assets/audiofiles/308.mp3
+    - assets/audiofiles/309.mp3
+    - assets/audiofiles/310.mp3
+    - assets/audiofiles/311.mp3
+    - assets/audiofiles/312.mp3
+    - assets/audiofiles/313.mp3
+    - assets/audiofiles/314.mp3
+    - assets/audiofiles/315.mp3
+    - assets/audiofiles/316.mp3
+    - assets/audiofiles/317.mp3
+    - assets/audiofiles/318.mp3
+    - assets/audiofiles/319.mp3
+    - assets/audiofiles/320.mp3
+    - assets/audiofiles/321.mp3
+    - assets/audiofiles/322.mp3
+
+    - assets/titlesImages/1.png
+    - assets/titlesImages/2.png
+    - assets/titlesImages/3.png
+    - assets/titlesImages/4.png
+    - assets/titlesImages/5.png
+    - assets/titlesImages/6.png
+    - assets/titlesImages/7.png
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/assets-and-images/#resolution-aware
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/assets-and-images/#from-packages
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  fonts:
+    - family: Zarids
+      fonts:
+        - asset: assets/fonts/29LTZARIDSLAB-LIGHT.TTF
+          weight: 400
+        - asset: assets/fonts/29LTZARIDSLAB-BLACK.TTF
+          weight: 600
+        - asset: assets/fonts/29LTZARIDSLAB-EXTRALIGHT.TTF
+          weight: 200
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/custom-fonts/#from-packages
