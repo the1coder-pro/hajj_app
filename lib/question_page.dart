@@ -1,25 +1,20 @@
-import 'dart:io';
-
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hajj_app/main.dart';
 import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/settings.dart';
-import 'package:http/http.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:widgets_to_image/widgets_to_image.dart';
 import 'dart:html' as html;
 
 void share(Map data) async {
   try {
     await html.window.navigator.share(data);
-    print('done');
+    debugPrint('done');
   } catch (e) {
-    print(e);
+    debugPrint(e as String);
   }
 }
 
@@ -431,13 +426,7 @@ class QuestionImageTemplate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      // decoration: const BoxDecoration(
-      //   image: DecorationImage(
-      //     image: AssetImage("assets/question_background.png"),
-      //     fit: BoxFit.cover,
-      //   ),
-      // ),
+    return SizedBox(
       height: double.infinity,
       width: double.infinity,
       child: Padding(

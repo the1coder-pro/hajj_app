@@ -6,7 +6,6 @@ import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/question_page.dart';
 import 'package:hajj_app/settings.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:widgets_to_image/widgets_to_image.dart';
 import 'dart:html' as html;
 

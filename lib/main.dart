@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hajj_app/other_question_page.dart';
 import 'package:hajj_app/question_page.dart';
-import 'package:hajj_app/settings_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/search_delegate.dart';
@@ -90,86 +89,105 @@ class _AdsSectionState extends State<AdsSection> {
             case ConnectionState.waiting:
             case ConnectionState.active:
               {
-                return const Center(child: Text("جاري التحميل...."));
+                return const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 10),
+                      Text("جاري التحميل...."),
+                    ],
+                  ),
+                );
               }
             case ConnectionState.done:
               {
                 return RefreshIndicator(
                     key: _refreshIndicatorKey,
                     onRefresh: _refreshAds,
-                    child: Column(children: [
-                      const Text("اخر الأخبار", style: TextStyle(fontSize: 25)),
-                      CarouselSlider(
-                        options: CarouselOptions(
-                            height: 250.0,
-                            autoPlay: true,
-                            autoPlayInterval: const Duration(seconds: 5)),
-                        // items are the three latest ads
-                        items: latest3Ads.map<Widget>((item) {
-                          // get id from Google drive link "https://drive.google.com/open?id=1LuvZ2inwSYe1L7qLba2btdnCeASfqSvs"
-                          String id = item['Image'].toString().split('id=')[1];
-                          String imageURL =
-                              "https://lh3.googleusercontent.com/d/$id=s1000?authuser=0";
-
-                          return Card(
-                            child: InkWell(
-                              onTap: () {
-                                Get.to(
-                                    () => AdDetailsPage(
-                                        imageURL: imageURL,
-                                        title: item['Title'],
-                                        description: item['Description'],
-                                        link: item['Link']),
-                                    transition: Transition.downToUp);
-                              },
-                              child: Image.network(imageURL, fit: BoxFit.cover),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Align(
-                            alignment: Alignment.centerRight,
-                            child: Text("جميع الإعلانات الحالية:",
-                                style: TextStyle(fontSize: 25))),
-                      ),
-                      Expanded(
-                          flex: 4,
-                          child: GridView.builder(
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                              ),
-                              reverse: true,
-                              shrinkWrap: true,
-                              itemCount: _adsList.length,
-                              itemBuilder: (context, index) {
+                    child: _adsList.isEmpty
+                        ? const Center(child: Text("لا توجد إعلانات حاليا."))
+                        : Column(children: [
+                            const Text("اخر الأخبار",
+                                style: TextStyle(fontSize: 25)),
+                            CarouselSlider(
+                              options: CarouselOptions(
+                                  height: 250.0,
+                                  autoPlay: true,
+                                  autoPlayInterval: const Duration(seconds: 5)),
+                              // items are the three latest ads
+                              items: latest3Ads.map<Widget>((item) {
                                 // get id from Google drive link "https://drive.google.com/open?id=1LuvZ2inwSYe1L7qLba2btdnCeASfqSvs"
-                                String id = _adsList[index]['Image']
-                                    .toString()
-                                    .split('id=')[1];
+                                String id =
+                                    item['Image'].toString().split('id=')[1];
                                 String imageURL =
                                     "https://lh3.googleusercontent.com/d/$id=s1000?authuser=0";
 
                                 return Card(
                                   child: InkWell(
-                                      onTap: () {
-                                        Get.to(
-                                            () => AdDetailsPage(
-                                                imageURL: imageURL,
-                                                title: _adsList[index]['Title'],
-                                                description: _adsList[index]
-                                                    ['Description'],
-                                                link: _adsList[index]['Link']),
-                                            transition: Transition.downToUp);
-                                      },
-                                      child: Center(
-                                          child:
-                                              Text(_adsList[index]['Title']))),
+                                    onTap: () {
+                                      Get.to(
+                                          () => AdDetailsPage(
+                                              imageURL: imageURL,
+                                              title: item['Title'],
+                                              description: item['Description'],
+                                              link: item['Link']),
+                                          transition: Transition.downToUp);
+                                    },
+                                    child: Image.network(imageURL,
+                                        fit: BoxFit.cover),
+                                  ),
                                 );
-                              }))
-                    ]));
+                              }).toList(),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text("جميع الإعلانات الحالية:",
+                                      style: TextStyle(fontSize: 25))),
+                            ),
+                            Expanded(
+                                flex: 4,
+                                child: GridView.builder(
+                                    gridDelegate:
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3,
+                                    ),
+                                    reverse: true,
+                                    shrinkWrap: true,
+                                    itemCount: _adsList.length,
+                                    itemBuilder: (context, index) {
+                                      // get id from Google drive link "https://drive.google.com/open?id=1LuvZ2inwSYe1L7qLba2btdnCeASfqSvs"
+                                      String id = _adsList[index]['Image']
+                                          .toString()
+                                          .split('id=')[1];
+                                      String imageURL =
+                                          "https://lh3.googleusercontent.com/d/$id=s1000?authuser=0";
+
+                                      return Card(
+                                        child: InkWell(
+                                            onTap: () {
+                                              Get.to(
+                                                  () => AdDetailsPage(
+                                                      imageURL: imageURL,
+                                                      title: _adsList[index]
+                                                          ['Title'],
+                                                      description:
+                                                          _adsList[index]
+                                                              ['Description'],
+                                                      link: _adsList[index]
+                                                          ['Link']),
+                                                  transition:
+                                                      Transition.downToUp);
+                                            },
+                                            child: Center(
+                                                child: Text(
+                                                    _adsList[index]['Title']))),
+                                      );
+                                    }))
+                          ]));
               }
           }
         });
@@ -266,27 +284,6 @@ class _MainPageState extends State<MainPage> {
           appBar: AppBar(
             title: const Text("حج التمتع"),
             centerTitle: true,
-            // toolbarHeight: 200,
-            // title: Stack(children: [
-            //   Image(
-            //     fit: BoxFit.fill,
-            //     image: AssetImage(
-            //         'assets/main_banner_${themeProvider.themeMode == ThemeMode.dark ? 'dark' : 'light'}.jpg'),
-            //   ),
-            //   Row(
-            //     children: [
-            //       IconButton(
-            //         onPressed: () {
-            //           Navigator.push(
-            //               context,
-            //               MaterialPageRoute(
-            //                   builder: (context) => const SettingsPage()));
-            //         },
-            //         icon: const Icon(Icons.settings_outlined),
-            //       ),
-            //     ],
-            //   )
-            // ]),
             bottom: const TabBar(
               tabs: [
                 Tab(icon: Icon(Icons.groups_outlined), text: "المعلمين"),
@@ -312,12 +309,6 @@ var _intructorsNames = <String>[
 Column instructors(themeProvider) {
   return Column(
     children: [
-      // Image(
-      //   fit: BoxFit.fill,
-      //   image: AssetImage(
-      //       'assets/main_banner_${themeProvider.themeMode == ThemeMode.dark ? 'dark' : 'light'}.jpg'),
-      // ),
-
       Expanded(
         flex: 3,
         child: ListView.builder(
@@ -397,7 +388,7 @@ class _InstructorPageState extends State<InstructorPage> {
         }
       }
     }
-    print(generatedMainTitles);
+    // debugPrint(generatedMainTitles as String?);
     questions = getQuestionsByInstructor(widget.instructor);
   }
 
@@ -968,61 +959,68 @@ class QuestionTile extends StatelessWidget {
         textDirection: TextDirection.rtl,
         child: Padding(
           padding: const EdgeInsets.all(6),
-          child: Card.outlined(
+          child: Card.filled(
+            color: Theme.of(context).colorScheme.surfaceBright,
             // rounded
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            elevation: 1,
 
             child: InkWell(
               onTap: () {
                 Get.to(() => QuestionPage(question!),
                     transition: Transition.downToUp);
               },
-              child: ListTile(
-                subtitle: Padding(
-                  padding: const EdgeInsets.all(5),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      // IconButton.filledTonal(
-                      //     onPressed: () async {
-                      //       await shareQuestion(question!);
-                      //       // Share.shareXFiles(
-                      //       //     [XFile("assets/audiofiles/${question.no}.mp3")],
-                      //       //     text: 'Great picture');
-                      //       // [XFile('assets/audiofiles/${question.no}.mp3')],
-                      //       // text: 'Great picture');
-                      //     },
-                      //     icon: const Icon(Icons.share_outlined)),
-                      Text(question!.mainTitle!),
-                    ],
-                  ),
-                ),
-                isThreeLine: true,
-                // remove the number before ":" and show the question
-                title: Padding(
-                  padding: const EdgeInsets.only(right: 5, left: 5, top: 5),
-                  child: RichText(
-                    text: TextSpan(
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        width: 2)),
+                child: ListTile(
+                  subtitle: Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        TextSpan(
-                          text: "${question!.subTitle}\n",
-                          style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontSize: 20,
-                              fontFamily: "Zarids",
-                              fontWeight: FontWeight.bold),
-                        ),
-                        TextSpan(
-                          text: question!.question!,
-                          style: TextStyle(
-                              height: 1.2,
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 26),
-                        ),
+                        // IconButton.filledTonal(
+                        //     onPressed: () async {
+                        //       await shareQuestion(question!);
+                        //       // Share.shareXFiles(
+                        //       //     [XFile("assets/audiofiles/${question.no}.mp3")],
+                        //       //     text: 'Great picture');
+                        //       // [XFile('assets/audiofiles/${question.no}.mp3')],
+                        //       // text: 'Great picture');
+                        //     },
+                        //     icon: const Icon(Icons.share_outlined)),
+                        Text(question!.mainTitle!),
                       ],
+                    ),
+                  ),
+                  isThreeLine: true,
+                  // remove the number before ":" and show the question
+                  title: Padding(
+                    padding: const EdgeInsets.only(right: 5, left: 5, top: 5),
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "${question!.subTitle}\n",
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontSize: 20,
+                                fontFamily: "Zarids",
+                                fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(
+                            text: question!.question!,
+                            style: TextStyle(
+                                height: 1.2,
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 26),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -1444,7 +1442,7 @@ class ContactFooter extends StatelessWidget {
                 textDirection: TextDirection.ltr,
                 style: TextStyle(
                     color: Theme.of(context).colorScheme.onSecondaryContainer,
-                    fontSize: 20),
+                    fontSize: 15),
               )
             ],
           ),
@@ -1686,7 +1684,7 @@ class ContactFooterImage extends StatelessWidget {
                     style: TextStyle(
                         color:
                             Theme.of(context).colorScheme.onSecondaryContainer,
-                        fontSize: 20))
+                        fontSize: 10))
               ],
             ),
             // for maintance
