@@ -1,8 +1,8 @@
 // search delegate class for questions
 import 'package:flutter/material.dart';
-import 'package:hajj_app/main.dart';
+import 'package:hajj_app/components/question_tile.dart';
 import 'package:hajj_app/question_model.dart';
-import 'package:hajj_app/question_page.dart';
+import 'package:hajj_app/pages/question_page.dart';
 
 class QuestionSearch extends SearchDelegate<String> {
   final List<QuestionModel> questions;

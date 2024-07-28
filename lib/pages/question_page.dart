@@ -1,7 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hajj_app/main.dart';
+import 'package:hajj_app/components/contact_footer.dart';
 import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/settings.dart';
 import 'package:just_audio/just_audio.dart';
