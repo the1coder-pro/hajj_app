@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:hajj_app/components/contact_footer.dart';
 import 'package:hajj_app/pages/ads_section.dart';
 import 'package:hajj_app/pages/instructor_page.dart';
+import 'package:hajj_app/pages/settings_page.dart';
 import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/settings.dart';
 import 'package:provider/provider.dart';
@@ -44,7 +45,10 @@ class MyApp extends StatelessWidget {
             colorScheme: darkColorScheme,
             useMaterial3: true,
           ),
-          home: const MainPage(),
+          initialRoute: '/',
+          routes: {
+            '/': (context) => const MainPage(),
+          },
         ),
       ),
     );
@@ -68,7 +72,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
@@ -82,12 +86,17 @@ class _MainPageState extends State<MainPage> {
                   Tab(
                       icon: Icon(Icons.new_releases_outlined),
                       text: "الإعلانات"),
+                  Tab(icon: Icon(Icons.settings_outlined), text: "الإعدادات"),
                 ],
               ),
             ),
           ),
           body: TabBarView(
-            children: [instructors(themeProvider), const AdsSection()],
+            children: [
+              instructors(themeProvider),
+              const AdsSection(),
+              const SettingsPage()
+            ],
           ),
         ),
       ),

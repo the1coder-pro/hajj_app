@@ -142,9 +142,9 @@ class _QuestionPageState extends State<QuestionPage> {
                           {"type": "audio/mpeg"})
                     ];
                     var data = {
-                      "title": "سؤال رقم ${widget.question.no}",
-                      "text": "${widget.question.question}",
-                      "url": "https://hajj-app-1.web.app",
+                      // "title": "سؤال رقم ${widget.question.no}",
+                      // "text": "${widget.question.question}",
+                      // "url": "https://hajj-app-1.web.app",
                       "files": files
                     };
                     share(data);

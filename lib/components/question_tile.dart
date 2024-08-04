@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hajj_app/pages/other_question_page.dart';
@@ -36,7 +35,9 @@ class QuestionTile extends StatelessWidget {
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
                     border: Border.all(
-                        color: Theme.of(context).colorScheme.onSurface,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerHighest,
                         width: 2)),
                 child: ListTile(
                   subtitle: Padding(
@@ -44,16 +45,6 @@ class QuestionTile extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        // IconButton.filledTonal(
-                        //     onPressed: () async {
-                        //       await shareQuestion(question!);
-                        //       // Share.shareXFiles(
-                        //       //     [XFile("assets/audiofiles/${question.no}.mp3")],
-                        //       //     text: 'Great picture');
-                        //       // [XFile('assets/audiofiles/${question.no}.mp3')],
-                        //       // text: 'Great picture');
-                        //     },
-                        //     icon: const Icon(Icons.share_outlined)),
                         Text(question!.mainTitle!),
                       ],
                     ),

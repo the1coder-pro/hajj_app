@@ -36,13 +36,26 @@ class QuestionSearch extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
-    final List<QuestionModel> suggestionList = query.isEmpty
-        ? questions
-        : questions
-            .where((element) =>
-                element.question!.toLowerCase().contains(query) ||
-                element.subTitle!.toLowerCase().contains(query))
-            .toList();
+    // get the suggestionList from the query but even if the word is not complete
+    final List<QuestionModel> suggestionList = questions;
+
+    // get the questions that have the same words (order not important)
+
+    // split the query into words
+    final List<String> queryList = query.split(' ');
+
+    // get all the questions that have any of the query words (order not important)
+    if (query.isNotEmpty) {
+      suggestionList.clear();
+      for (var question in questions) {
+        for (String word in queryList) {
+          if (question.question!.split(' ').contains(word)) {
+            suggestionList.add(question);
+          }
+        }
+      }
+    }
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: ListView.builder(
@@ -54,13 +67,18 @@ class QuestionSearch extends SearchDelegate<String> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    final List<QuestionModel> suggestionList = query.isEmpty
-        ? questions
-        : questions
-            .where((element) =>
-                element.question!.toLowerCase().contains(query) ||
-                element.subTitle!.toLowerCase().contains(query))
-            .toList();
+    final List<QuestionModel> suggestionList = questions;
+    // final List<String> queryList = query.split(' ');
+    // // filter the questions that have any of the query words
+
+    // for (var question in questions) {
+    //   for (String word in queryList) {
+    //     if (question.question!.split(' ').contains(word)) {
+    //       suggestionList.add(question);
+    //     }
+    //   }
+    // }
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: ListView.builder(
