@@ -8,6 +8,16 @@ class QuestionSearch extends SearchDelegate<String> {
   final List<QuestionModel> questions;
   QuestionSearch(this.questions);
 
+
+  // change direction
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return theme.copyWith(
+      textTheme: theme.textTheme
+    );
+  }
+
   // change the hint text
   @override
   String get searchFieldLabel => 'ابحث عن سؤال';

@@ -7,16 +7,16 @@ import 'package:hajj_app/settings.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 import 'package:widgets_to_image/widgets_to_image.dart';
-import 'dart:html' as html;
+// import 'dart:html' as html;
 
-void share(Map data) async {
-  try {
-    await html.window.navigator.share(data);
-    debugPrint('done');
-  } catch (e) {
-    debugPrint(e as String);
-  }
-}
+// void share(Map data) async {
+//   try {
+//     await html.window.navigator.share(data);
+//     debugPrint('done');
+//   } catch (e) {
+//     debugPrint(e as String);
+//   }
+// }
 
 class QuestionPage extends StatefulWidget {
   const QuestionPage(
@@ -66,13 +66,94 @@ class _QuestionPageState extends State<QuestionPage> {
   Widget build(BuildContext context) {
     // BookmarkProvider bookmarkProvider =
     //     Provider.of<BookmarkProvider>(context, listen: false);
-    final fontSizeProvider =
-        Provider.of<FontSizeProvider>(context, listen: false);
+    final prefsProvider =
+        Provider.of<QuestionPrefsProvider>(context, listen: false);
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
           appBar: AppBar(
             actions: [
+              // show modal bottom sheet to change the speed of the audio
+              IconButton(
+                icon: const Icon(Icons.speed),
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (context) {
+                      return Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: Scaffold(
+                          appBar: AppBar(
+                            title: const Text(
+                              "تغيير سرعة الصوت",
+                              style: TextStyle(
+                                fontFamily: "Zarids",
+                                fontSize: 30,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ),
+                          body: ListView(
+                            padding: const EdgeInsets.all(16),
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  // add two segmented buttons to increase and decrease the speed
+                                  IconButton(
+                                    onPressed: () {
+                                      if (prefsProvider.audioSpeed > 0.5) {
+                                        prefsProvider.audioSpeed -= 0.1;
+                                      }
+
+                                      audioPlayer
+                                          .setSpeed(prefsProvider.audioSpeed);
+                                    },
+                                    icon: const Icon(Icons.remove),
+                                  ),
+                                  Center(
+                                    child: Text(
+                                      prefsProvider.audioSpeed
+                                          .toStringAsFixed(2),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .displayLarge!,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () {
+                                      if (prefsProvider.audioSpeed <= 5.0) {
+                                        prefsProvider.audioSpeed += 0.1;
+                                      }
+
+                                      audioPlayer
+                                          .setSpeed(prefsProvider.audioSpeed);
+                                    },
+                                    icon: const Icon(Icons.add),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              if (prefsProvider.audioSpeed != 1.0)
+                                Center(
+                                  child: OutlinedButton(
+                                      onPressed: () {
+                                        // reset
+                                        prefsProvider.audioSpeed = 1.0;
+                                      },
+                                      child: const Text("إعادة")),
+                                )
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+
               IconButton(
                   onPressed: () {
                     showModalBottomSheet(
@@ -81,8 +162,13 @@ class _QuestionPageState extends State<QuestionPage> {
                           return Directionality(
                             textDirection: TextDirection.rtl,
                             child: Scaffold(
-                              appBar:
-                                  AppBar(title: const Text("تغيير حجم الخط")),
+                              appBar: AppBar(
+                                  title: const Text("تغيير حجم الخط",
+                                      style: TextStyle(
+                                        fontFamily: "Zarids",
+                                        fontSize: 30,
+                                        fontWeight: FontWeight.w400,
+                                      ))),
                               body: ListView(
                                 padding: const EdgeInsets.all(16),
                                 children: [
@@ -93,24 +179,21 @@ class _QuestionPageState extends State<QuestionPage> {
                                       // add two segmented buttons to increase and decrease the font size
                                       IconButton.outlined(
                                           onPressed: () {
-                                            if (fontSizeProvider.fontSize >
-                                                20) {
-                                              fontSizeProvider.fontSize -= 1;
+                                            if (prefsProvider.fontSize > 20) {
+                                              prefsProvider.fontSize -= 1;
                                             }
                                           },
                                           icon: const Icon(Icons.remove)),
                                       Center(
                                           child: Text(
-                                              fontSizeProvider.fontSize
-                                                  .toString(),
+                                              prefsProvider.fontSize.toString(),
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .displayLarge!)),
                                       IconButton.outlined(
                                           onPressed: () {
-                                            if (fontSizeProvider.fontSize <
-                                                40) {
-                                              fontSizeProvider.fontSize += 1;
+                                            if (prefsProvider.fontSize < 40) {
+                                              prefsProvider.fontSize += 1;
                                             }
                                           },
                                           icon: const Icon(Icons.add)),
@@ -126,28 +209,29 @@ class _QuestionPageState extends State<QuestionPage> {
 
               IconButton(
                   onPressed: () async {
-                    final bytes = await controller.capture();
-                    final buffer = await rootBundle
-                        .load("assets/audiofiles/${widget.question.no}.mp3");
+                    // TODO: don't remove just comment
+                    // final bytes = await controller.capture();
+                    // final buffer = await rootBundle
+                    //     .load("assets/audiofiles/${widget.question.no}.mp3");
 
-                    final mp3Audio = Uint8List.view(buffer.buffer);
+                    // final mp3Audio = Uint8List.view(buffer.buffer);
 
-                    var files = [
-                      html.File([bytes!], "question_${widget.question.no}.jpg",
-                          {"type": "image/jpeg"}),
-                      html.File(
-                          // mp3
-                          [mp3Audio],
-                          "question_${widget.question.no}.mp3",
-                          {"type": "audio/mpeg"})
-                    ];
-                    var data = {
-                      // "title": "سؤال رقم ${widget.question.no}",
-                      // "text": "${widget.question.question}",
-                      // "url": "https://hajj-app-1.web.app",
-                      "files": files
-                    };
-                    share(data);
+                    // var files = [
+                    //   html.File([bytes!], "question_${widget.question.no}.jpg",
+                    //       {"type": "image/jpeg"}),
+                    //   html.File(
+                    //       // mp3
+                    //       [mp3Audio],
+                    //       "question_${widget.question.no}.mp3",
+                    //       {"type": "audio/mpeg"})
+                    // ];
+                    // var data = {
+                    //   // "title": "سؤال رقم ${widget.question.no}",
+                    //   // "text": "${widget.question.question}",
+                    //   // "url": "https://hajj-app-1.web.app",
+                    //   "files": files
+                    // };
+                    // share(data);
                   },
                   icon: const Icon(Icons.share_outlined)),
               // bookmark the question
@@ -221,7 +305,7 @@ class _QuestionPageState extends State<QuestionPage> {
                                   .copyWith(
                                       fontFamily: "Zarids",
                                       fontSize: 35,
-                                      fontWeight: FontWeight.w600,
+                                      fontWeight: FontWeight.w300,
                                       height: 1.2)),
                         ),
                       ),
@@ -259,18 +343,16 @@ class _QuestionPageState extends State<QuestionPage> {
                               padding: const EdgeInsets.all(8.0),
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.vertical,
-                                child: Text(
-                                    widget.question.answerText ??
-                                        "لا يوجد نص جواب",
-                                    textAlign: TextAlign.right,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge!
-                                        .copyWith(
-                                            fontFamily: "Zarids",
-                                            fontWeight: FontWeight.w400,
-                                            fontSize:
-                                                fontSizeProvider.fontSize)),
+                                child: Consumer<QuestionPrefsProvider>(
+                                  builder: (context, provider, _) => Text(
+                                      widget.question.answerText ??
+                                          "لا يوجد نص جواب",
+                                      textAlign: TextAlign.right,
+                                      style: TextStyle(
+                                          fontFamily: "Zarids",
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: provider.fontSize)),
+                                ),
                               ),
                             ),
                           ),
@@ -286,6 +368,8 @@ class _QuestionPageState extends State<QuestionPage> {
   }
 
   Card questionAudioPlayer(BuildContext context) {
+    final prefsProvider =
+        Provider.of<QuestionPrefsProvider>(context, listen: false);
     return Card.outlined(
         elevation: 0.5,
         color: Theme.of(context).colorScheme.surface,
@@ -313,6 +397,7 @@ class _QuestionPageState extends State<QuestionPage> {
                     child: IconButton(
                         color: Theme.of(context).colorScheme.primary,
                         onPressed: () async {
+                          audioPlayer.setSpeed(prefsProvider.audioSpeed);
                           setState(() {
                             isPlaying = !isPlaying;
                           });

@@ -24,28 +24,36 @@ class SubTitlePage extends StatelessWidget {
       child: Scaffold(
           appBar: AppBar(
             centerTitle: true,
-            title: Text(
-              mainTitles[index]['subTitles'][i],
-              style: const TextStyle(
+            title: Text(mainTitles[index]['subTitles'][i],
+                style: const TextStyle(
                   fontFamily: "Zarids",
                   fontSize: 30,
-                  fontWeight: FontWeight.normal),
-            ),
+                  fontWeight: FontWeight.w400,
+                )),
           ),
           body: ListView.builder(
-            itemCount: questions.length,
+            itemCount: questions
+                .where((question) =>
+                    question.subTitle == mainTitles[index]['subTitles'][i])
+                .toList()
+                .length,
             itemBuilder: (context, k) {
-              if (questions.isNotEmpty) {
-                if (mainTitles[index]['subTitles'][i] ==
-                    questions[k].subTitle) {
-                  return QuestionTile(question: questions[k]);
-                } else {
-                  return const SizedBox();
-                }
+              var selectedQuestions = questions
+                  .where((question) =>
+                      question.subTitle == mainTitles[index]['subTitles'][i])
+                  .toList();
+
+              if (selectedQuestions.isNotEmpty) {
+                return QuestionTile(question: selectedQuestions[k]);
               } else {
                 return const Center(
-                  child: Text("لا توجد أسئلة"),
-                );
+                    child: Text(
+                  'لا يوجد أسئلة',
+                  style: TextStyle(
+                      fontFamily: "Zarids",
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
+                ));
               }
             },
           )),

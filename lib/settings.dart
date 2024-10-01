@@ -27,13 +27,22 @@ class BookmarkProvider extends ChangeNotifier {
 }
 
 // font size provider
-class FontSizeProvider extends ChangeNotifier {
+class QuestionPrefsProvider extends ChangeNotifier {
   double _size = 32;
 
   double get fontSize => _size;
 
   set fontSize(double size) {
     _size = size;
+    notifyListeners();
+  }
+
+  double _audioSpeed = 1.0;
+
+  double get audioSpeed => _audioSpeed;
+
+  set audioSpeed(double speed) {
+    _audioSpeed = speed;
     notifyListeners();
   }
 }

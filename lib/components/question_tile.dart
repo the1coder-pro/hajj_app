@@ -27,57 +27,110 @@ class QuestionTile extends StatelessWidget {
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
 
             child: InkWell(
+              borderRadius: BorderRadius.circular(15),
               onTap: () {
                 Get.to(() => QuestionPage(question!),
                     transition: Transition.downToUp);
               },
               child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest,
-                        width: 2)),
-                child: ListTile(
-                  subtitle: Padding(
-                    padding: const EdgeInsets.all(5),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest,
+                          width: 2)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(15),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(question!.mainTitle!),
+                        Text(
+                          question!.subTitle!,
+                          style: TextStyle(
+                              fontFamily: "Zarids",
+                              color: Theme.of(context).colorScheme.primary,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          question!.question!,
+                          style: TextStyle(
+                              fontFamily: "Zarids",
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontSize: 28,
+                              fontWeight: FontWeight.w400),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Chip(
+                              backgroundColor: Theme.of(context)
+                                  .colorScheme
+                                  .secondaryContainer,
+                              padding: const EdgeInsets.all(4),
+                              label: Text(
+                                question!.mainTitle!,
+                                style: TextStyle(
+                                    fontFamily: "Zarids",
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSecondaryContainer,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        )
                       ],
                     ),
+                  )
+
+                  // ListTile(
+                  //   subtitle: Padding(
+                  //     padding: const EdgeInsets.all(5),
+                  //     child: Row(
+                  //       mainAxisAlignment: MainAxisAlignment.end,
+                  //       children: [
+                  //         Chip(
+                  //           label: Text(question!.mainTitle!,
+                  //               style: const TextStyle(fontSize: 18)),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  //   isThreeLine: true,
+                  //   // remove the number before ":" and show the question
+                  //   title: Padding(
+                  //     padding: const EdgeInsets.only(right: 5, left: 5, top: 5),
+                  //     child: RichText(
+                  //       text: TextSpan(
+                  //         children: [
+                  //           TextSpan(
+                  //             text: "${question!.subTitle}\n",
+                  //             style: TextStyle(
+                  //                 color: Theme.of(context).colorScheme.primary,
+                  //                 fontSize: 20,
+                  //                 fontFamily: "Zarids",
+                  //                 fontWeight: FontWeight.w600),
+                  //           ),
+                  //           TextSpan(
+                  //             text: question!.question!,
+                  //             style: TextStyle(
+                  //                 fontFamily: "Zarids",
+                  //                 height: 1.2,
+                  //                 color: Theme.of(context).colorScheme.onSurface,
+                  //                 fontWeight: FontWeight.w400,
+                  //                 fontSize: 26),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                   ),
-                  isThreeLine: true,
-                  // remove the number before ":" and show the question
-                  title: Padding(
-                    padding: const EdgeInsets.only(right: 5, left: 5, top: 5),
-                    child: RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "${question!.subTitle}\n",
-                            style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontSize: 20,
-                                fontFamily: "Zarids",
-                                fontWeight: FontWeight.bold),
-                          ),
-                          TextSpan(
-                            text: question!.question!,
-                            style: TextStyle(
-                                height: 1.2,
-                                color: Theme.of(context).colorScheme.onSurface,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 26),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
             ),
           ),
         ),

@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:hajj_app/components/contact_footer.dart';
 import 'package:hajj_app/pages/ads_section.dart';
 import 'package:hajj_app/pages/instructor_page.dart';
-import 'package:hajj_app/pages/settings_page.dart';
 import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/settings.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +10,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:flutter/services.dart';
 
 import 'package:hajj_app/color_schemes.g.dart';
+
+import 'pages/settings_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,9 +29,9 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
         ChangeNotifierProvider(create: (context) => BookmarkProvider()),
-        ChangeNotifierProvider(create: (context) => FontSizeProvider()),
+        ChangeNotifierProvider(create: (context) => QuestionPrefsProvider()),
       ],
-      child: Consumer3<ThemeProvider, BookmarkProvider, FontSizeProvider>(
+      child: Consumer3<ThemeProvider, BookmarkProvider, QuestionPrefsProvider>(
         builder:
             (context, themeProvider, bookmarkProvider, fontSizeProvider, _) =>
                 GetMaterialApp(
@@ -42,6 +43,12 @@ class MyApp extends StatelessWidget {
             useMaterial3: true,
           ),
           darkTheme: ThemeData(
+            appBarTheme: const AppBarTheme(
+                titleTextStyle: TextStyle(
+              fontFamily: "Zarids",
+              fontSize: 35,
+              fontWeight: FontWeight.bold,
+            )),
             colorScheme: darkColorScheme,
             useMaterial3: true,
           ),
@@ -54,6 +61,8 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+enum PageType { instructors, ads, settings, bookmarks }
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -68,37 +77,109 @@ class _MainPageState extends State<MainPage> {
     super.initState();
   }
 
+  var pageType = PageType.instructors;
+
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    return DefaultTabController(
-      length: 3,
-      child: Directionality(
-        textDirection: TextDirection.rtl,
-        child: Scaffold(
-          appBar: AppBar(
-            toolbarHeight: 0,
-            bottom: const PreferredSize(
-              preferredSize: Size.fromHeight(75.0),
-              child: TabBar(
-                tabs: [
-                  Tab(icon: Icon(Icons.groups_outlined), text: "المعلمين"),
-                  Tab(
-                      icon: Icon(Icons.new_releases_outlined),
-                      text: "الإعلانات"),
-                  Tab(icon: Icon(Icons.settings_outlined), text: "الإعدادات"),
-                ],
-              ),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text(
+            pageType == PageType.instructors ? "المعلمين" : "الإعلانات",
+            style: const TextStyle(
+              fontFamily: "Zarids",
+              fontSize: 35,
+              fontWeight: FontWeight.w400,
             ),
           ),
-          body: TabBarView(
+          leading: Builder(
+            builder: (context) {
+              return IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+              );
+            },
+          ),
+        ),
+        drawer: Drawer(
+          // Add a ListView to the drawer. This ensures the user can scroll
+          // through the options in the drawer if there isn't enough vertical
+          // space to fit everything.
+          child: ListView(
+            // Important: Remove any padding from the ListView.
+            padding: EdgeInsets.zero,
             children: [
-              instructors(themeProvider),
-              const AdsSection(),
-              const SettingsPage()
+              DrawerHeader(
+                decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondaryContainer),
+                child: Text(
+                  "حج التمتع\nفي سؤال وجواب",
+                  style: TextStyle(
+                    fontFamily: "Zarids",
+                    fontSize: 35,
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.people),
+                title: const Text(
+                  'المعلمين',
+                  style: TextStyle(fontFamily: "Zarids", fontSize: 25),
+                ),
+                onTap: () {
+                  setState(() {
+                    pageType = PageType.instructors;
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.new_releases),
+                title: const Text(
+                  'الإعلانات',
+                  style: TextStyle(fontFamily: "Zarids", fontSize: 25),
+                ),
+                onTap: () {
+                  setState(() {
+                    pageType = PageType.ads;
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.settings),
+                title: const Text(
+                  'الإعدادات',
+                  style: TextStyle(fontFamily: "Zarids", fontSize: 25),
+                ),
+                onTap: () {
+                  setState(() {
+                    pageType = PageType.settings;
+                  });
+
+                  Navigator.pop(context);
+                },
+              ),
             ],
           ),
         ),
+        body: pageType == PageType.instructors
+            ? const InstructorsSection()
+            : pageType == PageType.ads
+                ? const AdsSection()
+                : const SettingsPage(),
+        // body: const TabBarView(
+        //   children: [
+        //     InstructorsSection(),
+        //     AdsSection(),
+        //   ],
+        // ),
       ),
     );
   }
@@ -110,34 +191,105 @@ var _intructorsNames = <String>[
   "شيخ علي الدهنين"
 ];
 
-Column instructors(themeProvider) {
-  return Column(
-    children: [
-      Expanded(
-        flex: 3,
-        child: ListView.builder(
-          itemCount: _intructorsNames.length,
-          itemBuilder: (context, i) {
-            return GestureDetector(
-              child: ListTile(
-                trailing: const Icon(Icons.arrow_forward_ios),
-                title: Text(_intructorsNames[i],
-                    style: TextStyle(
-                        color: themeProvider.themeMode == ThemeMode.dark
-                            ? Colors.white
-                            : Colors.black)),
-                onTap: () {
-                  Get.to(() => InstructorPage(_intructorsNames[i]),
-                      transition: Transition.leftToRight);
-                },
+class InstructorsSection extends StatefulWidget {
+  const InstructorsSection({
+    super.key,
+  });
+
+  @override
+  State<InstructorsSection> createState() => _InstructorsSectionState();
+}
+
+class _InstructorsSectionState extends State<InstructorsSection> {
+  String searchQuery = "";
+  final searchController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    return Column(
+      children: [
+        // search bar
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            controller: searchController,
+            onChanged: (value) {
+              setState(() {
+                searchQuery = value;
+              });
+            },
+            style: TextStyle(
+                fontFamily: "Zarids",
+                fontSize: 24,
+                color: themeProvider.themeMode == ThemeMode.dark
+                    ? Colors.white
+                    : Colors.black),
+            decoration: InputDecoration(
+              hintText: "بحث",
+              hintStyle: TextStyle(
+                  fontFamily: "Zarids",
+                  fontSize: 24,
+                  color: themeProvider.themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black),
+              prefixIcon: const Icon(Icons.search),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
-            );
-          },
+            ),
+          ),
         ),
-      ),
-      const ContactFooter(),
-    ],
-  );
+        if (searchQuery.isNotEmpty &&
+            !_intructorsNames.any((element) =>
+                element.toLowerCase().contains(searchQuery.toLowerCase())))
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              "لا يوجد نتائج",
+              style: TextStyle(
+                  fontFamily: "Zarids",
+                  fontSize: 24,
+                  color: themeProvider.themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black),
+            ),
+          ),
+
+        Expanded(
+          flex: 3,
+          child: ListView.builder(
+            itemCount: _intructorsNames.length,
+            itemBuilder: (context, i) {
+              // only show the instructors that match the search query and if there is no match show a message
+              if (searchQuery.isNotEmpty &&
+                  !_intructorsNames[i].contains(searchQuery)) {
+                return const SizedBox.shrink();
+              }
+
+              return GestureDetector(
+                child: ListTile(
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                  title: Text(_intructorsNames[i],
+                      style: TextStyle(
+                          fontFamily: "Zarids",
+                          fontSize: 24,
+                          color: themeProvider.themeMode == ThemeMode.dark
+                              ? Colors.white
+                              : Colors.black)),
+                  onTap: () {
+                    Get.to(() => InstructorPage(_intructorsNames[i]),
+                        transition: Transition.leftToRight);
+                  },
+                ),
+              );
+            },
+          ),
+        ),
+        const ContactFooter(),
+      ],
+    );
+  }
 }
 
 Future<void> shareQuestion(QuestionModel question) async {

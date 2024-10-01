@@ -77,7 +77,6 @@ class _InstructorPageState extends State<InstructorPage> {
   }
 
   List<QuestionModel> questions = [];
-  TextEditingController searchController = TextEditingController();
 
   List<Map> generatedMainTitles = [];
 
@@ -115,6 +114,8 @@ class _InstructorPageState extends State<InstructorPage> {
     loadJsonAsset();
   }
 
+  
+
   @override
   Widget build(BuildContext context) {
     ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
@@ -123,7 +124,12 @@ class _InstructorPageState extends State<InstructorPage> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.instructor),
+          title: Text(widget.instructor,
+              style: const TextStyle(
+                fontFamily: "Zarids",
+                fontSize: 30,
+                fontWeight: FontWeight.w400,
+              )),
           centerTitle: true,
         ),
         body: Column(
@@ -156,142 +162,172 @@ class _InstructorPageState extends State<InstructorPage> {
               flex: 6,
               child: Directionality(
                 textDirection: TextDirection.rtl,
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  itemCount: generatedMainTitles.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                  ),
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Card(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest,
-                        // color: const Color(0xFFe4e4e6),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30)),
-                        child: InkWell(
-                          onTap: () {
-                            if (!(generatedMainTitles[index]['title'] ==
-                                "مسائل إضافية")) {
-                              Get.to(
-                                  () => Directionality(
-                                      textDirection: TextDirection.rtl,
-                                      child: Scaffold(
-                                        appBar: AppBar(
-                                          title: Text(generatedMainTitles[index]
-                                              ['title']),
-                                          centerTitle: true,
-                                        ),
-                                        body: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: GridView.builder(
-                                            gridDelegate:
-                                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                              crossAxisCount: 2,
-                                            ),
-                                            itemCount:
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    itemCount: generatedMainTitles.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                    ),
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Card.outlined(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest
+                              .withOpacity(0.5),
+                          // color: const Color(0xFFe4e4e6),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30)),
+                          child: InkWell(
+                            // radius is like the card
+                            borderRadius: BorderRadius.circular(30),
+                            onTap: () {
+                              if (!(generatedMainTitles[index]['title'] ==
+                                  "مسائل إضافية")) {
+                                Get.to(
+                                    () => Directionality(
+                                        textDirection: TextDirection.rtl,
+                                        child: Scaffold(
+                                          appBar: AppBar(
+                                            title: Text(
                                                 generatedMainTitles[index]
-                                                        ['subTitles']
-                                                    .length,
-                                            itemBuilder: (context, i) {
-                                              return Padding(
-                                                padding:
-                                                    const EdgeInsets.all(10),
-                                                child: Card(
-                                                  color:
-                                                      const Color(0xFFe0eeed),
-                                                  elevation: 0.5,
-                                                  shape: RoundedRectangleBorder(
+                                                    ['title'],
+                                                style: const TextStyle(
+                                                  fontFamily: "Zarids",
+                                                  fontSize: 30,
+                                                  fontWeight: FontWeight.w400,
+                                                )),
+                                            centerTitle: true,
+                                          ),
+                                          body: Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 10, right: 10),
+                                            child: GridView.builder(
+                                              gridDelegate:
+                                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                                crossAxisCount: 2,
+                                              ),
+                                              itemCount:
+                                                  generatedMainTitles[index]
+                                                          ['subTitles']
+                                                      .length,
+                                              itemBuilder: (context, i) {
+                                                return Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(10),
+                                                  child: Card.outlined(
+                                                    color:
+                                                        const Color(0xFFeaf1f0),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        30)),
+                                                    child: InkWell(
                                                       borderRadius:
                                                           BorderRadius.circular(
-                                                              30)),
-                                                  child: Center(
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              bottom: 10),
-                                                      child: ListTile(
-                                                        onTap: () {
-                                                          Get.to(
-                                                              () => SubTitlePage(
-                                                                  index: index,
-                                                                  i: i,
-                                                                  mainTitles:
-                                                                      generatedMainTitles,
-                                                                  questions:
-                                                                      questions),
-                                                              transition: Transition
-                                                                  .leftToRight);
-                                                        },
-                                                        title: Center(
-                                                            child: Text(
-                                                          generatedMainTitles[
-                                                                  index]
-                                                              ['subTitles'][i],
-                                                          style: const TextStyle(
-                                                              color: Color(
-                                                                  0xFF267678),
-                                                              fontSize: 24,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              fontFamily:
-                                                                  "Zarids"),
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                        )),
+                                                              30),
+                                                      onTap: () {
+                                                        Get.to(
+                                                            () => SubTitlePage(
+                                                                index: index,
+                                                                i: i,
+                                                                mainTitles:
+                                                                    generatedMainTitles,
+                                                                questions:
+                                                                    questions),
+                                                            transition: Transition
+                                                                .leftToRight);
+                                                      },
+                                                      child: Center(
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  bottom: 10),
+                                                          child: ListTile(
+                                                            title: Center(
+                                                                child: Text(
+                                                              generatedMainTitles[
+                                                                      index][
+                                                                  'subTitles'][i],
+                                                              style: const TextStyle(
+                                                                  color: Color(
+                                                                      0xFF267678),
+                                                                  fontSize: 24,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontFamily:
+                                                                      "Zarids"),
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                            )),
+                                                          ),
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
-                                                ),
-                                              );
-                                            },
+                                                );
+                                              },
+                                            ),
                                           ),
-                                        ),
-                                      )),
-                                  transition: Transition.leftToRight);
-                            } else {
-                              Get.to(() => Scaffold(
-                                    appBar: AppBar(
-                                      title: Text("مسائل إضافية"),
-                                    ),
-                                    body: Column(
-                                      children: [],
-                                    ),
-                                  ));
-                            }
-                          },
-                          child: Center(
-                            child: Text(generatedMainTitles[index]['title'],
-                                style: const TextStyle(
-                                    color: Color(0xFF267678),
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: "Zarids"),
-                                textAlign: TextAlign.center),
+                                        )),
+                                    transition: Transition.leftToRight);
+                              } else {
+                                Get.to(() => Scaffold(
+                                      appBar: AppBar(
+                                        title: const Text("مسائل إضافية",
+                                            style: TextStyle(
+                                              fontFamily: "Zarids",
+                                              fontSize: 30,
+                                              fontWeight: FontWeight.w400,
+                                            )),
+                                      ),
+                                      body: const Column(
+                                        children: [],
+                                      ),
+                                    ));
+                              }
+                            },
+                            child: Center(
+                              child: Text(generatedMainTitles[index]['title'],
+                                  style: const TextStyle(
+                                      color: Color(0xFF267678),
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: "Zarids"),
+                                  textAlign: TextAlign.center),
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Theme.of(context).colorScheme.secondary,
-          foregroundColor: Theme.of(context).colorScheme.secondaryContainer,
-          onPressed: () {
-            showSearch(
-              context: context,
-              delegate: QuestionSearch(questions),
-            );
-          },
-          child: const Icon(Icons.search),
+        floatingActionButton: Directionality(
+          textDirection: TextDirection.rtl,
+          child: FloatingActionButton(
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+            foregroundColor: Theme.of(context).colorScheme.secondaryContainer,
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: QuestionSearch(questions),
+              );
+            },
+            child: const Icon(Icons.search),
+          ),
         ),
       ),
     );
