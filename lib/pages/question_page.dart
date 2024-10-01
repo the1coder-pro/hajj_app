@@ -76,7 +76,7 @@ class _QuestionPageState extends State<QuestionPage> {
             actions: [
               // show modal bottom sheet to change the speed of the audio
               IconButton(
-                icon: const Icon(Icons.speed),
+                icon: const Icon(Icons.video_settings),
                 onPressed: () {
                   showModalBottomSheet(
                     context: context,
@@ -86,7 +86,7 @@ class _QuestionPageState extends State<QuestionPage> {
                         child: Scaffold(
                           appBar: AppBar(
                             title: const Text(
-                              "تغيير سرعة الصوت",
+                              "إعدادات",
                               style: TextStyle(
                                 fontFamily: "Zarids",
                                 fontSize: 30,
@@ -97,54 +97,93 @@ class _QuestionPageState extends State<QuestionPage> {
                           body: ListView(
                             padding: const EdgeInsets.all(16),
                             children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  // add two segmented buttons to increase and decrease the speed
-                                  IconButton(
-                                    onPressed: () {
-                                      if (prefsProvider.audioSpeed > 0.5) {
-                                        prefsProvider.audioSpeed -= 0.1;
-                                      }
-
-                                      audioPlayer
-                                          .setSpeed(prefsProvider.audioSpeed);
-                                    },
-                                    icon: const Icon(Icons.remove),
-                                  ),
-                                  Center(
-                                    child: Text(
-                                      prefsProvider.audioSpeed
-                                          .toStringAsFixed(2),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .displayLarge!,
+                              Card(
+                                child: Column(
+                                  children: [
+                                    const Text(
+                                      "سرعة الصوت",
+                                      style: TextStyle(
+                                        fontFamily: "Zarids",
+                                        fontSize: 25,
+                                      ),
                                     ),
-                                  ),
-                                  IconButton(
-                                    onPressed: () {
-                                      if (prefsProvider.audioSpeed <= 5.0) {
-                                        prefsProvider.audioSpeed += 0.1;
-                                      }
-
-                                      audioPlayer
-                                          .setSpeed(prefsProvider.audioSpeed);
-                                    },
-                                    icon: const Icon(Icons.add),
-                                  ),
-                                ],
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        // add two segmented buttons to increase and decrease the speed
+                                        if (prefsProvider.audioSpeed != 1.0)
+                                          IconButton(
+                                              onPressed: () {
+                                                // reset
+                                                prefsProvider.audioSpeed = 1.0;
+                                              },
+                                              icon: const Icon(Icons.restore)),
+                                        Slider(
+                                          label: prefsProvider.audioSpeed
+                                              .toString(),
+                                          value: prefsProvider.audioSpeed,
+                                          min: 0.5,
+                                          max: 5,
+                                          // divisions are 5 4.5 4 3.5 3 2.5 2 1.5 1 0.5
+                                          divisions: 9,
+                                          onChanged: (value) {
+                                            prefsProvider.audioSpeed = value;
+                                          },
+                                        ),
+                                        Center(
+                                          child: Text(
+                                              prefsProvider.audioSpeed
+                                                  .toStringAsFixed(2),
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .displayLarge!
+                                                  .copyWith(fontSize: 25)),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 20),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(height: 20),
-                              if (prefsProvider.audioSpeed != 1.0)
-                                Center(
-                                  child: OutlinedButton(
-                                      onPressed: () {
-                                        // reset
-                                        prefsProvider.audioSpeed = 1.0;
+                              Card(
+                                  child: Column(children: [
+                                const Text(
+                                  "حجم الخط",
+                                  style: TextStyle(
+                                    fontFamily: "Zarids",
+                                    fontSize: 25,
+                                  ),
+                                ),
+                                // add two segmented buttons to increase and decrease the font size
+
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Slider(
+                                      label: prefsProvider.fontSize.toString(),
+                                      value: prefsProvider.fontSize,
+                                      min: 20,
+                                      max: 40,
+                                      divisions: 5,
+                                      onChanged: (value) {
+                                        prefsProvider.fontSize = value;
                                       },
-                                      child: const Text("إعادة")),
-                                )
+                                    ),
+                                    Center(
+                                        child: Text(
+                                            prefsProvider.fontSize.toString(),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .displayLarge!
+                                                .copyWith(fontSize: 25))),
+                                  ],
+                                ),
+                              ])),
                             ],
                           ),
                         ),
@@ -153,59 +192,6 @@ class _QuestionPageState extends State<QuestionPage> {
                   );
                 },
               ),
-
-              IconButton(
-                  onPressed: () {
-                    showModalBottomSheet(
-                        context: context,
-                        builder: (context) {
-                          return Directionality(
-                            textDirection: TextDirection.rtl,
-                            child: Scaffold(
-                              appBar: AppBar(
-                                  title: const Text("تغيير حجم الخط",
-                                      style: TextStyle(
-                                        fontFamily: "Zarids",
-                                        fontSize: 30,
-                                        fontWeight: FontWeight.w400,
-                                      ))),
-                              body: ListView(
-                                padding: const EdgeInsets.all(16),
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      // add two segmented buttons to increase and decrease the font size
-                                      IconButton.outlined(
-                                          onPressed: () {
-                                            if (prefsProvider.fontSize > 20) {
-                                              prefsProvider.fontSize -= 1;
-                                            }
-                                          },
-                                          icon: const Icon(Icons.remove)),
-                                      Center(
-                                          child: Text(
-                                              prefsProvider.fontSize.toString(),
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .displayLarge!)),
-                                      IconButton.outlined(
-                                          onPressed: () {
-                                            if (prefsProvider.fontSize < 40) {
-                                              prefsProvider.fontSize += 1;
-                                            }
-                                          },
-                                          icon: const Icon(Icons.add)),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        });
-                  },
-                  icon: const Icon(Icons.text_fields)),
 
               IconButton(
                   onPressed: () async {
@@ -234,20 +220,6 @@ class _QuestionPageState extends State<QuestionPage> {
                     // share(data);
                   },
                   icon: const Icon(Icons.share_outlined)),
-              // bookmark the question
-              // IconButton(
-              //   onPressed: () {
-              //     if (bookmarkProvider.bookmarks.contains(widget.question)) {
-              //       bookmarkProvider.removeBookmark(widget.question);
-              //       return;
-              //     }
-              //     bookmarkProvider.addBookmark(widget.question);
-              //   },
-              //   // check if the question is already bookmarked
-              //   icon: bookmarkProvider.bookmarks.contains(widget.question)
-              //       ? const Icon(Icons.bookmark)
-              //       : const Icon(Icons.bookmark_border),
-              // ),
             ],
             leading:
                 // close the page
@@ -266,32 +238,46 @@ class _QuestionPageState extends State<QuestionPage> {
                 child: QuestionImageTemplate(widget: widget),
               ),
               Container(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 child: Padding(
                   padding: const EdgeInsets.all(10),
                   child: Column(
                     children: [
-                      Align(
-                          alignment: Alignment.centerRight,
-                          child: RichText(
-                            text: TextSpan(children: [
-                              TextSpan(
-                                  text: "${widget.question.mainTitle!} - ",
-                                  style: const TextStyle(
-                                      color: Color(0xFFbe8f2f),
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: "Zarids",
-                                      fontSize: 25)),
-                              TextSpan(
-                                  text: widget.question.subTitle,
-                                  style: TextStyle(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: "Zarids",
-                                      fontSize: 25))
-                            ]),
-                          )),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Align(
+                              alignment: Alignment.centerRight,
+                              child: RichText(
+                                text: TextSpan(children: [
+                                  TextSpan(
+                                      text: "${widget.question.mainTitle!} - ",
+                                      style: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondary,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: "Zarids",
+                                          fontSize: 25)),
+                                  TextSpan(
+                                      text: widget.question.subTitle,
+                                      style: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: "Zarids",
+                                          fontSize: 25))
+                                ]),
+                              )),
+                          IconButton(
+                            icon: Icon(Icons.bookmark_border),
+                            onPressed: () {
+                              // add to favorites
+                            },
+                          )
+                        ],
+                      ),
                       const SizedBox(height: 5),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -525,8 +511,8 @@ class QuestionImageTemplate extends StatelessWidget {
                   text: TextSpan(children: [
                     TextSpan(
                         text: "${widget.question.mainTitle!} - ",
-                        style: const TextStyle(
-                            color: Color(0xFFbe8f2f),
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.secondary,
                             fontWeight: FontWeight.bold,
                             fontFamily: "Zarids",
                             fontSize: 25)),
@@ -546,16 +532,16 @@ class QuestionImageTemplate extends StatelessWidget {
                 widget.question.question!.trim(),
                 minFontSize: 28,
                 maxLines: 3,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 28,
                     fontFamily: "Zarids",
-                    color: Colors.black,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w200),
               ),
             ),
             const SizedBox(height: 10),
             Card(
-              color: const Color(0xFFe0eeed),
+              color: Theme.of(context).colorScheme.surface,
               child: Padding(
                 padding: const EdgeInsets.all(10),
                 child: AutoSizeText(

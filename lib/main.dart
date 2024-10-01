@@ -79,6 +79,13 @@ class _MainPageState extends State<MainPage> {
 
   var pageType = PageType.instructors;
 
+  List<Map<PageType, String>> pageTitles = [
+    {PageType.instructors: "المعلمين"},
+    {PageType.ads: "الإعلانات"},
+    {PageType.bookmarks: "المفضلة"},
+    {PageType.settings: "الإعدادات"},
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -87,8 +94,13 @@ class _MainPageState extends State<MainPage> {
         appBar: AppBar(
           centerTitle: true,
           title: Text(
-            pageType == PageType.instructors ? "المعلمين" : "الإعلانات",
-            style: const TextStyle(
+            pageTitles
+                .where((element) => element.keys.first == pageType)
+                .first
+                .values
+                .first,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontFamily: "Zarids",
               fontSize: 35,
               fontWeight: FontWeight.w400,
@@ -106,25 +118,31 @@ class _MainPageState extends State<MainPage> {
           ),
         ),
         drawer: Drawer(
-          // Add a ListView to the drawer. This ensures the user can scroll
-          // through the options in the drawer if there isn't enough vertical
-          // space to fit everything.
           child: ListView(
-            // Important: Remove any padding from the ListView.
             padding: EdgeInsets.zero,
             children: [
               DrawerHeader(
                 decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.secondaryContainer),
-                child: Text(
-                  "حج التمتع\nفي سؤال وجواب",
-                  style: TextStyle(
-                    fontFamily: "Zarids",
-                    fontSize: 35,
-                    color: Theme.of(context).colorScheme.onSecondaryContainer,
-                    fontWeight: FontWeight.w400,
+                child: Text.rich(TextSpan(children: [
+                  TextSpan(
+                    text: "حج التمتع\n",
+                    style: TextStyle(
+                      fontFamily: "Zarids",
+                      fontSize: 35,
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
+                  TextSpan(
+                    text: "في سؤال وجواب",
+                    style: TextStyle(
+                      fontFamily: "Zarids",
+                      fontSize: 25,
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
+                  ),
+                ])),
               ),
               ListTile(
                 leading: const Icon(Icons.people),
@@ -153,6 +171,19 @@ class _MainPageState extends State<MainPage> {
                 },
               ),
               ListTile(
+                leading: const Icon(Icons.bookmark),
+                title: const Text(
+                  'المفضلة',
+                  style: TextStyle(fontFamily: "Zarids", fontSize: 25),
+                ),
+                onTap: () {
+                  setState(() {
+                    pageType = PageType.bookmarks;
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
                 leading: const Icon(Icons.settings),
                 title: const Text(
                   'الإعدادات',
@@ -173,7 +204,9 @@ class _MainPageState extends State<MainPage> {
             ? const InstructorsSection()
             : pageType == PageType.ads
                 ? const AdsSection()
-                : const SettingsPage(),
+                : pageType == PageType.settings
+                    ? const SettingsPage()
+                    : const SizedBox.shrink(),
         // body: const TabBarView(
         //   children: [
         //     InstructorsSection(),

@@ -19,6 +19,17 @@ class _SettingsPageState extends State<SettingsPage> {
         body: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            // dark mode switch
+            SwitchListTile(
+              title: const Text("الوضع الليلي",
+                  style: TextStyle(fontFamily: "Zarids", fontSize: 25)),
+              value: Theme.of(context).brightness == Brightness.dark,
+              onChanged: (isOn) {
+                Provider.of<ThemeProvider>(context, listen: false)
+                    .toggleTheme(isOn);
+              },
+            ),
+
             // font size slider
             const Text("حجم الخط",
                 style: TextStyle(fontFamily: "Zarids", fontSize: 25)),
@@ -41,7 +52,11 @@ class _SettingsPageState extends State<SettingsPage> {
                   backgroundColor:
                       Theme.of(context).colorScheme.secondaryContainer,
                   child: Text(prefsProvider.fontSize.toString(),
-                      style: const TextStyle(fontSize: 25),
+                      style: TextStyle(
+                          fontSize: 25,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSecondaryContainer),
                       textAlign: TextAlign.center),
                 ),
               ],
@@ -68,7 +83,11 @@ class _SettingsPageState extends State<SettingsPage> {
                   backgroundColor:
                       Theme.of(context).colorScheme.secondaryContainer,
                   child: Text(prefsProvider.audioSpeed.toString(),
-                      style: const TextStyle(fontSize: 25),
+                      style: TextStyle(
+                          fontSize: 25,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSecondaryContainer),
                       textAlign: TextAlign.center),
                 ),
               ],

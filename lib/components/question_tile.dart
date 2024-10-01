@@ -46,13 +46,27 @@ class QuestionTile extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          question!.subTitle!,
-                          style: TextStyle(
-                              fontFamily: "Zarids",
-                              color: Theme.of(context).colorScheme.primary,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              question!.subTitle!,
+                              style: TextStyle(
+                                  fontFamily: "Zarids",
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                // add to favorites
+                              },
+                              icon: Icon(
+                                Icons.bookmark_border,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
                         ),
                         Text(
                           question!.question!,

@@ -25,9 +25,10 @@ class SubTitlePage extends StatelessWidget {
           appBar: AppBar(
             centerTitle: true,
             title: Text(mainTitles[index]['subTitles'][i],
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: "Zarids",
                   fontSize: 30,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.w400,
                 )),
           ),

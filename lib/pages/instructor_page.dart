@@ -114,8 +114,6 @@ class _InstructorPageState extends State<InstructorPage> {
     loadJsonAsset();
   }
 
-  
-
   @override
   Widget build(BuildContext context) {
     ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
@@ -125,9 +123,10 @@ class _InstructorPageState extends State<InstructorPage> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.instructor,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: "Zarids",
                 fontSize: 30,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.w400,
               )),
           centerTitle: true,
@@ -196,9 +195,12 @@ class _InstructorPageState extends State<InstructorPage> {
                                             title: Text(
                                                 generatedMainTitles[index]
                                                     ['title'],
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontFamily: "Zarids",
                                                   fontSize: 30,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface,
                                                   fontWeight: FontWeight.w400,
                                                 )),
                                             centerTitle: true,
@@ -220,8 +222,9 @@ class _InstructorPageState extends State<InstructorPage> {
                                                   padding:
                                                       const EdgeInsets.all(10),
                                                   child: Card.outlined(
-                                                    color:
-                                                        const Color(0xFFeaf1f0),
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .surfaceContainerHighest,
                                                     shape:
                                                         RoundedRectangleBorder(
                                                             borderRadius:
@@ -256,9 +259,11 @@ class _InstructorPageState extends State<InstructorPage> {
                                                               generatedMainTitles[
                                                                       index][
                                                                   'subTitles'][i],
-                                                              style: const TextStyle(
-                                                                  color: Color(
-                                                                      0xFF267678),
+                                                              style: TextStyle(
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .colorScheme
+                                                                      .primary,
                                                                   fontSize: 24,
                                                                   fontWeight:
                                                                       FontWeight
@@ -298,8 +303,9 @@ class _InstructorPageState extends State<InstructorPage> {
                             },
                             child: Center(
                               child: Text(generatedMainTitles[index]['title'],
-                                  style: const TextStyle(
-                                      color: Color(0xFF267678),
+                                  style: TextStyle(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                       fontSize: 25,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: "Zarids"),
