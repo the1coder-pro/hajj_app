@@ -12,7 +12,7 @@
 },
  */
 
-class QuestionModel {
+class Question {
   final String? rowIndex;
   final String? instructor;
   final String? mainTitle;
@@ -23,7 +23,7 @@ class QuestionModel {
   final String? no;
   final String? answerText;
 
-  QuestionModel({
+  Question({
     required this.rowIndex,
     required this.instructor,
     required this.mainTitle,
@@ -35,8 +35,8 @@ class QuestionModel {
     required this.answerText,
   });
 
-  factory QuestionModel.fromJson(Map<String, dynamic> json) {
-    return QuestionModel(
+  factory Question.fromJson(Map<String, dynamic> json) {
+    return Question(
       rowIndex: json['\$rowIndex'],
       instructor: json['Instructor'],
       mainTitle: json['MainTitle'],
@@ -50,21 +50,21 @@ class QuestionModel {
   }
 }
 
-class QuestionModelOther {
+class OtherQuestion {
   final String? timestamp;
   final String? question;
   final String? answerText;
   final String? section;
 
-  QuestionModelOther({
+  OtherQuestion({
     required this.timestamp,
     required this.question,
     required this.answerText,
     required this.section,
   });
 
-  factory QuestionModelOther.fromJson(Map<String, dynamic> json) {
-    return QuestionModelOther(
+  factory OtherQuestion.fromJson(Map<String, dynamic> json) {
+    return OtherQuestion(
       timestamp: json['Timestamp'],
       question: json['Question'],
       answerText: json['Answer'],

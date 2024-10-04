@@ -13,14 +13,14 @@ class ThemeProvider extends ChangeNotifier {
 
 // bookmark provider
 class BookmarkProvider extends ChangeNotifier {
-  List<QuestionModel> bookmarks = [];
+  List<Question> bookmarks = [];
 
-  void addBookmark(QuestionModel question) {
+  void addBookmark(Question question) {
     bookmarks.add(question);
     notifyListeners();
   }
 
-  void removeBookmark(QuestionModel question) {
+  void removeBookmark(Question question) {
     bookmarks.remove(question);
     notifyListeners();
   }

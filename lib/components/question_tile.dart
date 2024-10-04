@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:get/get.dart';
 import 'package:hajj_app/pages/other_question_page.dart';
 import 'package:hajj_app/pages/question_page.dart';
 import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/settings.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 
 class QuestionTile extends StatelessWidget {
-  final QuestionModel? question;
-  final QuestionModelOther? questionModelAr;
+  final Question? question;
+  final OtherQuestion? questionModelAr;
   const QuestionTile({
     this.question,
     this.questionModelAr,

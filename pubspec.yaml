@@ -48,6 +48,7 @@ dependencies:
   fluttericon: ^2.0.0
   hive: ^2.2.3
   flutter_cache_manager: ^3.4.1
+  cross_file: ^0.3.4+2
 
 dev_dependencies:
   flutter_test:

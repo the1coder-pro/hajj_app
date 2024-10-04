@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hajj_app/components/contact_footer.dart';
@@ -7,24 +8,11 @@ import 'package:hajj_app/settings.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 import 'package:widgets_to_image/widgets_to_image.dart';
-import 'dart:html' as html;
-
-void share(Map data) async {
-  try {
-    await html.window.navigator.share(data);
-    debugPrint('done');
-  } catch (e) {
-    debugPrint(e as String);
-  }
-}
 
 class QuestionPage extends StatefulWidget {
-  const QuestionPage(
-    this.question, {
-    super.key,
-  });
+  const QuestionPage(this.question, {super.key});
 
-  final QuestionModel question;
+  final Question question;
 
   @override
   State<QuestionPage> createState() => _QuestionPageState();
@@ -64,7 +52,6 @@ class _QuestionPageState extends State<QuestionPage> {
 
   @override
   Widget build(BuildContext context) {
- 
     final prefsProvider =
         Provider.of<QuestionPrefsProvider>(context, listen: false);
     final bookmarkProvider = Provider.of<BookmarkProvider>(context);
@@ -74,151 +61,28 @@ class _QuestionPageState extends State<QuestionPage> {
       child: Scaffold(
           appBar: AppBar(
             actions: [
-              // show modal bottom sheet to change the speed of the audio
               IconButton(
                 icon: const Icon(Icons.video_settings),
                 onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    builder: (context) {
-                      return Directionality(
-                        textDirection: TextDirection.rtl,
-                        child: Scaffold(
-                          appBar: AppBar(
-                            title: Text("إعدادات",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .displayMedium!
-                                    .copyWith(fontWeight: FontWeight.normal)),
-                          ),
-                          body: ListView(
-                            padding: const EdgeInsets.all(16),
-                            children: [
-                              Card(
-                                child: ListTile(
-                                  title: const Text(
-                                    "سرعة الصوت",
-                                    style: TextStyle(
-                                      fontFamily: "Zarids",
-                                      fontSize: 25,
-                                    ),
-                                  ),
-                                  subtitle: Slider(
-                                    label: prefsProvider.audioSpeed.toString(),
-                                    value: prefsProvider.audioSpeed,
-                                    min: 0.5,
-                                    max: 5,
-                                    // divisions are 5 4.5 4 3.5 3 2.5 2 1.5 1 0.5
-                                    divisions: 9,
-                                    onChanged: (value) {
-                                      prefsProvider.audioSpeed = value;
-                                    },
-                                  ),
-                                  leading: IconButton(
-                                      onPressed: () {
-                                        // reset
-                                        prefsProvider.audioSpeed = 1.0;
-                                      },
-                                      icon: const Icon(Icons.restore)),
-                                  trailing: CircleAvatar(
-                                    backgroundColor: Theme.of(context)
-                                        .colorScheme
-                                        .secondaryContainer,
-                                    child: Center(
-                                      child: Text(
-                                        prefsProvider.audioSpeed
-                                            .toStringAsFixed(1),
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSecondaryContainer),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Card(
-                                child: ListTile(
-                                  title: const Text(
-                                    "حجم الخط",
-                                    style: TextStyle(
-                                      fontFamily: "Zarids",
-                                      fontSize: 25,
-                                    ),
-                                  ),
-                                  subtitle: Slider(
-                                    label: prefsProvider.fontSize.toString(),
-                                    value: prefsProvider.fontSize,
-                                    min: 20,
-                                    max: 40,
-                                    divisions: 5,
-                                    onChanged: (value) {
-                                      prefsProvider.fontSize = value;
-                                    },
-                                  ),
-                                  leading: IconButton(
-                                    onPressed: () {
-                                      // reset
-                                      prefsProvider.fontSize = 25;
-                                    },
-                                    icon: const Icon(Icons.restore),
-                                  ),
-                                  trailing: CircleAvatar(
-                                    backgroundColor: Theme.of(context)
-                                        .colorScheme
-                                        .secondaryContainer,
-                                    child: Center(
-                                      child: Text(
-                                        prefsProvider.fontSize.toString(),
-                                        style: TextStyle(
-                                            fontSize: 22,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSecondaryContainer),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  );
+                  openQuestionSettings(context, prefsProvider);
                 },
               ),
-
-              IconButton(
-                  onPressed: () async {
-                    // TODO: don't remove just comment
-                    final bytes = await controller.capture();
-                    final buffer = await rootBundle
-                        .load("assets/audiofiles/${widget.question.no}.mp3");
-
-                    final mp3Audio = Uint8List.view(buffer.buffer);
-
-                    var files = [
-                      html.File([bytes!], "question_${widget.question.no}.jpg",
-                          {"type": "image/jpeg"}),
-                      html.File(
-                          // mp3
-                          [mp3Audio],
-                          "question_${widget.question.no}.mp3",
-                          {"type": "audio/mpeg"})
-                    ];
-                    var data = {
-                      // "title": "سؤال رقم ${widget.question.no}",
-                      // "text": "${widget.question.question}",
-                      // "url": "https://hajj-app-1.web.app",
-                      "files": files
-                    };
-                    share(data);
+              Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: IconButton(
+                  // if the question is bookmarked, show the bookmarked icon if not show the normal icon
+                  icon: bookmarkProvider.bookmarks.contains(widget.question)
+                      ? const Icon(Icons.bookmark)
+                      : const Icon(Icons.bookmark_border),
+                  onPressed: () {
+                    if (bookmarkProvider.bookmarks.contains(widget.question)) {
+                      bookmarkProvider.removeBookmark(widget.question);
+                    } else {
+                      bookmarkProvider.addBookmark(widget.question);
+                    }
                   },
-                  icon: const Icon(Icons.share_outlined)),
+                ),
+              ),
             ],
             leading:
                 // close the page
@@ -271,22 +135,6 @@ class _QuestionPageState extends State<QuestionPage> {
                                                   .secondary)),
                                 ]),
                               )),
-                          IconButton(
-                            // if the question is bookmarked, show the bookmarked icon if not show the normal icon
-                            icon: bookmarkProvider.bookmarks
-                                    .contains(widget.question)
-                                ? const Icon(Icons.bookmark)
-                                : const Icon(Icons.bookmark_border),
-                            onPressed: () {
-                              if (bookmarkProvider.bookmarks
-                                  .contains(widget.question)) {
-                                bookmarkProvider
-                                    .removeBookmark(widget.question);
-                              } else {
-                                bookmarkProvider.addBookmark(widget.question);
-                              }
-                            },
-                          )
                         ],
                       ),
                       const SizedBox(height: 5),
@@ -361,6 +209,114 @@ class _QuestionPageState extends State<QuestionPage> {
               ),
             ],
           )),
+    );
+  }
+
+  Future<dynamic> openQuestionSettings(
+      BuildContext context, QuestionPrefsProvider prefsProvider) {
+    return showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text("إعدادات",
+                  style: Theme.of(context)
+                      .textTheme
+                      .displayMedium!
+                      .copyWith(fontWeight: FontWeight.normal)),
+            ),
+            body: ListView(
+              children: [
+                ListTile(
+                  title: const Text(
+                    "سرعة الصوت",
+                    style: TextStyle(
+                      fontFamily: "Zarids",
+                      fontSize: 25,
+                    ),
+                  ),
+                  subtitle: Slider(
+                    label: prefsProvider.audioSpeed.toString(),
+                    value: prefsProvider.audioSpeed,
+                    min: 0.5,
+                    max: 5,
+                    // divisions are 5 4.5 4 3.5 3 2.5 2 1.5 1 0.5
+                    divisions: 9,
+                    onChanged: (value) {
+                      prefsProvider.audioSpeed = value;
+                    },
+                  ),
+                  leading: IconButton(
+                      onPressed: () {
+                        // reset
+                        prefsProvider.audioSpeed = 1.0;
+                      },
+                      icon: const Icon(Icons.restore)),
+                  trailing: CircleAvatar(
+                    backgroundColor:
+                        Theme.of(context).colorScheme.secondaryContainer,
+                    child: Center(
+                      child: Text(
+                        prefsProvider.audioSpeed.toStringAsFixed(1),
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSecondaryContainer),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                ListTile(
+                  title: const Text(
+                    "حجم الخط",
+                    style: TextStyle(
+                      fontFamily: "Zarids",
+                      fontSize: 25,
+                    ),
+                  ),
+                  subtitle: Slider(
+                    label: prefsProvider.fontSize.toString(),
+                    value: prefsProvider.fontSize,
+                    min: 20,
+                    max: 40,
+                    divisions: 5,
+                    onChanged: (value) {
+                      prefsProvider.fontSize = value;
+                    },
+                  ),
+                  leading: IconButton(
+                    onPressed: () {
+                      // reset
+                      prefsProvider.fontSize = 25;
+                    },
+                    icon: const Icon(Icons.restore),
+                  ),
+                  trailing: CircleAvatar(
+                    backgroundColor:
+                        Theme.of(context).colorScheme.secondaryContainer,
+                    child: Center(
+                      child: Text(
+                        prefsProvider.fontSize.toString(),
+                        style: TextStyle(
+                            fontSize: 22,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSecondaryContainer),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

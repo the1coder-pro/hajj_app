@@ -29,7 +29,7 @@ class _OtherQuestionsPageState extends State<OtherQuestionsPage> {
       // get mainTitle from subTitle
 
       for (var i = 0; i < data.length; i++) {
-        var question = QuestionModel.fromJson(data[i]);
+        var question = Question.fromJson(data[i]);
         otherQuestions.add(question);
         debugPrint(question.question);
       }
@@ -38,7 +38,7 @@ class _OtherQuestionsPageState extends State<OtherQuestionsPage> {
     }
   }
 
-  List<QuestionModel> otherQuestions = [];
+  List<Question> otherQuestions = [];
 
   @override
   void initState() {
@@ -75,7 +75,7 @@ class _OtherQuestionsPageState extends State<OtherQuestionsPage> {
                 return ListView.builder(
                   itemCount: data.length,
                   itemBuilder: (context, index) {
-                    var question = QuestionModelOther.fromJson(data[index]);
+                    var question = OtherQuestion.fromJson(data[index]);
 // 4949
                     return QuestionTile(questionModelAr: question);
                   },

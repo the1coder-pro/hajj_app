@@ -28,7 +28,7 @@ class _InstructorPageState extends State<InstructorPage> {
       jsonData = data;
     });
     for (var i = 0; i < jsonData.length; i++) {
-      questions.add(QuestionModel.fromJson(jsonData[i]));
+      questions.add(Question.fromJson(jsonData[i]));
 
       // get the mainTitles and add them to the generatedMainTitles (without duplicates)
       if (generatedMainTitles.isEmpty) {
@@ -68,13 +68,13 @@ class _InstructorPageState extends State<InstructorPage> {
     }
   }
 
-  List<QuestionModel> getQuestionsByInstructor(String instructor) {
+  List<Question> getQuestionsByInstructor(String instructor) {
     return questions.where((element) {
       return element.instructor == instructor;
     }).toList();
   }
 
-  List<QuestionModel> questions = [];
+  List<Question> questions = [];
 
   List<Map> generatedMainTitles = [];
 
@@ -114,7 +114,6 @@ class _InstructorPageState extends State<InstructorPage> {
 
   @override
   Widget build(BuildContext context) {
-    // BookmarkProvider bookmarkProvider = Provider.of<BookmarkProvider>(context);
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -130,54 +129,45 @@ class _InstructorPageState extends State<InstructorPage> {
         ),
         body: Column(
           children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text("تواصل مع الشيخ",
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: "Zarids")),
-                const SizedBox(width: 10),
-                // two buttons to contact the instructor
-                OutlinedButton.icon(
-                  label: Text("واتساب",
+            Padding(
+              padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("تواصل مع الشيخ",
                       style: TextStyle(
                           color: Theme.of(context).colorScheme.primary,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           fontFamily: "Zarids")),
-                  icon: Icon(CommunityMaterialIcons.whatsapp,
-                      color: Theme.of(context).colorScheme.primary),
-                  onPressed: () async {
-                    Uri url = Uri.parse("https://wa.me/+966506906007");
-                    // open link
-                    if (!await launchUrl(url)) {
-                      throw Exception('Could not launch $url');
-                    }
-                  },
-                ),
-                const SizedBox(width: 5),
+                  const SizedBox(width: 10),
+                  // two buttons to contact the instructor
+                  IconButton.outlined(
+                    icon: Icon(CommunityMaterialIcons.whatsapp,
+                        color: Theme.of(context).colorScheme.primary),
+                    onPressed: () async {
+                      Uri url = Uri.parse("https://wa.me/+966506906007");
+                      // open link
+                      if (!await launchUrl(url)) {
+                        throw Exception('Could not launch $url');
+                      }
+                    },
+                  ),
+                  const SizedBox(width: 5),
 
-                OutlinedButton.icon(
-                  label: Text("اتصال",
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: "Zarids")),
-                  icon: Icon(Icons.phone_outlined,
-                      color: Theme.of(context).colorScheme.primary),
-                  onPressed: () async {
-                    Uri url = Uri.parse("tel:+966506906007");
-                    // open link
-                    if (!await launchUrl(url)) {
-                      throw Exception('Could not launch $url');
-                    }
-                  },
-                ),
-              ],
+                  IconButton.outlined(
+                    icon: Icon(Icons.phone_outlined,
+                        color: Theme.of(context).colorScheme.primary),
+                    onPressed: () async {
+                      Uri url = Uri.parse("tel:+966506906007");
+                      // open link
+                      if (!await launchUrl(url)) {
+                        throw Exception('Could not launch $url');
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
             Expanded(
               flex: 6,

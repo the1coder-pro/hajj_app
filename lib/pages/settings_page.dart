@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
+  static const route = "/settings";
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();

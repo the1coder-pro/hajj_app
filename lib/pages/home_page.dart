@@ -8,6 +8,7 @@ enum PageType { instructors, ads, settings, bookmarks }
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
+  static const route = "/";
 
   @override
   State<HomePage> createState() => _HomePageState();

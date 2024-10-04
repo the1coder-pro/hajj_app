@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 
 class BookmarksPage extends StatefulWidget {
   const BookmarksPage({super.key});
+  static const route = "/bookmarks";
 
   @override
   State<BookmarksPage> createState() => _BookmarksPageState();
@@ -20,12 +21,15 @@ class _BookmarksPageState extends State<BookmarksPage> {
     final bookmarkProvider = Provider.of<BookmarkProvider>(context);
     return Scaffold(
         body: bookmarkProvider.bookmarks.isEmpty
-            ? const Center(child: Text("لا توجد أسئلة في المفضلة"))
+            ? const Center(
+                child: Text("لا توجد أسئلة",
+                    style: TextStyle(fontSize: 24, fontFamily: "Zarids")))
             : ListView.builder(
                 itemCount: bookmarkProvider.bookmarks.length,
                 itemBuilder: (context, index) {
                   if (bookmarkProvider.bookmarks.isEmpty) {
-                    return const Text("لا توجد أسئلة في المفضلة");
+                    return const Text("لا توجد أسئلة",
+                        style: TextStyle(fontSize: 24, fontFamily: "Zarids"));
                   }
                   return QuestionTile(
                     question: bookmarkProvider.bookmarks[index],
@@ -43,7 +47,7 @@ class Bookmarks2Page extends StatefulWidget {
   });
 
   final BookmarkProvider bookmarkProvider;
-  final List<QuestionModel> questions;
+  final List<Question> questions;
 
   @override
   State<Bookmarks2Page> createState() => _Bookmarks2PageState();

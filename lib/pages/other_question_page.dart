@@ -14,7 +14,7 @@ class OtherQuestionPage extends StatefulWidget {
     super.key,
   });
 
-  final QuestionModelOther question;
+  final OtherQuestion question;
 
   @override
   State<OtherQuestionPage> createState() => _OtherQuestionPageState();

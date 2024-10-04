@@ -5,17 +5,14 @@ import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/pages/question_page.dart';
 
 class QuestionSearch extends SearchDelegate<String> {
-  final List<QuestionModel> questions;
+  final List<Question> questions;
   QuestionSearch(this.questions);
-
 
   // change direction
   @override
   ThemeData appBarTheme(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    return theme.copyWith(
-      textTheme: theme.textTheme
-    );
+    return theme.copyWith(textTheme: theme.textTheme);
   }
 
   // change the hint text
@@ -25,11 +22,14 @@ class QuestionSearch extends SearchDelegate<String> {
   @override
   List<Widget> buildActions(BuildContext context) {
     return [
-      IconButton(
-        icon: const Icon(Icons.clear),
-        onPressed: () {
-          query = '';
-        },
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: IconButton(
+          icon: const Icon(Icons.clear),
+          onPressed: () {
+            query = '';
+          },
+        ),
       )
     ];
   }
@@ -47,7 +47,7 @@ class QuestionSearch extends SearchDelegate<String> {
   @override
   Widget buildResults(BuildContext context) {
     // get the suggestionList from the query but even if the word is not complete
-    final List<QuestionModel> suggestionList = questions;
+    final List<Question> suggestionList = questions;
 
     // get the questions that have the same words (order not important)
 
@@ -77,24 +77,26 @@ class QuestionSearch extends SearchDelegate<String> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    final List<QuestionModel> suggestionList = questions;
-    // final List<String> queryList = query.split(' ');
-    // // filter the questions that have any of the query words
+    List<Question> suggestionList = questions;
 
-    // for (var question in questions) {
-    //   for (String word in queryList) {
-    //     if (question.question!.split(' ').contains(word)) {
-    //       suggestionList.add(question);
-    //     }
-    //   }
-    // }
+    if (query.isEmpty) {
+      suggestionList = questions;
+    } else {
+      // // make search more flexible that it could give you the question even if the query is reversed or not complete
+      // suggestionList = questions.where((element) {
+      //   return element.question!.contains(query);
+      // }).toList();
+    }
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: ListView.builder(
         itemCount: suggestionList.length,
         itemBuilder: (context, index) => ListTile(
-          title: Text(suggestionList[index].question!),
+          title: Text(
+            suggestionList[index].question!,
+            style: const TextStyle(fontFamily: "Zarids", fontSize: 24),
+          ),
           onTap: () {
             Navigator.push(context, MaterialPageRoute(builder: (context) {
               return QuestionPage(suggestionList[index]);

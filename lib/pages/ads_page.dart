@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 
 class AdvertismentsPage extends StatefulWidget {
   const AdvertismentsPage({super.key});
+  static const route = "/ads";
 
   @override
   State<AdvertismentsPage> createState() => _AdvertismentsPageState();

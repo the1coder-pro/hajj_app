@@ -15,7 +15,7 @@ class SubTitlePage extends StatelessWidget {
   final int i;
 
   final List<Map> mainTitles;
-  final List<QuestionModel> questions;
+  final List<Question> questions;
 
   @override
   Widget build(BuildContext context) {
