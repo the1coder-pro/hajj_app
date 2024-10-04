@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:get/get.dart';
 import 'package:hajj_app/pages/other_question_page.dart';
 import 'package:hajj_app/pages/question_page.dart';
 import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/settings.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 
 class QuestionTile extends StatelessWidget {
@@ -109,51 +111,7 @@ class QuestionTile extends StatelessWidget {
                         )
                       ],
                     ),
-                  )
-
-                  // ListTile(
-                  //   subtitle: Padding(
-                  //     padding: const EdgeInsets.all(5),
-                  //     child: Row(
-                  //       mainAxisAlignment: MainAxisAlignment.end,
-                  //       children: [
-                  //         Chip(
-                  //           label: Text(question!.mainTitle!,
-                  //               style: const TextStyle(fontSize: 18)),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //   ),
-                  //   isThreeLine: true,
-                  //   // remove the number before ":" and show the question
-                  //   title: Padding(
-                  //     padding: const EdgeInsets.only(right: 5, left: 5, top: 5),
-                  //     child: RichText(
-                  //       text: TextSpan(
-                  //         children: [
-                  //           TextSpan(
-                  //             text: "${question!.subTitle}\n",
-                  //             style: TextStyle(
-                  //                 color: Theme.of(context).colorScheme.primary,
-                  //                 fontSize: 20,
-                  //                 fontFamily: "Zarids",
-                  //                 fontWeight: FontWeight.w600),
-                  //           ),
-                  //           TextSpan(
-                  //             text: question!.question!,
-                  //             style: TextStyle(
-                  //                 fontFamily: "Zarids",
-                  //                 height: 1.2,
-                  //                 color: Theme.of(context).colorScheme.onSurface,
-                  //                 fontWeight: FontWeight.w400,
-                  //                 fontSize: 26),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
-                  ),
+                  )),
             ),
           ),
         ),

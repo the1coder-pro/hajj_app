@@ -7,16 +7,16 @@ import 'package:hajj_app/settings.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 import 'package:widgets_to_image/widgets_to_image.dart';
-// import 'dart:html' as html;
+import 'dart:html' as html;
 
-// void share(Map data) async {
-//   try {
-//     await html.window.navigator.share(data);
-//     debugPrint('done');
-//   } catch (e) {
-//     debugPrint(e as String);
-//   }
-// }
+void share(Map data) async {
+  try {
+    await html.window.navigator.share(data);
+    debugPrint('done');
+  } catch (e) {
+    debugPrint(e as String);
+  }
+}
 
 class QuestionPage extends StatefulWidget {
   const QuestionPage(
@@ -64,8 +64,7 @@ class _QuestionPageState extends State<QuestionPage> {
 
   @override
   Widget build(BuildContext context) {
-    // BookmarkProvider bookmarkProvider =
-    //     Provider.of<BookmarkProvider>(context, listen: false);
+ 
     final prefsProvider =
         Provider.of<QuestionPrefsProvider>(context, listen: false);
     final bookmarkProvider = Provider.of<BookmarkProvider>(context);
@@ -196,28 +195,28 @@ class _QuestionPageState extends State<QuestionPage> {
               IconButton(
                   onPressed: () async {
                     // TODO: don't remove just comment
-                    // final bytes = await controller.capture();
-                    // final buffer = await rootBundle
-                    //     .load("assets/audiofiles/${widget.question.no}.mp3");
+                    final bytes = await controller.capture();
+                    final buffer = await rootBundle
+                        .load("assets/audiofiles/${widget.question.no}.mp3");
 
-                    // final mp3Audio = Uint8List.view(buffer.buffer);
+                    final mp3Audio = Uint8List.view(buffer.buffer);
 
-                    // var files = [
-                    //   html.File([bytes!], "question_${widget.question.no}.jpg",
-                    //       {"type": "image/jpeg"}),
-                    //   html.File(
-                    //       // mp3
-                    //       [mp3Audio],
-                    //       "question_${widget.question.no}.mp3",
-                    //       {"type": "audio/mpeg"})
-                    // ];
-                    // var data = {
-                    //   // "title": "سؤال رقم ${widget.question.no}",
-                    //   // "text": "${widget.question.question}",
-                    //   // "url": "https://hajj-app-1.web.app",
-                    //   "files": files
-                    // };
-                    // share(data);
+                    var files = [
+                      html.File([bytes!], "question_${widget.question.no}.jpg",
+                          {"type": "image/jpeg"}),
+                      html.File(
+                          // mp3
+                          [mp3Audio],
+                          "question_${widget.question.no}.mp3",
+                          {"type": "audio/mpeg"})
+                    ];
+                    var data = {
+                      // "title": "سؤال رقم ${widget.question.no}",
+                      // "text": "${widget.question.question}",
+                      // "url": "https://hajj-app-1.web.app",
+                      "files": files
+                    };
+                    share(data);
                   },
                   icon: const Icon(Icons.share_outlined)),
             ],
