@@ -68,6 +68,7 @@ class _QuestionPageState extends State<QuestionPage> {
     //     Provider.of<BookmarkProvider>(context, listen: false);
     final prefsProvider =
         Provider.of<QuestionPrefsProvider>(context, listen: false);
+    final bookmarkProvider = Provider.of<BookmarkProvider>(context);
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -85,105 +86,104 @@ class _QuestionPageState extends State<QuestionPage> {
                         textDirection: TextDirection.rtl,
                         child: Scaffold(
                           appBar: AppBar(
-                            title: const Text(
-                              "إعدادات",
-                              style: TextStyle(
-                                fontFamily: "Zarids",
-                                fontSize: 30,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
+                            title: Text("إعدادات",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displayMedium!
+                                    .copyWith(fontWeight: FontWeight.normal)),
                           ),
                           body: ListView(
                             padding: const EdgeInsets.all(16),
                             children: [
                               Card(
-                                child: Column(
-                                  children: [
-                                    const Text(
-                                      "سرعة الصوت",
-                                      style: TextStyle(
-                                        fontFamily: "Zarids",
-                                        fontSize: 25,
+                                child: ListTile(
+                                  title: const Text(
+                                    "سرعة الصوت",
+                                    style: TextStyle(
+                                      fontFamily: "Zarids",
+                                      fontSize: 25,
+                                    ),
+                                  ),
+                                  subtitle: Slider(
+                                    label: prefsProvider.audioSpeed.toString(),
+                                    value: prefsProvider.audioSpeed,
+                                    min: 0.5,
+                                    max: 5,
+                                    // divisions are 5 4.5 4 3.5 3 2.5 2 1.5 1 0.5
+                                    divisions: 9,
+                                    onChanged: (value) {
+                                      prefsProvider.audioSpeed = value;
+                                    },
+                                  ),
+                                  leading: IconButton(
+                                      onPressed: () {
+                                        // reset
+                                        prefsProvider.audioSpeed = 1.0;
+                                      },
+                                      icon: const Icon(Icons.restore)),
+                                  trailing: CircleAvatar(
+                                    backgroundColor: Theme.of(context)
+                                        .colorScheme
+                                        .secondaryContainer,
+                                    child: Center(
+                                      child: Text(
+                                        prefsProvider.audioSpeed
+                                            .toStringAsFixed(1),
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSecondaryContainer),
+                                        textAlign: TextAlign.center,
                                       ),
                                     ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        // add two segmented buttons to increase and decrease the speed
-                                        if (prefsProvider.audioSpeed != 1.0)
-                                          IconButton(
-                                              onPressed: () {
-                                                // reset
-                                                prefsProvider.audioSpeed = 1.0;
-                                              },
-                                              icon: const Icon(Icons.restore)),
-                                        Slider(
-                                          label: prefsProvider.audioSpeed
-                                              .toString(),
-                                          value: prefsProvider.audioSpeed,
-                                          min: 0.5,
-                                          max: 5,
-                                          // divisions are 5 4.5 4 3.5 3 2.5 2 1.5 1 0.5
-                                          divisions: 9,
-                                          onChanged: (value) {
-                                            prefsProvider.audioSpeed = value;
-                                          },
-                                        ),
-                                        Center(
-                                          child: Text(
-                                              prefsProvider.audioSpeed
-                                                  .toStringAsFixed(2),
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .displayLarge!
-                                                  .copyWith(fontSize: 25)),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 20),
-                                  ],
+                                  ),
                                 ),
                               ),
                               Card(
-                                  child: Column(children: [
-                                const Text(
-                                  "حجم الخط",
-                                  style: TextStyle(
-                                    fontFamily: "Zarids",
-                                    fontSize: 25,
+                                child: ListTile(
+                                  title: const Text(
+                                    "حجم الخط",
+                                    style: TextStyle(
+                                      fontFamily: "Zarids",
+                                      fontSize: 25,
+                                    ),
+                                  ),
+                                  subtitle: Slider(
+                                    label: prefsProvider.fontSize.toString(),
+                                    value: prefsProvider.fontSize,
+                                    min: 20,
+                                    max: 40,
+                                    divisions: 5,
+                                    onChanged: (value) {
+                                      prefsProvider.fontSize = value;
+                                    },
+                                  ),
+                                  leading: IconButton(
+                                    onPressed: () {
+                                      // reset
+                                      prefsProvider.fontSize = 25;
+                                    },
+                                    icon: const Icon(Icons.restore),
+                                  ),
+                                  trailing: CircleAvatar(
+                                    backgroundColor: Theme.of(context)
+                                        .colorScheme
+                                        .secondaryContainer,
+                                    child: Center(
+                                      child: Text(
+                                        prefsProvider.fontSize.toString(),
+                                        style: TextStyle(
+                                            fontSize: 22,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSecondaryContainer),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                // add two segmented buttons to increase and decrease the font size
-
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Slider(
-                                      label: prefsProvider.fontSize.toString(),
-                                      value: prefsProvider.fontSize,
-                                      min: 20,
-                                      max: 40,
-                                      divisions: 5,
-                                      onChanged: (value) {
-                                        prefsProvider.fontSize = value;
-                                      },
-                                    ),
-                                    Center(
-                                        child: Text(
-                                            prefsProvider.fontSize.toString(),
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .displayLarge!
-                                                .copyWith(fontSize: 25))),
-                                  ],
-                                ),
-                              ])),
+                              ),
                             ],
                           ),
                         ),
@@ -251,29 +251,41 @@ class _QuestionPageState extends State<QuestionPage> {
                               child: RichText(
                                 text: TextSpan(children: [
                                   TextSpan(
-                                      text: "${widget.question.mainTitle!} - ",
-                                      style: TextStyle(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: "Zarids",
-                                          fontSize: 25)),
+                                      text: "${widget.question.mainTitle!} / ",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .displaySmall!
+                                          .copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary)),
                                   TextSpan(
                                       text: widget.question.subTitle,
-                                      style: TextStyle(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: "Zarids",
-                                          fontSize: 25))
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .displaySmall!
+                                          .copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .secondary)),
                                 ]),
                               )),
                           IconButton(
-                            icon: Icon(Icons.bookmark_border),
+                            // if the question is bookmarked, show the bookmarked icon if not show the normal icon
+                            icon: bookmarkProvider.bookmarks
+                                    .contains(widget.question)
+                                ? const Icon(Icons.bookmark)
+                                : const Icon(Icons.bookmark_border),
                             onPressed: () {
-                              // add to favorites
+                              if (bookmarkProvider.bookmarks
+                                  .contains(widget.question)) {
+                                bookmarkProvider
+                                    .removeBookmark(widget.question);
+                              } else {
+                                bookmarkProvider.addBookmark(widget.question);
+                              }
                             },
                           )
                         ],
@@ -380,7 +392,7 @@ class _QuestionPageState extends State<QuestionPage> {
                       icon: const Icon(Icons.fast_forward),
                       color: Theme.of(context).colorScheme.primary),
                   Center(
-                    child: IconButton(
+                    child: IconButton.outlined(
                         color: Theme.of(context).colorScheme.primary,
                         onPressed: () async {
                           audioPlayer.setSpeed(prefsProvider.audioSpeed);

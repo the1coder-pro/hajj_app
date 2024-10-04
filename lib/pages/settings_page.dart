@@ -21,8 +21,8 @@ class _SettingsPageState extends State<SettingsPage> {
           children: [
             // dark mode switch
             SwitchListTile(
-              title: const Text("الوضع الليلي",
-                  style: TextStyle(fontFamily: "Zarids", fontSize: 25)),
+              title: Text("الوضع الليلي",
+                  style: Theme.of(context).textTheme.displaySmall),
               value: Theme.of(context).brightness == Brightness.dark,
               onChanged: (isOn) {
                 Provider.of<ThemeProvider>(context, listen: false)
@@ -30,67 +30,55 @@ class _SettingsPageState extends State<SettingsPage> {
               },
             ),
 
-            // font size slider
-            const Text("حجم الخط",
-                style: TextStyle(fontFamily: "Zarids", fontSize: 25)),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Slider(
-                  label: prefsProvider.fontSize.toString(),
-                  value: prefsProvider.fontSize,
-                  min: 20,
-                  max: 40,
-                  divisions: 5,
-                  onChanged: (value) {
-                    prefsProvider.fontSize = value;
-                  },
-                ),
-                // font size
-                CircleAvatar(
-                  backgroundColor:
-                      Theme.of(context).colorScheme.secondaryContainer,
-                  child: Text(prefsProvider.fontSize.toString(),
-                      style: TextStyle(
-                          fontSize: 25,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSecondaryContainer),
-                      textAlign: TextAlign.center),
-                ),
-              ],
+            ListTile(
+              title: Text("حجم الخط",
+                  style: Theme.of(context).textTheme.displaySmall),
+              subtitle: Slider(
+                label: prefsProvider.fontSize.toString(),
+                value: prefsProvider.fontSize,
+                min: 20,
+                max: 40,
+                divisions: 5,
+                onChanged: (value) {
+                  prefsProvider.fontSize = value;
+                },
+              ),
+              trailing: CircleAvatar(
+                backgroundColor:
+                    Theme.of(context).colorScheme.secondaryContainer,
+                child: Text(prefsProvider.fontSize.toString(),
+                    style: TextStyle(
+                        fontSize: 22,
+                        color:
+                            Theme.of(context).colorScheme.onSecondaryContainer),
+                    textAlign: TextAlign.center),
+              ),
             ),
-            const Text("سرعة الصوت",
-                style: TextStyle(fontFamily: "Zarids", fontSize: 25)),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Slider(
-                  label: prefsProvider.audioSpeed.toString(),
-                  value: prefsProvider.audioSpeed,
-                  min: 0.5,
-                  max: 5,
-                  // divisions are 5 4.5 4 3.5 3 2.5 2 1.5 1 0.5
-                  divisions: 9,
-                  onChanged: (value) {
-                    prefsProvider.audioSpeed = value;
-                  },
-                ),
-                // font size
-                CircleAvatar(
-                  backgroundColor:
-                      Theme.of(context).colorScheme.secondaryContainer,
-                  child: Text(prefsProvider.audioSpeed.toString(),
-                      style: TextStyle(
-                          fontSize: 25,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSecondaryContainer),
-                      textAlign: TextAlign.center),
-                ),
-              ],
+            ListTile(
+              title: Text("سرعة الصوت",
+                  style: Theme.of(context).textTheme.displaySmall),
+              subtitle: Slider(
+                label: prefsProvider.audioSpeed.toString(),
+                value: prefsProvider.audioSpeed,
+                min: 0.5,
+                max: 5,
+                // divisions are 5 4.5 4 3.5 3 2.5 2 1.5 1 0.5
+                divisions: 9,
+                onChanged: (value) {
+                  prefsProvider.audioSpeed = value;
+                },
+              ),
+              trailing: CircleAvatar(
+                backgroundColor:
+                    Theme.of(context).colorScheme.secondaryContainer,
+                child: Text(prefsProvider.audioSpeed.toString(),
+                    style: TextStyle(
+                        fontSize: 22,
+                        color:
+                            Theme.of(context).colorScheme.onSecondaryContainer),
+                    textAlign: TextAlign.center),
+              ),
             ),
           ],
         ),

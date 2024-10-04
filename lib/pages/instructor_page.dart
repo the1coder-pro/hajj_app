@@ -4,12 +4,10 @@ import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:hajj_app/components/customized_icon_button.dart';
 import 'package:hajj_app/pages/subtitle_page.dart';
 import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/components/search_delegate.dart';
-import 'package:hajj_app/settings.dart';
-import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class InstructorPage extends StatefulWidget {
   final String instructor;
@@ -116,7 +114,6 @@ class _InstructorPageState extends State<InstructorPage> {
 
   @override
   Widget build(BuildContext context) {
-    ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
     // BookmarkProvider bookmarkProvider = Provider.of<BookmarkProvider>(context);
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -133,30 +130,55 @@ class _InstructorPageState extends State<InstructorPage> {
         ),
         body: Column(
           children: <Widget>[
-            if (widget.instructor == "شيخ جعفر العبدالكريم")
-              Stack(alignment: AlignmentDirectional.center, children: [
-                Image(
-                    image: AssetImage(
-                        'assets/contact_banner_${themeProvider.themeMode == ThemeMode.dark ? 'dark' : 'light'}.jpg')),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CustomizedIconButton(
-                          icon: CommunityMaterialIcons.whatsapp,
-                          link: 'https://wa.me/+966506906007',
-                          themeProvider: themeProvider),
-                      CustomizedIconButton(
-                          icon: Icons.phone_outlined,
-                          link: 'tel:+966506906007',
-                          themeProvider: themeProvider),
-                    ],
-                  ),
-                )
-              ]),
-            Divider(
-                color: Theme.of(context).colorScheme.secondary, thickness: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("تواصل مع الشيخ",
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: "Zarids")),
+                const SizedBox(width: 10),
+                // two buttons to contact the instructor
+                OutlinedButton.icon(
+                  label: Text("واتساب",
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: "Zarids")),
+                  icon: Icon(CommunityMaterialIcons.whatsapp,
+                      color: Theme.of(context).colorScheme.primary),
+                  onPressed: () async {
+                    Uri url = Uri.parse("https://wa.me/+966506906007");
+                    // open link
+                    if (!await launchUrl(url)) {
+                      throw Exception('Could not launch $url');
+                    }
+                  },
+                ),
+                const SizedBox(width: 5),
+
+                OutlinedButton.icon(
+                  label: Text("اتصال",
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: "Zarids")),
+                  icon: Icon(Icons.phone_outlined,
+                      color: Theme.of(context).colorScheme.primary),
+                  onPressed: () async {
+                    Uri url = Uri.parse("tel:+966506906007");
+                    // open link
+                    if (!await launchUrl(url)) {
+                      throw Exception('Could not launch $url');
+                    }
+                  },
+                ),
+              ],
+            ),
             Expanded(
               flex: 6,
               child: Directionality(
@@ -224,7 +246,8 @@ class _InstructorPageState extends State<InstructorPage> {
                                                   child: Card.outlined(
                                                     color: Theme.of(context)
                                                         .colorScheme
-                                                        .surfaceContainerHighest,
+                                                        .surfaceContainerHighest
+                                                        .withOpacity(0.5),
                                                     shape:
                                                         RoundedRectangleBorder(
                                                             borderRadius:

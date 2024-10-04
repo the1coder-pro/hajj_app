@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hajj_app/components/contact_footer.dart';
 import 'package:hajj_app/question_model.dart';
-import 'package:hajj_app/pages/question_page.dart';
 import 'package:hajj_app/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:widgets_to_image/widgets_to_image.dart';

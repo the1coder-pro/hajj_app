@@ -6,14 +6,14 @@ import 'package:get/get.dart';
 import 'package:hajj_app/components/ad_detail.dart';
 import 'package:http/http.dart' as http;
 
-class AdsSection extends StatefulWidget {
-  const AdsSection({super.key});
+class AdvertismentsPage extends StatefulWidget {
+  const AdvertismentsPage({super.key});
 
   @override
-  State<AdsSection> createState() => _AdsSectionState();
+  State<AdvertismentsPage> createState() => _AdvertismentsPageState();
 }
 
-class _AdsSectionState extends State<AdsSection> {
+class _AdvertismentsPageState extends State<AdvertismentsPage> {
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
   List<Map> _adsList = [];

@@ -1,8 +1,6 @@
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttericon/font_awesome_icons.dart';
-import 'package:hajj_app/settings.dart';
-import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ContactFooter extends StatelessWidget {
@@ -12,7 +10,6 @@ class ContactFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
     return Container(
       width: double.infinity,
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -22,6 +19,8 @@ class ContactFooter extends StatelessWidget {
           Text(
             'للتواصل معنا',
             style: TextStyle(
+                fontFamily: "Zarids",
+                fontSize: 20,
                 color: Theme.of(context).colorScheme.onSecondaryContainer),
           ),
           const SizedBox(height: 10),
@@ -40,8 +39,8 @@ class ContactFooter extends StatelessWidget {
 
               const SizedBox(width: 5),
               const ContactButton(
-                  backgroundColor: Color(0xFF2b7b7a),
-                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.white,
+                  foregroundColor: Color(0xFF2b7b7a),
                   icon: CommunityMaterialIcons.face_agent,
                   link: 'https://wa.me/+966500155187'),
               const SizedBox(width: 5),

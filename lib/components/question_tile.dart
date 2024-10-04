@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:hajj_app/pages/other_question_page.dart';
 import 'package:hajj_app/pages/question_page.dart';
 import 'package:hajj_app/question_model.dart';
+import 'package:hajj_app/settings.dart';
+import 'package:provider/provider.dart';
 
 class QuestionTile extends StatelessWidget {
   final QuestionModel? question;
@@ -15,6 +17,7 @@ class QuestionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bookmarkProvider = Provider.of<BookmarkProvider>(context);
     if (question != null) {
       return Directionality(
         textDirection: TextDirection.rtl,
@@ -58,14 +61,20 @@ class QuestionTile extends StatelessWidget {
                                   fontWeight: FontWeight.bold),
                             ),
                             IconButton(
+                              // if the question is bookmarked, show the bookmarked icon if not show the normal icon
+                              icon:
+                                  bookmarkProvider.bookmarks.contains(question)
+                                      ? const Icon(Icons.bookmark)
+                                      : const Icon(Icons.bookmark_border),
                               onPressed: () {
-                                // add to favorites
+                                if (bookmarkProvider.bookmarks
+                                    .contains(question)) {
+                                  bookmarkProvider.removeBookmark(question!);
+                                } else {
+                                  bookmarkProvider.addBookmark(question!);
+                                }
                               },
-                              icon: Icon(
-                                Icons.bookmark_border,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                            ),
+                            )
                           ],
                         ),
                         Text(

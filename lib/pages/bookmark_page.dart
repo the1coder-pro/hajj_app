@@ -1,13 +1,42 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hajj_app/components/question_tile.dart';
 import 'package:hajj_app/pages/question_page.dart';
 import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/settings.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:provider/provider.dart';
 
 class BookmarksPage extends StatefulWidget {
-  const BookmarksPage({
+  const BookmarksPage({super.key});
+
+  @override
+  State<BookmarksPage> createState() => _BookmarksPageState();
+}
+
+class _BookmarksPageState extends State<BookmarksPage> {
+  @override
+  Widget build(BuildContext context) {
+    final bookmarkProvider = Provider.of<BookmarkProvider>(context);
+    return Scaffold(
+        body: bookmarkProvider.bookmarks.isEmpty
+            ? const Center(child: Text("لا توجد أسئلة في المفضلة"))
+            : ListView.builder(
+                itemCount: bookmarkProvider.bookmarks.length,
+                itemBuilder: (context, index) {
+                  if (bookmarkProvider.bookmarks.isEmpty) {
+                    return const Text("لا توجد أسئلة في المفضلة");
+                  }
+                  return QuestionTile(
+                    question: bookmarkProvider.bookmarks[index],
+                  );
+                },
+              ));
+  }
+}
+
+class Bookmarks2Page extends StatefulWidget {
+  const Bookmarks2Page({
     super.key,
     required this.bookmarkProvider,
     required this.questions,
@@ -17,10 +46,10 @@ class BookmarksPage extends StatefulWidget {
   final List<QuestionModel> questions;
 
   @override
-  State<BookmarksPage> createState() => _BookmarksPageState();
+  State<Bookmarks2Page> createState() => _Bookmarks2PageState();
 }
 
-class _BookmarksPageState extends State<BookmarksPage> {
+class _Bookmarks2PageState extends State<Bookmarks2Page> {
   bool isPlaying = false;
 
   final AudioPlayer audioPlayer = AudioPlayer();
