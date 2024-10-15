@@ -8,6 +8,7 @@ import 'package:hajj_app/pages/subtitle_page.dart';
 import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/components/search_delegate.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 
 class InstructorPage extends StatefulWidget {
   final String instructor;
@@ -22,8 +23,13 @@ class _InstructorPageState extends State<InstructorPage> {
 
   dynamic jsonData = "";
   Future<void> loadJsonAsset() async {
-    final String jsonString = await rootBundle.loadString('assets/data.json');
-    var data = jsonDecode(jsonString);
+    // https://opensheet.elk.sh/1KxJKKxKBcEd0lguKAbK-UkGIqzAcOXs5is3zNiTnFgY/1
+    // get the data from the link
+    final response = await http.get(Uri.parse(
+        "https://opensheet.elk.sh/1KxJKKxKBcEd0lguKAbK-UkGIqzAcOXs5is3zNiTnFgY/1"));
+    // json
+    var data1 = utf8.decode(response.bodyBytes);
+    var data = jsonDecode(data1);
     setState(() {
       jsonData = data;
     });

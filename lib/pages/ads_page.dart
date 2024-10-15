@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 // import 'package:carousel_slider/carousel_slider.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hajj_app/components/ad_detail.dart';
@@ -60,36 +61,36 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
                         : Column(children: [
                             const Text("اخر الأخبار",
                                 style: TextStyle(fontSize: 25)),
-                            // CarouselSlider(
-                            //   options: CarouselOptions(
-                            //       height: 250.0,
-                            //       autoPlay: true,
-                            //       autoPlayInterval: const Duration(seconds: 5)),
-                            //   // items are the three latest ads
-                            //   items: latest3Ads.map<Widget>((item) {
-                            //     // get id from Google drive link "https://drive.google.com/open?id=1LuvZ2inwSYe1L7qLba2btdnCeASfqSvs"
-                            //     String id =
-                            //         item['Image'].toString().split('id=')[1];
-                            //     String imageURL =
-                            //         "https://lh3.googleusercontent.com/d/$id=s1000?authuser=0";
+                            CarouselSlider(
+                              options: CarouselOptions(
+                                  height: 250.0,
+                                  autoPlay: true,
+                                  autoPlayInterval: const Duration(seconds: 5)),
+                              // items are the three latest ads
+                              items: latest3Ads.map<Widget>((item) {
+                                // get id from Google drive link "https://drive.google.com/open?id=1LuvZ2inwSYe1L7qLba2btdnCeASfqSvs"
+                                String id =
+                                    item['Image'].toString().split('id=')[1];
+                                String imageURL =
+                                    "https://lh3.googleusercontent.com/d/$id=s1000?authuser=0";
 
-                            //     return Card(
-                            //       child: InkWell(
-                            //         onTap: () {
-                            //           Get.to(
-                            //               () => AdDetailsPage(
-                            //                   imageURL: imageURL,
-                            //                   title: item['Title'],
-                            //                   description: item['Description'],
-                            //                   link: item['Link']),
-                            //               transition: Transition.downToUp);
-                            //         },
-                            //         child: Image.network(imageURL,
-                            //             fit: BoxFit.cover),
-                            //       ),
-                            //     );
-                            //   }).toList(),
-                            // ),
+                                return Card(
+                                  child: InkWell(
+                                    onTap: () {
+                                      Get.to(
+                                          () => AdDetailsPage(
+                                              imageURL: imageURL,
+                                              title: item['Title'],
+                                              description: item['Description'],
+                                              link: item['Link']),
+                                          transition: Transition.downToUp);
+                                    },
+                                    child: Image.network(imageURL,
+                                        fit: BoxFit.cover),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
                             const Padding(
                               padding: EdgeInsets.all(8.0),
                               child: Align(
