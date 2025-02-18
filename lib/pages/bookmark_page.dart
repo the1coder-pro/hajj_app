@@ -22,13 +22,13 @@ class _BookmarksPageState extends State<BookmarksPage> {
     return Scaffold(
         body: bookmarkProvider.bookmarks.isEmpty
             ? const Center(
-                child: Text("لا توجد أسئلة",
+                child: Text("لا توجد مسائل محفوظة",
                     style: TextStyle(fontSize: 24, fontFamily: "Zarids")))
             : ListView.builder(
                 itemCount: bookmarkProvider.bookmarks.length,
                 itemBuilder: (context, index) {
                   if (bookmarkProvider.bookmarks.isEmpty) {
-                    return const Text("لا توجد أسئلة",
+                    return const Text("لا توجد مسائل محفوظة",
                         style: TextStyle(fontSize: 24, fontFamily: "Zarids"));
                   }
                   return QuestionTile(

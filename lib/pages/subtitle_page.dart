@@ -23,14 +23,25 @@ class SubTitlePage extends StatelessWidget {
       textDirection: TextDirection.rtl,
       child: Scaffold(
           appBar: AppBar(
+            title: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("- ${mainTitles[index]['subTitles'][i]} -",
+                      style: TextStyle(
+                          fontSize: 22,
+                          color: Theme.of(context).colorScheme.onSurface)),
+                  Text("اختر المسألة",
+                      style: TextStyle(
+                          fontSize: 22,
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.bold))
+                ],
+              ),
+            ),
             centerTitle: true,
-            title: Text(mainTitles[index]['subTitles'][i],
-                style: TextStyle(
-                  fontFamily: "Zarids",
-                  fontSize: 30,
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.w400,
-                )),
+            toolbarHeight: 80,
           ),
           body: ListView.builder(
             itemCount: questions

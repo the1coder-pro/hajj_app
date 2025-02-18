@@ -415,14 +415,14 @@ class _QuestionPageState extends State<QuestionPage> {
                                 inactiveColor: Theme.of(context)
                                     .colorScheme
                                     .onSurface
-                                    .withOpacity(0.2),
+                                    .withValues(alpha: 0.2),
                                 value: position.inSeconds.toDouble(),
                                 thumbColor:
                                     Theme.of(context).colorScheme.primary,
                                 activeColor: Theme.of(context)
                                     .colorScheme
                                     .onSurface
-                                    .withOpacity(0.5),
+                                    .withValues(alpha: 0.5),
                                 onChanged: (value) {
                                   audioPlayer
                                       .seek(Duration(seconds: value.toInt()));

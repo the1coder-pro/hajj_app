@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:hajj_app/pages/extra_questions_page.dart';
 import 'package:hajj_app/pages/subtitle_page.dart';
 import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/components/search_delegate.dart';
@@ -84,34 +84,6 @@ class _InstructorPageState extends State<InstructorPage> {
 
   List<Map> generatedMainTitles = [];
 
-  List<Map> mainTitles = [
-    {"title": "المقدمة", "image": "1.png"},
-    {
-      "title": "مسائل",
-      "subTtiles": [
-        "وجوب الحج",
-        "شرائط وجوب حجة الإسلام",
-        "الاستطاعة",
-        "أقسام الحج والعمرة",
-        "مجمل عمرة وحج التمتع",
-        "مواقيت الإحرام",
-        "أحكام المواقيت",
-        "كيفية الإحرام"
-      ],
-      "image": "2.png"
-    },
-    {
-      "title": "محرمات الأحرام",
-      "subTtiles": ["الصيد البري", "الجماع", "كيفية الإحرام"],
-      "image": "3.png"
-    },
-    {"title": "محرمات الحرم", "image": "4.png"},
-    {"title": "أحكام الكفارة", "image": "5.png"},
-    {"title": "عمرة التمتع", "image": "6.png"},
-    {"title": "حج التمتع", "image": "7.png"},
-    {"title": "مسائل إضافية"}
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -124,55 +96,71 @@ class _InstructorPageState extends State<InstructorPage> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.instructor,
-              style: TextStyle(
-                fontFamily: "Zarids",
-                fontSize: 30,
-                color: Theme.of(context).colorScheme.onSurface,
-                fontWeight: FontWeight.w400,
-              )),
+          title: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("- ${widget.instructor} -",
+                    style: TextStyle(
+                        fontSize: 22,
+                        color: Theme.of(context).colorScheme.onSurface)),
+                Text("اختر القسم",
+                    style: TextStyle(
+                        fontSize: 22,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontWeight: FontWeight.bold))
+              ],
+            ),
+          ),
           centerTitle: true,
+          toolbarHeight: 80,
         ),
         body: Column(
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("تواصل مع الشيخ",
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: "Zarids")),
-                  const SizedBox(width: 10),
-                  // two buttons to contact the instructor
-                  IconButton.outlined(
-                    icon: Icon(CommunityMaterialIcons.whatsapp,
-                        color: Theme.of(context).colorScheme.primary),
-                    onPressed: () async {
-                      Uri url = Uri.parse("https://wa.me/+966506906007");
-                      // open link
-                      if (!await launchUrl(url)) {
-                        throw Exception('Could not launch $url');
-                      }
-                    },
-                  ),
-                  const SizedBox(width: 5),
+              child: Card.outlined(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text("تواصل مع الشيخ",
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "Zarids")),
+                      const SizedBox(width: 10),
+                      // two buttons to contact the instructor
+                      IconButton.outlined(
+                        icon: Icon(CommunityMaterialIcons.whatsapp,
+                            color: Theme.of(context).colorScheme.primary),
+                        onPressed: () async {
+                          Uri url = Uri.parse("https://wa.me/+966506906007");
+                          // open link
+                          if (!await launchUrl(url)) {
+                            throw Exception('Could not launch $url');
+                          }
+                        },
+                      ),
+                      const SizedBox(width: 5),
 
-                  IconButton.outlined(
-                    icon: Icon(Icons.phone_outlined,
-                        color: Theme.of(context).colorScheme.primary),
-                    onPressed: () async {
-                      Uri url = Uri.parse("tel:+966506906007");
-                      // open link
-                      if (!await launchUrl(url)) {
-                        throw Exception('Could not launch $url');
-                      }
-                    },
+                      IconButton.outlined(
+                        icon: Icon(Icons.phone_outlined,
+                            color: Theme.of(context).colorScheme.primary),
+                        onPressed: () async {
+                          Uri url = Uri.parse("tel:+966506906007");
+                          // open link
+                          if (!await launchUrl(url)) {
+                            throw Exception('Could not launch $url');
+                          }
+                        },
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
             Expanded(
@@ -195,7 +183,7 @@ class _InstructorPageState extends State<InstructorPage> {
                           color: Theme.of(context)
                               .colorScheme
                               .surfaceContainerHighest
-                              .withOpacity(0.5),
+                              .withValues(alpha: 0.5),
                           // color: const Color(0xFFe4e4e6),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30)),
@@ -210,18 +198,33 @@ class _InstructorPageState extends State<InstructorPage> {
                                         textDirection: TextDirection.rtl,
                                         child: Scaffold(
                                           appBar: AppBar(
-                                            title: Text(
-                                                generatedMainTitles[index]
-                                                    ['title'],
-                                                style: TextStyle(
-                                                  fontFamily: "Zarids",
-                                                  fontSize: 30,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurface,
-                                                  fontWeight: FontWeight.w400,
-                                                )),
+                                            title: Padding(
+                                              padding: const EdgeInsets.all(10),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Text(
+                                                      "- ${generatedMainTitles[index]['title']} -",
+                                                      style: TextStyle(
+                                                          fontSize: 22,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .onSurface)),
+                                                  Text("اختر القسم",
+                                                      style: TextStyle(
+                                                          fontSize: 22,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .onSurface,
+                                                          fontWeight:
+                                                              FontWeight.bold))
+                                                ],
+                                              ),
+                                            ),
                                             centerTitle: true,
+                                            toolbarHeight: 80,
                                           ),
                                           body: Padding(
                                             padding: const EdgeInsets.only(
@@ -243,7 +246,7 @@ class _InstructorPageState extends State<InstructorPage> {
                                                     color: Theme.of(context)
                                                         .colorScheme
                                                         .surfaceContainerHighest
-                                                        .withOpacity(0.5),
+                                                        .withValues(alpha: 0.5),
                                                     shape:
                                                         RoundedRectangleBorder(
                                                             borderRadius:
@@ -305,19 +308,7 @@ class _InstructorPageState extends State<InstructorPage> {
                                         )),
                                     transition: Transition.leftToRight);
                               } else {
-                                Get.to(() => Scaffold(
-                                      appBar: AppBar(
-                                        title: const Text("مسائل إضافية",
-                                            style: TextStyle(
-                                              fontFamily: "Zarids",
-                                              fontSize: 30,
-                                              fontWeight: FontWeight.w400,
-                                            )),
-                                      ),
-                                      body: const Column(
-                                        children: [],
-                                      ),
-                                    ));
+                                Get.to(() => ExtraQuestionsPage());
                               }
                             },
                             child: Center(

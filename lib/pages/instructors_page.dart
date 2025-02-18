@@ -27,202 +27,85 @@ Future<List<String>> getInstructorsNames() async {
       instructorsNames.add(data[i]['Instructor']);
     }
   }
-  print(instructorsNames);
+  debugPrint(instructorsNames.toString());
   return instructorsNames;
 }
 
-// var _intructorsNames = <String>[
-//   "شيخ جعفر العبدالكريم",
-//   "شيخ عبدالله العبدالله",
-//   "شيخ علي الدهنين"
-// ];
-
 class InstructorsPage extends StatefulWidget {
-  const InstructorsPage({
-    super.key,
-  });
+  const InstructorsPage({super.key});
 
   @override
   State<InstructorsPage> createState() => _InstructorsPageState();
 }
 
 class _InstructorsPageState extends State<InstructorsPage> {
-  String searchQuery = "";
-  final searchController = TextEditingController();
-
   final List<String> _intructorsNames = [];
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    return FutureBuilder(
-        future: getInstructorsNames(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          if (snapshot.hasError) {
-            print(snapshot.error);
-            return const Center(
-              child: Text("حدث خطأ"),
-            );
-          }
-          _intructorsNames.addAll(snapshot.data as List<String>);
-          return _buildInstructorsList(themeProvider);
-        });
-  }
-  //     child: Column(
-  //       children: [
-  //         // search bar
-  //         Padding(
-  //           padding: const EdgeInsets.all(20),
-  //           child: TextField(
-  //             controller: searchController,
-  //             onChanged: (value) {
-  //               setState(() {
-  //                 searchQuery = value;
-  //               });
-  //             },
-  //             style: const TextStyle(
-  //               fontFamily: "Zarids",
-  //               fontSize: 20,
-  //             ),
-  //             decoration: InputDecoration(
-  //               hintText: "بحث",
-  //               hintStyle: const TextStyle(
-  //                 fontFamily: "Zarids",
-  //                 fontSize: 20,
-  //               ),
-  //               prefixIcon: const Icon(Icons.search),
-  //               border: OutlineInputBorder(
-  //                 borderRadius: BorderRadius.circular(15),
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //         if (searchQuery.isNotEmpty &&
-  //             !_intructorsNames.any((element) =>
-  //                 element.toLowerCase().contains(searchQuery.toLowerCase())))
-  //           Padding(
-  //             padding: const EdgeInsets.all(8.0),
-  //             child: Text(
-  //               "لا يوجد نتائج",
-  //               style: TextStyle(
-  //                   fontFamily: "Zarids",
-  //                   fontSize: 24,
-  //                   color: themeProvider.themeMode == ThemeMode.dark
-  //                       ? Colors.white
-  //                       : Colors.black),
-  //             ),
-  //           ),
-
-  //         Expanded(
-  //           flex: 3,
-  //           child: ListView.builder(
-  //             itemCount: _intructorsNames.length,
-  //             itemBuilder: (context, i) {
-  //               // only show the instructors that match the search query and if there is no match show a message
-  //               if (searchQuery.isNotEmpty &&
-  //                   !_intructorsNames[i].contains(searchQuery)) {
-  //                 return const SizedBox.shrink();
-  //               }
-
-  //               return ListTile(
-  //                 onTap: () {
-  //                   Get.to(() => InstructorPage(_intructorsNames[i]),
-  //                       transition: Transition.leftToRight);
-  //                 },
-  //                 trailing: const Icon(Icons.arrow_forward_ios),
-  //                 title: Text(_intructorsNames[i],
-  //                     style: const TextStyle(
-  //                       fontFamily: "Zarids",
-  //                       fontSize: 24,
-  //                     )),
-  //               );
-  //             },
-  //           ),
-  //         ),
-  //         const ContactFooter(),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  Widget _buildInstructorsList(ThemeProvider themeProvider) {
-    return Column(
-      children: [
-        // search bar
-        Padding(
-          padding: const EdgeInsets.all(20),
-          child: TextField(
-            controller: searchController,
-            onChanged: (value) {
-              setState(() {
-                searchQuery = value;
-              });
-            },
-            style: const TextStyle(
-              fontFamily: "Zarids",
-              fontSize: 20,
-            ),
-            decoration: InputDecoration(
-              hintText: "بحث",
-              hintStyle: const TextStyle(
-                fontFamily: "Zarids",
-                fontSize: 20,
-              ),
-              prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-            ),
-          ),
-        ),
-        if (searchQuery.isNotEmpty &&
-            !_intructorsNames.any((element) =>
-                element.toLowerCase().contains(searchQuery.toLowerCase())))
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              "لا يوجد نتائج",
-              style: TextStyle(
-                  fontFamily: "Zarids",
-                  fontSize: 24,
-                  color: themeProvider.themeMode == ThemeMode.dark
-                      ? Colors.white
-                      : Colors.black),
-            ),
-          ),
-        Expanded(
-          flex: 3,
-          child: ListView.builder(
-            itemCount: _intructorsNames.length,
-            itemBuilder: (context, i) {
-              // only show the instructors that match the search query and if there is no match show a message
-              if (searchQuery.isNotEmpty &&
-                  !_intructorsNames[i].contains(searchQuery)) {
-                return const SizedBox.shrink();
-              }
-
-              return ListTile(
-                onTap: () {
-                  Get.to(() => InstructorPage(_intructorsNames[i]),
-                      transition: Transition.leftToRight);
-                },
-                trailing: const Icon(Icons.arrow_forward_ios),
-                title: Text(_intructorsNames[i],
-                    style: const TextStyle(
-                      fontFamily: "Zarids",
-                      fontSize: 24,
-                    )),
+    var themeProvider = Provider.of<ThemeProvider>(context);
+    return Scaffold(
+        body: FutureBuilder(
+          future: getInstructorsNames(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
               );
-            },
-          ),
+            }
+            if (snapshot.hasError) {
+              debugPrint(snapshot.error.toString());
+              return const Center(
+                child: Text("حدث خطأ"),
+              );
+            }
+            _intructorsNames.addAll(snapshot.data as List<String>);
+            return CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: <Widget>[
+                SliverAppBar(
+                  pinned: false,
+                  snap: false,
+                  floating: true,
+                  stretchTriggerOffset: 300.0,
+                  expandedHeight: 200.0,
+                  flexibleSpace: FlexibleSpaceBar(
+                    // centerTitle: true,
+                    // title: Text('المعلمين'),
+                    background: Image.asset(
+                      themeProvider.themeMode == ThemeMode.dark
+                          ? "assets/main_banner_dark.jpg"
+                          : "assets/main_banner_light.jpg",
+                      fit: BoxFit.fitWidth,
+                    ),
+                  ),
+                ),
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                      childCount: _intructorsNames.length,
+                      (BuildContext context, int index) {
+                    return ListTile(
+                      onTap: () {
+                        Get.to(() => InstructorPage(_intructorsNames[index]),
+                            transition: Transition.leftToRight);
+                      },
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      title: Text(_intructorsNames[index],
+                          style: const TextStyle(
+                            fontFamily: "Zarids",
+                            fontSize: 24,
+                          )),
+                    );
+                  }),
+                ),
+              ],
+            );
+          },
         ),
-        const ContactFooter(),
-      ],
-    );
+        bottomNavigationBar: BottomAppBar(
+            notchMargin: 0,
+            padding: EdgeInsets.zero,
+            height: 100,
+            child: ContactFooter()));
   }
 }

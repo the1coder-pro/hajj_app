@@ -15,11 +15,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
   var pageType = PageType.instructors;
 
   List<Map<PageType, String>> pageTitles = [
@@ -31,17 +26,23 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    var currentPageTitle = pageTitles
+        .where((element) => element.keys.first == pageType)
+        .first
+        .values
+        .first;
+    bool isHome = pageType == PageType.instructors;
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
           appBar: AppBar(
             centerTitle: true,
+            elevation: 0,
+            backgroundColor:
+                Theme.of(context).colorScheme.surface.withValues(alpha: 0),
             title: Text(
-              pageTitles
-                  .where((element) => element.keys.first == pageType)
-                  .first
-                  .values
-                  .first,
+              isHome ? "" : currentPageTitle,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
                 fontFamily: "Zarids",
@@ -60,6 +61,7 @@ class _HomePageState extends State<HomePage> {
               },
             ),
           ),
+          extendBodyBehindAppBar: isHome,
           drawer: Drawer(
             child: ListView(
               padding: EdgeInsets.zero,
@@ -145,12 +147,12 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          body: selectedPage(pageType)),
+          body: currentSelectedPage(pageType)),
     );
   }
 }
 
-Widget selectedPage(PageType page) {
+Widget currentSelectedPage(PageType page) {
   switch (page) {
     case PageType.instructors:
       return const InstructorsPage();
@@ -160,7 +162,5 @@ Widget selectedPage(PageType page) {
       return const SettingsPage();
     case PageType.bookmarks:
       return const BookmarksPage();
-    default:
-      return const InstructorsPage();
   }
 }
