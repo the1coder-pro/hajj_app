@@ -99,6 +99,7 @@ class ContactFooter extends StatelessWidget {
             ],
           ),
           const SizedBox(width: 90),
+          const SizedBox(height: 50),
         ],
       ),
     );
