@@ -108,6 +108,7 @@ class _InstructorsPageState extends State<InstructorsPage> {
               flexibleSpace: FlexibleSpaceBar(
                 // centerTitle: true,
                 // title: Text('المعلمين'),
+
                 background: Image.asset(
                   themeProvider.themeMode == ThemeMode.dark
                       ? "assets/main_banner_dark.jpg"
@@ -120,6 +121,7 @@ class _InstructorsPageState extends State<InstructorsPage> {
               child: Padding(
                 padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
                 child: Stack(
+                  // alignment: Alignment.center,
                   alignment: Alignment.center,
                   children: [
                     ClipRRect(
@@ -132,45 +134,53 @@ class _InstructorsPageState extends State<InstructorsPage> {
                         width: double.infinity,
                       ),
                     ),
-                    Positioned(
-                      right: 15,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary,
-                          borderRadius: BorderRadius.circular(15),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.green,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: IconButton(
+                            icon: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Icon(CommunityMaterialIcons.whatsapp,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary),
+                            ),
+                            onPressed: () async {
+                              Uri url =
+                                  Uri.parse("https://wa.me/+966506906007");
+                              // open link
+                              if (!await launchUrl(url)) {
+                                throw Exception('Could not launch $url');
+                              }
+                            },
+                          ),
                         ),
-                        child: IconButton(
-                          icon: Icon(CommunityMaterialIcons.whatsapp,
-                              color: Theme.of(context).colorScheme.onPrimary),
-                          onPressed: () async {
-                            Uri url = Uri.parse("https://wa.me/+966506906007");
-                            // open link
-                            if (!await launchUrl(url)) {
-                              throw Exception('Could not launch $url');
-                            }
-                          },
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.green,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: IconButton(
+                            icon: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Icon(Icons.phone_outlined,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary),
+                            ),
+                            onPressed: () async {
+                              Uri url = Uri.parse("tel:+966506906007");
+                              // open link
+                              if (!await launchUrl(url)) {
+                                throw Exception('Could not launch $url');
+                              }
+                            },
+                          ),
                         ),
-                      ),
-                    ),
-                    Positioned(
-                      left: 15,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: IconButton(
-                          icon: Icon(Icons.phone_outlined,
-                              color: Theme.of(context).colorScheme.onPrimary),
-                          onPressed: () async {
-                            Uri url = Uri.parse("tel:+966506906007");
-                            // open link
-                            if (!await launchUrl(url)) {
-                              throw Exception('Could not launch $url');
-                            }
-                          },
-                        ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
