@@ -1,6 +1,6 @@
 // search delegate class for questions
 import 'package:flutter/material.dart';
-import 'package:hajj_app/components/question_tile.dart';
+import 'package:get/get.dart';
 import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/pages/question_page.dart';
 
@@ -70,8 +70,17 @@ class QuestionSearch extends SearchDelegate<String> {
       textDirection: TextDirection.rtl,
       child: ListView.builder(
           itemCount: suggestionList.length,
-          itemBuilder: (context, index) =>
-              QuestionTile(question: suggestionList[index])),
+          itemBuilder: (context, index) => ListTile(
+                title: Text(
+                  suggestionList[index].question!,
+                  style: const TextStyle(fontFamily: "Zarids", fontSize: 24),
+                ),
+                onTap: () {
+                  Get.to(() => QuestionPage(suggestionList[index]),
+                      transition: Transition.rightToLeft,
+                      routeName: '/question/${suggestionList[index].no}');
+                },
+              )),
     );
   }
 
@@ -98,9 +107,9 @@ class QuestionSearch extends SearchDelegate<String> {
             style: const TextStyle(fontFamily: "Zarids", fontSize: 24),
           ),
           onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return QuestionPage(suggestionList[index]);
-            }));
+            Get.to(() => QuestionPage(suggestionList[index]),
+                transition: Transition.rightToLeft,
+                routeName: '/question/${suggestionList[index].no}');
           },
         ),
       ),

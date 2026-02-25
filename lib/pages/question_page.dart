@@ -1,24 +1,33 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:hajj_app/components/contact_footer.dart';
 import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/settings.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:widgets_to_image/widgets_to_image.dart';
+import 'package:http/http.dart' as http;
 
 class QuestionPage extends StatefulWidget {
-  const QuestionPage(this.question, {super.key});
+  const QuestionPage(this.questionData, {super.key});
 
-  final Question question;
+  final dynamic questionData;
 
   @override
   State<QuestionPage> createState() => _QuestionPageState();
 }
 
 class _QuestionPageState extends State<QuestionPage> {
+  Question? question;
+  bool isLoading = true;
   bool isPlaying = false;
 
   final AudioPlayer audioPlayer = AudioPlayer();
@@ -31,9 +40,10 @@ class _QuestionPageState extends State<QuestionPage> {
   bool isAudioFileThere = false;
 
   Future<void> initAudio() async {
+    if (question == null) return;
     bool result = true;
     try {
-      await audioPlayer.setAsset("assets/audiofiles/${widget.question.no}.mp3");
+      await audioPlayer.setAsset("assets/audiofiles/${question!.no}.mp3");
     } catch (e) {
       debugPrint(e.toString());
 
@@ -44,10 +54,45 @@ class _QuestionPageState extends State<QuestionPage> {
     });
   }
 
+  Future<void> fetchQuestion(int id) async {
+    try {
+      final response = await http.get(Uri.parse(
+          "https://opensheet.elk.sh/1KxJKKxKBcEd0lguKAbK-UkGIqzAcOXs5is3zNiTnFgY/1"));
+      var data = jsonDecode(utf8.decode(response.bodyBytes));
+      for (var i = 0; i < data.length; i++) {
+        if (data[i]['no'].toString() == id.toString()) {
+          setState(() {
+            question = Question.fromJson(data[i]);
+            isLoading = false;
+          });
+          initAudio();
+          break;
+        }
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
   @override
   void initState() {
-    initAudio();
     super.initState();
+    dynamic data = widget.questionData;
+    if ((data == null || data.toString() == 'null') &&
+        Get.parameters.containsKey('id')) {
+      data = int.tryParse(Get.parameters['id'] ?? '');
+    }
+
+    if (data is Question) {
+      question = data;
+      isLoading = false;
+      initAudio();
+    } else if (data is int) {
+      fetchQuestion(data);
+    } else if (data is String) {
+      int? id = int.tryParse(data);
+      if (id != null) fetchQuestion(id);
+    }
   }
 
   @override
@@ -56,11 +101,46 @@ class _QuestionPageState extends State<QuestionPage> {
         Provider.of<QuestionPrefsProvider>(context, listen: false);
     final bookmarkProvider = Provider.of<BookmarkProvider>(context);
 
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
           appBar: AppBar(
             actions: [
+              IconButton(
+                  icon: const Icon(Icons.share_outlined),
+                  onPressed: () async {
+                    try {
+                      // final bytes = await controller.capture();
+                      // if (bytes != null) {
+                      //   final directory = await getTemporaryDirectory();
+                      //   // final file = File('${directory.path}/question.png');
+                      //   // await file.writeAsBytes(bytes);
+                      // }
+
+                      await Share.share("""
+${question!.mainTitle} - ${question!.subTitle}
+
+${question!.question} 
+
+${question!.answerText}
+
+رابط السؤال:
+${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.web.app/question/${question!.no}")}
+
+من تطبيق حج التمتع في سؤال وجواب
+""");
+                    } catch (e) {
+                      debugPrint(e.toString());
+                    }
+                  }),
               IconButton(
                 icon: const Icon(Icons.video_settings),
                 onPressed: () {
@@ -71,14 +151,14 @@ class _QuestionPageState extends State<QuestionPage> {
                 padding: const EdgeInsets.only(left: 8),
                 child: IconButton(
                   // if the question is bookmarked, show the bookmarked icon if not show the normal icon
-                  icon: bookmarkProvider.bookmarks.contains(widget.question)
+                  icon: bookmarkProvider.bookmarks.contains(question)
                       ? const Icon(Icons.bookmark)
                       : const Icon(Icons.bookmark_border),
                   onPressed: () {
-                    if (bookmarkProvider.bookmarks.contains(widget.question)) {
-                      bookmarkProvider.removeBookmark(widget.question);
+                    if (bookmarkProvider.bookmarks.contains(question)) {
+                      bookmarkProvider.removeBookmark(question!);
                     } else {
-                      bookmarkProvider.addBookmark(widget.question);
+                      bookmarkProvider.addBookmark(question!);
                     }
                   },
                 ),
@@ -89,7 +169,11 @@ class _QuestionPageState extends State<QuestionPage> {
                 IconButton(
               onPressed: () {
                 audioPlayer.pause();
-                Navigator.pop(context);
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                } else {
+                  Get.offAllNamed('/');
+                }
               },
               icon: const Icon(Icons.arrow_back),
             ),
@@ -98,7 +182,7 @@ class _QuestionPageState extends State<QuestionPage> {
             children: [
               WidgetsToImage(
                 controller: controller,
-                child: QuestionImageTemplate(widget: widget),
+                child: QuestionImageTemplate(question: question!),
               ),
               Container(
                 color: Theme.of(context).colorScheme.surface,
@@ -114,7 +198,7 @@ class _QuestionPageState extends State<QuestionPage> {
                               child: RichText(
                                 text: TextSpan(children: [
                                   TextSpan(
-                                      text: "${widget.question.mainTitle!} / ",
+                                      text: "${question!.mainTitle!} / ",
                                       style: Theme.of(context)
                                           .textTheme
                                           .displaySmall!
@@ -124,7 +208,7 @@ class _QuestionPageState extends State<QuestionPage> {
                                                   .colorScheme
                                                   .primary)),
                                   TextSpan(
-                                      text: widget.question.subTitle,
+                                      text: question!.subTitle,
                                       style: Theme.of(context)
                                           .textTheme
                                           .displaySmall!
@@ -142,7 +226,7 @@ class _QuestionPageState extends State<QuestionPage> {
                         padding: const EdgeInsets.all(8.0),
                         child: Align(
                           alignment: Alignment.center,
-                          child: Text(widget.question.question!.trim(),
+                          child: Text(question!.question!.trim(),
                               textAlign: TextAlign.right,
                               style: Theme.of(context)
                                   .textTheme
@@ -190,8 +274,7 @@ class _QuestionPageState extends State<QuestionPage> {
                                 scrollDirection: Axis.vertical,
                                 child: Consumer<QuestionPrefsProvider>(
                                   builder: (context, provider, _) => Text(
-                                      widget.question.answerText ??
-                                          "لا يوجد نص جواب",
+                                      question!.answerText ?? "لا يوجد نص جواب",
                                       textAlign: TextAlign.right,
                                       style: TextStyle(
                                           fontFamily: "Zarids",
@@ -457,10 +540,10 @@ class _QuestionPageState extends State<QuestionPage> {
 class QuestionImageTemplate extends StatelessWidget {
   const QuestionImageTemplate({
     super.key,
-    required this.widget,
+    required this.question,
   });
 
-  final QuestionPage widget;
+  final Question question;
 
   @override
   Widget build(BuildContext context) {
@@ -477,14 +560,14 @@ class QuestionImageTemplate extends StatelessWidget {
                 child: RichText(
                   text: TextSpan(children: [
                     TextSpan(
-                        text: "${widget.question.mainTitle!} - ",
+                        text: "${question.mainTitle!} - ",
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.secondary,
                             fontWeight: FontWeight.bold,
                             fontFamily: "Zarids",
                             fontSize: 25)),
                     TextSpan(
-                        text: widget.question.subTitle,
+                        text: question.subTitle,
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.primary,
                             fontWeight: FontWeight.bold,
@@ -496,7 +579,7 @@ class QuestionImageTemplate extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(10),
               child: AutoSizeText(
-                widget.question.question!.trim(),
+                question.question!.trim(),
                 minFontSize: 28,
                 maxLines: 3,
                 style: TextStyle(
@@ -512,7 +595,7 @@ class QuestionImageTemplate extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(10),
                 child: AutoSizeText(
-                  widget.question.answerText!,
+                  question.answerText!,
                   maxLines: 8,
                   minFontSize: 25,
                   textAlign: TextAlign.right,

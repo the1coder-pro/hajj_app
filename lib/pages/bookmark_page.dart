@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hajj_app/components/question_tile.dart';
 import 'package:hajj_app/pages/question_page.dart';
 import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/settings.dart';
@@ -31,8 +30,19 @@ class _BookmarksPageState extends State<BookmarksPage> {
                     return const Text("لا توجد مسائل محفوظة",
                         style: TextStyle(fontSize: 24, fontFamily: "Zarids"));
                   }
-                  return QuestionTile(
-                    question: bookmarkProvider.bookmarks[index],
+                  return ListTile(
+                    title: Text(
+                      bookmarkProvider.bookmarks[index].question!,
+                      style:
+                          const TextStyle(fontFamily: "Zarids", fontSize: 24),
+                    ),
+                    onTap: () {
+                      Get.to(
+                          () => QuestionPage(bookmarkProvider.bookmarks[index]),
+                          transition: Transition.rightToLeft,
+                          routeName:
+                              '/question/${bookmarkProvider.bookmarks[index].no}');
+                    },
                   );
                 },
               ));
@@ -127,7 +137,9 @@ class _Bookmarks2PageState extends State<Bookmarks2Page> {
                                   .bookmarkProvider.bookmarks[index].question ==
                               widget.questions[i].question) {
                             Get.to(() => QuestionPage(widget.questions[i]),
-                                transition: Transition.rightToLeft);
+                                transition: Transition.rightToLeft,
+                                routeName:
+                                    '/question/${widget.questions[i].no}');
                           }
                         }
                       },

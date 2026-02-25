@@ -33,7 +33,10 @@ class QuestionTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(15),
               onTap: () {
                 Get.to(() => QuestionPage(question!),
-                    transition: Transition.downToUp);
+                    transition: Transition.downToUp,
+                    routeName: '/question/${question!.no}');
+                // Get.to(() => QuestionPage(question!),
+                //     transition: Transition.downToUp);
               },
               child: Container(
                   decoration: BoxDecoration(

@@ -4,6 +4,7 @@ import 'package:hajj_app/pages/ads_page.dart';
 import 'package:hajj_app/pages/bookmark_page.dart';
 import 'package:hajj_app/pages/home_page.dart';
 import 'package:hajj_app/pages/settings_page.dart';
+import 'package:hajj_app/pages/question_page.dart';
 import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/settings.dart';
 import 'package:hajj_app/color_schemes.g.dart';
@@ -60,34 +61,44 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => QuestionPrefsProvider()),
       ],
       child: Consumer3<ThemeProvider, BookmarkProvider, QuestionPrefsProvider>(
-        builder:
-            (context, themeProvider, bookmarkProvider, fontSizeProvider, _) =>
-                GetMaterialApp(
-                    title: 'حج التمتع',
-                    debugShowCheckedModeBanner: false,
-                    themeMode: themeProvider.themeMode,
-                    theme: ThemeData(
-                        colorScheme: lightColorScheme,
-                        useMaterial3: true,
-                        textTheme: textTheme),
-                    darkTheme: ThemeData(
-                      appBarTheme: const AppBarTheme(
-                          titleTextStyle: TextStyle(
-                        fontFamily: "Zarids",
-                        fontSize: 35,
-                      )),
-                      textTheme: textTheme,
-                      colorScheme: darkColorScheme,
-                      useMaterial3: true,
-                    ),
-                    routes: {
-                      HomePage.route: (context) => const HomePage(),
-                      SettingsPage.route: (context) => const SettingsPage(),
-                      AdvertismentsPage.route: (context) =>
-                          const AdvertismentsPage(),
-                      BookmarksPage.route: (context) => const BookmarksPage(),
-                    },
-                    initialRoute: "/"),
+        builder: (context, themeProvider, bookmarkProvider, fontSizeProvider,
+                _) =>
+            GetMaterialApp(
+                title: 'حج التمتع',
+                debugShowCheckedModeBanner: false,
+                themeMode: themeProvider.themeMode,
+                theme: ThemeData(
+                    colorScheme: lightColorScheme,
+                    useMaterial3: true,
+                    textTheme: textTheme),
+                darkTheme: ThemeData(
+                  appBarTheme: const AppBarTheme(
+                      titleTextStyle: TextStyle(
+                    fontFamily: "Zarids",
+                    fontSize: 35,
+                  )),
+                  textTheme: textTheme,
+                  colorScheme: darkColorScheme,
+                  useMaterial3: true,
+                ),
+                getPages: [
+                  GetPage(name: HomePage.route, page: () => const HomePage()),
+                  GetPage(
+                      name: SettingsPage.route,
+                      page: () => const SettingsPage()),
+                  GetPage(
+                      name: AdvertismentsPage.route,
+                      page: () => const AdvertismentsPage()),
+                  GetPage(
+                      name: BookmarksPage.route,
+                      page: () => const BookmarksPage()),
+                  GetPage(
+                      name: '/question/:id',
+                      page: () => QuestionPage(
+                          int.tryParse(Get.parameters['id'] ?? '')),
+                      transition: Transition.rightToLeft),
+                ],
+                initialRoute: "/"),
       ),
     );
   }
