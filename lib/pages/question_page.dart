@@ -126,9 +126,11 @@ class _QuestionPageState extends State<QuestionPage> {
   void didUpdateWidget(covariant QuestionPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.questionData != oldWidget.questionData) {
-      setState(() {
-        isLoading = true;
-      });
+      if (widget.questionData is! Question) {
+        setState(() {
+          isLoading = true;
+        });
+      }
       _initQuestionData();
     }
   }

@@ -4,9 +4,11 @@ import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ContactFooter extends StatelessWidget {
-  const ContactFooter({
+  ContactFooter({
     super.key,
+    this.isLargeScreen = false,
   });
+  bool isLargeScreen = false;
 
   @override
   Widget build(BuildContext context) {
@@ -16,90 +18,97 @@ class ContactFooter extends StatelessWidget {
       padding: const EdgeInsets.all(10),
       child: Column(
         children: <Widget>[
-          Text(
-            'للتواصل معنا',
-            style: TextStyle(
-                fontFamily: "Zarids",
-                fontSize: 20,
-                color: Theme.of(context).colorScheme.onSecondaryContainer),
+          Align(
+            alignment: AlignmentGeometry.centerRight,
+            child: Text(
+              'للتواصل معنا',
+              style: TextStyle(
+                  fontFamily: "Zarids",
+                  fontSize: 20,
+                  color: Theme.of(context).colorScheme.onSecondaryContainer),
+            ),
           ),
           const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              // TODO: Work on Theme
-              // switch to theme switch
-              // Switch(
-              //   value: themeProvider.themeMode == ThemeMode.dark,
-              //   onChanged: (isOn) {
-              //     themeProvider.toggleTheme(isOn);
-              //   },
-              // ),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                // TODO: Work on Theme
+                // switch to theme switch
+                // Switch(
+                //   value: themeProvider.themeMode == ThemeMode.dark,
+                //   onChanged: (isOn) {
+                //     themeProvider.toggleTheme(isOn);
+                //   },
+                // ),
 
-              const SizedBox(width: 5),
-              const ContactButton(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Color(0xFF2b7b7a),
-                  icon: CommunityMaterialIcons.face_agent,
-                  link: 'https://wa.me/+966500155187'),
-              const SizedBox(width: 5),
-              const ContactButton(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                icon: CommunityMaterialIcons.facebook,
-                link: 'https://www.facebook.com/hamlah.alkhalaf/?locale=ar_AR',
-              ),
-              const SizedBox(width: 5),
-              IconButton(
-                style: ButtonStyle(
-                  shape: WidgetStateProperty.all(
-                    RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                  backgroundColor: WidgetStateProperty.all(Colors.yellow),
-                ),
-                color: Colors.white,
-                onPressed: () async {
-                  Uri url = Uri.parse(
-                      'https://www.snapchat.com/add/h_alkalaf?sender_web_id=6152c6b7-009d-4f62-b453-490df90fe35e&device_type=desktop&is_copy_url=true');
-                  // open link
-                  if (!await launchUrl(url)) {
-                    throw Exception('Could not launch $url');
-                  }
-                },
-                icon: const Stack(children: [
-                  Icon(FontAwesome.snapchat_ghost, color: Colors.white),
-                  Icon(
-                    CommunityMaterialIcons.snapchat,
-                    color: Colors.black,
-                  ),
-                ]),
-              ),
-              const SizedBox(width: 5),
-              const ContactButton(
-                  backgroundColor: Colors.pink,
+                const SizedBox(width: 5),
+                const ContactButton(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Color(0xFF2b7b7a),
+                    icon: CommunityMaterialIcons.face_agent,
+                    link: 'https://wa.me/+966500155187'),
+                const SizedBox(width: 5),
+                const ContactButton(
+                  backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
-                  icon: CommunityMaterialIcons.instagram,
-                  link: 'https://www.instagram.com/h_alkalaf/?hl=en'),
-              const SizedBox(width: 5),
-              const ContactButton(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.red,
-                  icon: CommunityMaterialIcons.youtube,
-                  link: 'https://www.youtube.com/@halkalaf'),
-              const SizedBox(width: 10),
-              Text(
-                "@h_alkhalaf",
-                textDirection: TextDirection.ltr,
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSecondaryContainer,
-                    fontSize: 15),
-              )
-            ],
+                  icon: CommunityMaterialIcons.facebook,
+                  link:
+                      'https://www.facebook.com/hamlah.alkhalaf/?locale=ar_AR',
+                ),
+                const SizedBox(width: 5),
+                IconButton(
+                  style: ButtonStyle(
+                    shape: WidgetStateProperty.all(
+                      RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                    backgroundColor: WidgetStateProperty.all(Colors.yellow),
+                  ),
+                  color: Colors.white,
+                  onPressed: () async {
+                    Uri url = Uri.parse(
+                        'https://www.snapchat.com/add/h_alkalaf?sender_web_id=6152c6b7-009d-4f62-b453-490df90fe35e&device_type=desktop&is_copy_url=true');
+                    // open link
+                    if (!await launchUrl(url)) {
+                      throw Exception('Could not launch $url');
+                    }
+                  },
+                  icon: const Stack(children: [
+                    Icon(FontAwesome.snapchat_ghost, color: Colors.white),
+                    Icon(
+                      CommunityMaterialIcons.snapchat,
+                      color: Colors.black,
+                    ),
+                  ]),
+                ),
+                const SizedBox(width: 5),
+                const ContactButton(
+                    backgroundColor: Colors.pink,
+                    foregroundColor: Colors.white,
+                    icon: CommunityMaterialIcons.instagram,
+                    link: 'https://www.instagram.com/h_alkalaf/?hl=en'),
+                const SizedBox(width: 5),
+                const ContactButton(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.red,
+                    icon: CommunityMaterialIcons.youtube,
+                    link: 'https://www.youtube.com/@halkalaf'),
+                const SizedBox(width: 10),
+                Text(
+                  "@h_alkhalaf",
+                  textDirection: TextDirection.ltr,
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                      fontSize: 15),
+                )
+              ],
+            ),
           ),
-          const SizedBox(width: 90),
-          const SizedBox(height: 50),
+          if (!isLargeScreen) const SizedBox(height: 50),
+          // const SizedBox(width: 90),
         ],
       ),
     );

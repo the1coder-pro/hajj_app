@@ -94,6 +94,7 @@ class _InstructorsPageState extends State<InstructorsPage> {
   @override
   Widget build(BuildContext context) {
     var themeProvider = Provider.of<ThemeProvider>(context);
+    bool isLargeScreen = MediaQuery.of(context).size.width >= 800;
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -105,85 +106,105 @@ class _InstructorsPageState extends State<InstructorsPage> {
               snap: false,
               floating: true,
               stretchTriggerOffset: 300.0,
-              expandedHeight: 200.0,
+              expandedHeight: isLargeScreen ? 150.0 : 200.0,
               flexibleSpace: FlexibleSpaceBar(
                 // centerTitle: true,
                 // title: Text('المعلمين'),
 
-                background: Image.asset(
-                  themeProvider.themeMode == ThemeMode.dark
-                      ? "assets/main_banner_dark.jpg"
-                      : "assets/main_banner_light.jpg",
-                  fit: BoxFit.fitWidth,
+                background: Center(
+                  child: Container(
+                    // rounded
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all()),
+                    constraints: BoxConstraints(
+                        maxWidth: isLargeScreen ? 600 : double.infinity),
+                    child: Image.asset(
+                      themeProvider.themeMode == ThemeMode.dark
+                          ? "assets/main_banner_dark.jpg"
+                          : "assets/main_banner_light.jpg",
+                      fit: BoxFit.fitWidth,
+                      width: double.infinity,
+                    ),
+                  ),
                 ),
               ),
             ),
             SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
-                child: Stack(
-                  // alignment: Alignment.center,
-                  alignment: Alignment.center,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: Image.asset(
-                        themeProvider.themeMode == ThemeMode.dark
-                            ? "assets/contact_banner_dark.jpg"
-                            : "assets/contact_banner_light.jpg",
-                        fit: BoxFit.fitWidth,
-                        width: double.infinity,
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                      maxWidth: isLargeScreen ? 600 : double.infinity),
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.only(left: 15, right: 15, top: 10),
+                    child: Stack(
+                      // alignment: Alignment.center,
+                      alignment: Alignment.center,
                       children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: IconButton(
-                            icon: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Icon(CommunityMaterialIcons.whatsapp,
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary),
-                            ),
-                            onPressed: () async {
-                              Uri url =
-                                  Uri.parse("https://wa.me/+966506906007");
-                              // open link
-                              if (!await launchUrl(url)) {
-                                throw Exception('Could not launch $url');
-                              }
-                            },
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Image.asset(
+                            themeProvider.themeMode == ThemeMode.dark
+                                ? "assets/contact_banner_dark.jpg"
+                                : "assets/contact_banner_light.jpg",
+                            fit: BoxFit.fitWidth,
+                            width: double.infinity,
                           ),
                         ),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: IconButton(
-                            icon: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Icon(Icons.phone_outlined,
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.green,
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: IconButton(
+                                icon: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Icon(CommunityMaterialIcons.whatsapp,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary),
+                                ),
+                                onPressed: () async {
+                                  Uri url =
+                                      Uri.parse("https://wa.me/+966506906007");
+                                  // open link
+                                  if (!await launchUrl(url)) {
+                                    throw Exception('Could not launch $url');
+                                  }
+                                },
+                              ),
                             ),
-                            onPressed: () async {
-                              Uri url = Uri.parse("tel:+966506906007");
-                              // open link
-                              if (!await launchUrl(url)) {
-                                throw Exception('Could not launch $url');
-                              }
-                            },
-                          ),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.green,
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: IconButton(
+                                icon: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Icon(Icons.phone_outlined,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary),
+                                ),
+                                onPressed: () async {
+                                  Uri url = Uri.parse("tel:+966506906007");
+                                  // open link
+                                  if (!await launchUrl(url)) {
+                                    throw Exception('Could not launch $url');
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -253,8 +274,8 @@ class _InstructorsPageState extends State<InstructorsPage> {
                                               left: 10, right: 10),
                                           child: GridView.builder(
                                             gridDelegate:
-                                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                              crossAxisCount: 2,
+                                                const SliverGridDelegateWithMaxCrossAxisExtent(
+                                              maxCrossAxisExtent: 250,
                                             ),
                                             itemCount:
                                                 generatedMainTitles[index]
@@ -357,14 +378,15 @@ class _InstructorsPageState extends State<InstructorsPage> {
                   },
                   childCount: generatedMainTitles.length,
                 ),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 250,
                 ),
               ),
             ),
-            SliverToBoxAdapter(
-              child: ContactFooter(),
-            ),
+            if (!isLargeScreen)
+              SliverToBoxAdapter(
+                child: ContactFooter(),
+              ),
           ],
         ),
         floatingActionButton: FloatingActionButton(
@@ -533,14 +555,21 @@ class _LargeScreenSubtitlesPageState extends State<LargeScreenSubtitlesPage> {
             if (_selectedQuestion != null)
               Expanded(
                 flex: 2,
-                child: QuestionPage(
-                  _selectedQuestion!,
-                  showAppBar: false,
-                  onBack: () {
-                    setState(() {
-                      _selectedQuestion = null; // Close the details pane
-                    });
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  transitionBuilder: (child, animation) {
+                    return FadeTransition(opacity: animation, child: child);
                   },
+                  child: QuestionPage(
+                    _selectedQuestion!,
+                    key: ValueKey(_selectedQuestion!.no),
+                    showAppBar: false,
+                    onBack: () {
+                      setState(() {
+                        _selectedQuestion = null; // Close the details pane
+                      });
+                    },
+                  ),
                 ),
               ),
           ],
