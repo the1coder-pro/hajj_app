@@ -16,6 +16,8 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 void main() {
   usePathUrlStrategy();
@@ -58,12 +60,38 @@ class GlobalAudioProvider extends ChangeNotifier {
   Question? currentQuestion;
   bool isCached = false;
   bool isPlaying = false;
+  bool isFetching = false;
+  List<dynamic>? _cachedData;
 
   GlobalAudioProvider() {
     audioPlayer.playerStateStream.listen((state) {
       isPlaying = state.playing;
       notifyListeners();
     });
+  }
+
+  Future<void> playQuestionById(int id) async {
+    isFetching = true;
+    notifyListeners();
+    try {
+      if (_cachedData == null) {
+        final response = await http.get(Uri.parse(
+            "https://opensheet.elk.sh/1KxJKKxKBcEd0lguKAbK-UkGIqzAcOXs5is3zNiTnFgY/1"));
+        _cachedData = jsonDecode(utf8.decode(response.bodyBytes));
+      }
+      for (var i = 0; i < _cachedData!.length; i++) {
+        if (_cachedData![i]['no'].toString() == id.toString()) {
+          Question q = Question.fromJson(_cachedData![i]);
+          await initAudio(q);
+          audioPlayer.play();
+          break;
+        }
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    isFetching = false;
+    notifyListeners();
   }
 
   Future<bool> initAudio(Question question) async {
@@ -170,6 +198,17 @@ class GlobalMiniPlayer extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             IconButton(
+                              onPressed: () {
+                                int currentId =
+                                    int.tryParse(question.no.toString()) ?? 1;
+                                if (currentId > 1) {
+                                  audioProvider.playQuestionById(currentId - 1);
+                                }
+                              },
+                              icon: const Icon(Icons.skip_next),
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            IconButton(
                               onPressed: () async {
                                 if (audioPlayer.position.inSeconds - 10 < 0) {
                                   await audioPlayer
@@ -209,6 +248,17 @@ class GlobalMiniPlayer extends StatelessWidget {
                                 }
                               },
                               icon: const Icon(Icons.fast_rewind),
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                int currentId =
+                                    int.tryParse(question.no.toString()) ?? 1;
+                                if (currentId < 322) {
+                                  audioProvider.playQuestionById(currentId + 1);
+                                }
+                              },
+                              icon: const Icon(Icons.skip_previous),
                               color: Theme.of(context).colorScheme.primary,
                             ),
                           ],

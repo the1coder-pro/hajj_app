@@ -195,7 +195,7 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
                 color: Theme.of(context).colorScheme.surface,
                 child: Padding(
                   padding: const EdgeInsets.all(10),
-                  child: Column(
+                  child: ListView(
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -270,29 +270,25 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
                                           .secondary)),
                             ),
                           )),
-                      Expanded(
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: Card.outlined(
-                            elevation: 1,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.vertical,
-                                child: Consumer<QuestionPrefsProvider>(
-                                  builder: (context, provider, _) => Text(
-                                      question!.answerText ?? "لا يوجد نص جواب",
-                                      textAlign: TextAlign.right,
-                                      style: TextStyle(
-                                          fontFamily: "Zarids",
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: provider.fontSize)),
-                                ),
-                              ),
+                      SizedBox(
+                        width: double.infinity,
+                        child: Card.outlined(
+                          elevation: 1,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Consumer<QuestionPrefsProvider>(
+                              builder: (context, provider, _) => Text(
+                                  question!.answerText ?? "لا يوجد نص جواب",
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(
+                                      fontFamily: "Zarids",
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: provider.fontSize)),
                             ),
                           ),
                         ),
                       ),
+                      const SizedBox(height: 400),
                     ],
                   ),
                 ),

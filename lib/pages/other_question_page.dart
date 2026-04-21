@@ -134,7 +134,7 @@ class _OtherQuestionPageState extends State<OtherQuestionPage> {
                 color: Colors.white,
                 child: Padding(
                   padding: const EdgeInsets.all(10),
-                  child: Column(
+                  child: ListView(
                     children: [
                       Align(
                           alignment: Alignment.centerRight,
@@ -190,32 +190,26 @@ class _OtherQuestionPageState extends State<OtherQuestionPage> {
                                           .secondary)),
                             ),
                           )),
-                      Expanded(
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: Card.outlined(
-                            elevation: 1,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.vertical,
-                                child: Text(
-                                    widget.question.answerText ??
-                                        "لا يوجد نص جواب",
-                                    textAlign: TextAlign.right,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge!
-                                        .copyWith(
-                                            fontFamily: "Zarids",
-                                            fontWeight: FontWeight.w400,
-                                            fontSize:
-                                                fontSizeProvider.fontSize)),
-                              ),
-                            ),
+                      SizedBox(
+                        width: double.infinity,
+                        child: Card.outlined(
+                          elevation: 1,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                                widget.question.answerText ?? "لا يوجد نص جواب",
+                                textAlign: TextAlign.right,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge!
+                                    .copyWith(
+                                        fontFamily: "Zarids",
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: fontSizeProvider.fontSize)),
                           ),
                         ),
                       ),
+                      const SizedBox(height: 400),
                     ],
                   ),
                 ),
