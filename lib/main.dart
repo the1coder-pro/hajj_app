@@ -15,6 +15,7 @@ import 'package:get/get.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:cross_file/cross_file.dart';
+import 'package:just_audio/just_audio.dart';
 
 void main() {
   usePathUrlStrategy();
@@ -52,6 +53,338 @@ const textTheme = TextTheme(
   ),
 );
 
+class GlobalAudioProvider extends ChangeNotifier {
+  final AudioPlayer audioPlayer = AudioPlayer();
+  Question? currentQuestion;
+  bool isCached = false;
+  bool isPlaying = false;
+
+  GlobalAudioProvider() {
+    audioPlayer.playerStateStream.listen((state) {
+      isPlaying = state.playing;
+      notifyListeners();
+    });
+  }
+
+  Future<bool> initAudio(Question question) async {
+    if (currentQuestion?.no == question.no) return true;
+    currentQuestion = question;
+    isCached = false;
+    notifyListeners();
+
+    bool success = true;
+    try {
+      final url =
+          "https://hajjaudiofiles.kumthra.com/questions_audiofiles/${question.no}.mp3";
+
+      final fileInfo = await DefaultCacheManager().getFileFromCache(url);
+
+      if (fileInfo != null) {
+        if (kIsWeb) {
+          final bytes = await fileInfo.file.readAsBytes();
+          final xFile = XFile.fromData(bytes, mimeType: 'audio/mpeg');
+          await audioPlayer.setUrl(xFile.path);
+        } else {
+          await audioPlayer.setFilePath(fileInfo.file.path);
+        }
+        isCached = true;
+      } else {
+        await audioPlayer.setUrl(url);
+        isCached = false;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      success = false;
+    }
+    notifyListeners();
+    return success;
+  }
+
+  void setCached(bool cached) {
+    isCached = cached;
+    notifyListeners();
+  }
+
+  void stopAudio() async {
+    await audioPlayer.pause();
+    currentQuestion = null;
+    notifyListeners();
+  }
+}
+
+class GlobalMiniPlayer extends StatelessWidget {
+  const GlobalMiniPlayer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<GlobalAudioProvider>(
+      builder: (context, audioProvider, child) {
+        if (audioProvider.currentQuestion == null) {
+          return const SizedBox.shrink();
+        }
+        final question = audioProvider.currentQuestion!;
+        final audioPlayer = audioProvider.audioPlayer;
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Card(
+              elevation: 8,
+              color: Theme.of(context).colorScheme.secondaryContainer,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: () {
+                  Get.toNamed('/question/${question.no}');
+                },
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                question.question ?? "",
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    fontFamily: "Zarids",
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () {
+                                audioProvider.stopAudio();
+                              },
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              onPressed: () async {
+                                if (audioPlayer.position.inSeconds - 10 < 0) {
+                                  await audioPlayer
+                                      .seek(const Duration(seconds: 0));
+                                } else {
+                                  await audioPlayer.seek(audioPlayer.position -
+                                      const Duration(seconds: 10));
+                                }
+                              },
+                              icon: const Icon(Icons.fast_forward),
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            IconButton.outlined(
+                              onPressed: () {
+                                if (audioProvider.isPlaying) {
+                                  audioPlayer.pause();
+                                } else {
+                                  audioPlayer.play();
+                                }
+                              },
+                              icon: Icon(
+                                audioProvider.isPlaying
+                                    ? Icons.pause
+                                    : Icons.play_arrow,
+                              ),
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            IconButton(
+                              onPressed: () async {
+                                if (audioPlayer.duration != null &&
+                                    audioPlayer.position.inSeconds + 10 >
+                                        audioPlayer.duration!.inSeconds) {
+                                  await audioPlayer.seek(audioPlayer.duration!);
+                                } else {
+                                  await audioPlayer.seek(audioPlayer.position +
+                                      const Duration(seconds: 10));
+                                }
+                              },
+                              icon: const Icon(Icons.fast_rewind),
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ],
+                        ),
+                        StreamBuilder<Duration?>(
+                          stream: audioPlayer.durationStream,
+                          builder: (context, snapshot) {
+                            final duration = snapshot.data;
+                            return StreamBuilder<Duration>(
+                              stream: audioPlayer.positionStream,
+                              builder: (context, snapshot) {
+                                var position = snapshot.data ?? Duration.zero;
+                                if (duration == null) {
+                                  return SizedBox(
+                                    width: double.infinity,
+                                    height: 30,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "0:00",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall!
+                                              .copyWith(
+                                                  fontSize: 16,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary),
+                                        ),
+                                        Expanded(
+                                          child: Slider(
+                                            inactiveColor: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface
+                                                .withValues(alpha: 0.2),
+                                            value: 0.0,
+                                            thumbColor: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                            activeColor: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface
+                                                .withValues(alpha: 0.5),
+                                            onChanged: null,
+                                          ),
+                                        ),
+                                        Text(
+                                          "0:00",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall!
+                                              .copyWith(
+                                                  fontSize: 16,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+                                return SizedBox(
+                                  width: double.infinity,
+                                  height: 30,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "${position.inMinutes}:${position.inSeconds.remainder(60).toString().padLeft(2, '0')}",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall!
+                                            .copyWith(
+                                                fontSize: 16,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary),
+                                      ),
+                                      Expanded(
+                                        child: Slider(
+                                          inactiveColor: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withValues(alpha: 0.2),
+                                          value: position.inSeconds.toDouble(),
+                                          thumbColor: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          activeColor: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withValues(alpha: 0.5),
+                                          onChanged: (value) {
+                                            audioPlayer.seek(Duration(
+                                                seconds: value.toInt()));
+                                          },
+                                          min: 0.0,
+                                          max: duration.inSeconds.toDouble(),
+                                        ),
+                                      ),
+                                      Text(
+                                        "${duration.inMinutes}:${duration.inSeconds.remainder(60).toString().padLeft(2, '0')}",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall!
+                                            .copyWith(
+                                                fontSize: 16,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )),
+        );
+      },
+    );
+  }
+}
+
+class _GlobalPlayerOverlay extends StatefulWidget {
+  final Widget child;
+
+  const _GlobalPlayerOverlay({required this.child});
+
+  @override
+  State<_GlobalPlayerOverlay> createState() => _GlobalPlayerOverlayState();
+}
+
+class _GlobalPlayerOverlayState extends State<_GlobalPlayerOverlay> {
+  late final OverlayEntry _childEntry;
+  late final OverlayEntry _playerEntry;
+
+  @override
+  void initState() {
+    super.initState();
+    _childEntry = OverlayEntry(builder: (context) => widget.child);
+    _playerEntry = OverlayEntry(
+      builder: (context) => const Positioned(
+        bottom: 0,
+        left: 0,
+        right: 0,
+        child: SafeArea(child: GlobalMiniPlayer()),
+      ),
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant _GlobalPlayerOverlay oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.child != widget.child) {
+      _childEntry.markNeedsBuild();
+    }
+    // Ensure the mini player rebuilds its theme values seamlessly if theme changes
+    _playerEntry.markNeedsBuild();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Overlay(
+      initialEntries: [_childEntry, _playerEntry],
+    );
+  }
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -62,6 +395,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
         ChangeNotifierProvider(create: (context) => BookmarkProvider()),
         ChangeNotifierProvider(create: (context) => QuestionPrefsProvider()),
+        ChangeNotifierProvider(create: (context) => GlobalAudioProvider()),
       ],
       child: Consumer3<ThemeProvider, BookmarkProvider, QuestionPrefsProvider>(
         builder: (context, themeProvider, bookmarkProvider, fontSizeProvider,
@@ -84,6 +418,9 @@ class MyApp extends StatelessWidget {
                   colorScheme: darkColorScheme,
                   useMaterial3: true,
                 ),
+                builder: (context, child) {
+                  return _GlobalPlayerOverlay(child: child!);
+                },
                 getPages: [
                   GetPage(name: HomePage.route, page: () => const HomePage()),
                   GetPage(

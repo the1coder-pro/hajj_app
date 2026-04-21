@@ -8,6 +8,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:provider/provider.dart';
+import 'package:hajj_app/main.dart';
 
 class BookmarksPage extends StatefulWidget {
   const BookmarksPage({super.key});
@@ -74,6 +75,9 @@ class _Bookmarks2PageState extends State<Bookmarks2Page> {
   // make a playlist for the bookmarked questions and when a question ends play the next one
   Future<void> initAudio() async {
     try {
+      // Pause the global question player before playing localized playlist
+      Provider.of<GlobalAudioProvider>(context, listen: false).stopAudio();
+
       // play the first audio and when it ends play the next one
       final firstUrl =
           "https://hajjaudiofiles.kumthra.com/questions_audiofiles/${widget.bookmarkProvider.bookmarks[0].no}.mp3";

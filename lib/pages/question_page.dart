@@ -17,6 +17,7 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:widgets_to_image/widgets_to_image.dart';
 import 'package:http/http.dart' as http;
+import 'package:hajj_app/main.dart';
 
 class QuestionPage extends StatefulWidget {
   const QuestionPage(this.questionData, {super.key});
@@ -30,9 +31,6 @@ class QuestionPage extends StatefulWidget {
 class _QuestionPageState extends State<QuestionPage> {
   Question? question;
   bool isLoading = true;
-  bool isPlaying = false;
-
-  final AudioPlayer audioPlayer = AudioPlayer();
 
   // WidgetsToImageController to access widget
   WidgetsToImageController controller = WidgetsToImageController();
@@ -40,42 +38,28 @@ class _QuestionPageState extends State<QuestionPage> {
   Uint8List? bytes;
 
   bool isAudioFileThere = false;
-  bool isCached = false;
+  bool isCachedLocal = false;
 
-  Future<void> initAudio() async {
+  Future<void> checkAudioState() async {
     if (question == null) return;
-    bool result = true;
     try {
       final url =
           "https://hajjaudiofiles.kumthra.com/questions_audiofiles/${question!.no}.mp3";
-
       final fileInfo = await DefaultCacheManager().getFileFromCache(url);
-
-      if (fileInfo != null) {
-        if (kIsWeb) {
-          final bytes = await fileInfo.file.readAsBytes();
-          final xFile = XFile.fromData(bytes, mimeType: 'audio/mpeg');
-          await audioPlayer.setUrl(xFile.path);
-        } else {
-          await audioPlayer.setFilePath(fileInfo.file.path);
-        }
+      if (mounted) {
         setState(() {
-          isCached = true;
-        });
-      } else {
-        await audioPlayer.setUrl(url);
-        setState(() {
-          isCached = false;
+          isCachedLocal = fileInfo != null;
+          isAudioFileThere = true;
         });
       }
     } catch (e) {
       debugPrint(e.toString());
-
-      result = false;
+      if (mounted) {
+        setState(() {
+          isAudioFileThere = false;
+        });
+      }
     }
-    setState(() {
-      isAudioFileThere = result;
-    });
   }
 
   Future<void> fetchQuestion(int id) async {
@@ -89,7 +73,7 @@ class _QuestionPageState extends State<QuestionPage> {
             question = Question.fromJson(data[i]);
             isLoading = false;
           });
-          initAudio();
+          checkAudioState();
           break;
         }
       }
@@ -110,7 +94,7 @@ class _QuestionPageState extends State<QuestionPage> {
     if (data is Question) {
       question = data;
       isLoading = false;
-      initAudio();
+      checkAudioState();
     } else if (data is int) {
       fetchQuestion(data);
     } else if (data is String) {
@@ -192,7 +176,6 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
                 // close the page
                 IconButton(
               onPressed: () {
-                audioPlayer.pause();
                 if (Navigator.canPop(context)) {
                   Navigator.pop(context);
                 } else {
@@ -430,6 +413,11 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
   Card questionAudioPlayer(BuildContext context) {
     final prefsProvider =
         Provider.of<QuestionPrefsProvider>(context, listen: false);
+    final audioProvider = Provider.of<GlobalAudioProvider>(context);
+    final audioPlayer = audioProvider.audioPlayer;
+    final isCurrentQuestion = audioProvider.currentQuestion?.no == question!.no;
+    final isPlaying = isCurrentQuestion && audioProvider.isPlaying;
+
     return Card.outlined(
         elevation: 0.5,
         color: Theme.of(context).colorScheme.surface,
@@ -443,7 +431,7 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
                 children: [
                   IconButton(
                       onPressed: () async {
-                        if (!isCached) {
+                        if (!isCachedLocal) {
                           final url =
                               "https://hajjaudiofiles.kumthra.com/questions_audiofiles/${question!.no}.mp3";
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -453,28 +441,36 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
 
                           await DefaultCacheManager().downloadFile(url);
 
-                          setState(() {
-                            isCached = true;
-                          });
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text("تم حفظ المقطع الصوتي بنجاح")),
-                          );
+                          if (mounted) {
+                            setState(() {
+                              isCachedLocal = true;
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text("تم حفظ المقطع الصوتي بنجاح")),
+                            );
+                          }
+                          if (isCurrentQuestion) {
+                            audioProvider.setCached(true);
+                          }
                         }
                       },
-                      icon:
-                          Icon(isCached ? Icons.download_done : Icons.download),
+                      icon: Icon(
+                          isCachedLocal ? Icons.download_done : Icons.download),
                       color: Theme.of(context).colorScheme.primary),
                   IconButton(
-                      onPressed: () async {
-                        // don't remove more than the duration
-                        if (audioPlayer.position.inSeconds - 10 < 0) {
-                          await audioPlayer.seek(const Duration(seconds: 0));
-                        } else {
-                          await audioPlayer.seek(audioPlayer.position -
-                              const Duration(seconds: 10));
-                        }
-                      },
+                      onPressed: isCurrentQuestion
+                          ? () async {
+                              // don't remove more than the duration
+                              if (audioPlayer.position.inSeconds - 10 < 0) {
+                                await audioPlayer
+                                    .seek(const Duration(seconds: 0));
+                              } else {
+                                await audioPlayer.seek(audioPlayer.position -
+                                    const Duration(seconds: 10));
+                              }
+                            }
+                          : null,
                       icon: const Icon(Icons.fast_forward),
                       color: Theme.of(context).colorScheme.primary),
                   Center(
@@ -482,13 +478,15 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
                         color: Theme.of(context).colorScheme.primary,
                         onPressed: () async {
                           audioPlayer.setSpeed(prefsProvider.audioSpeed);
-                          setState(() {
-                            isPlaying = !isPlaying;
-                          });
-                          if (isPlaying) {
+                          if (!isCurrentQuestion) {
+                            await audioProvider.initAudio(question!);
                             audioPlayer.play();
                           } else {
-                            audioPlayer.pause();
+                            if (isPlaying) {
+                              audioPlayer.pause();
+                            } else {
+                              audioPlayer.play();
+                            }
                           }
                         },
                         icon: isPlaying
@@ -497,21 +495,23 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
                   ),
                   IconButton(
                       color: Theme.of(context).colorScheme.primary,
-                      onPressed: () async {
-                        // don't add more than the duration
-                        if (audioPlayer.position.inSeconds + 10 >
-                            audioPlayer.duration!.inSeconds) {
-                          await audioPlayer.seek(audioPlayer.duration!);
-                        } else {
-                          await audioPlayer.seek(audioPlayer.position +
-                              const Duration(seconds: 10));
-                        }
-                      },
+                      onPressed: isCurrentQuestion
+                          ? () async {
+                              // don't add more than the duration
+                              if (audioPlayer.position.inSeconds + 10 >
+                                  audioPlayer.duration!.inSeconds) {
+                                await audioPlayer.seek(audioPlayer.duration!);
+                              } else {
+                                await audioPlayer.seek(audioPlayer.position +
+                                    const Duration(seconds: 10));
+                              }
+                            }
+                          : null,
                       icon: const Icon(Icons.fast_rewind)),
                 ],
               ),
               // duration of the audio
-              if (audioPlayer.duration != null)
+              if (isCurrentQuestion && audioPlayer.duration != null)
                 SizedBox(
                   width: double.infinity,
                   height: 30,
@@ -577,6 +577,44 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
                         },
                       );
                     },
+                  ),
+                ),
+              if (!isCurrentQuestion || audioPlayer.duration == null)
+                SizedBox(
+                  width: double.infinity,
+                  height: 30,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        "0:00",
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            fontSize: 20,
+                            color: Theme.of(context).colorScheme.primary),
+                      ),
+                      Slider(
+                        inactiveColor: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.2),
+                        value: 0.0,
+                        thumbColor: Theme.of(context).colorScheme.primary,
+                        activeColor: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.5),
+                        onChanged: null,
+                        min: 0.0,
+                        max: 1.0,
+                      ),
+                      Text(
+                        "0:00",
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            fontSize: 20,
+                            color: Theme.of(context).colorScheme.primary),
+                      ),
+                    ],
                   ),
                 ),
             ],
