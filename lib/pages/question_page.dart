@@ -11,6 +11,8 @@ import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/settings.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:widgets_to_image/widgets_to_image.dart';
@@ -38,12 +40,34 @@ class _QuestionPageState extends State<QuestionPage> {
   Uint8List? bytes;
 
   bool isAudioFileThere = false;
+  bool isCached = false;
 
   Future<void> initAudio() async {
     if (question == null) return;
     bool result = true;
     try {
-      await audioPlayer.setAsset("assets/audiofiles/${question!.no}.mp3");
+      final url =
+          "https://hajjaudiofiles.kumthra.com/questions_audiofiles/${question!.no}.mp3";
+
+      final fileInfo = await DefaultCacheManager().getFileFromCache(url);
+
+      if (fileInfo != null) {
+        if (kIsWeb) {
+          final bytes = await fileInfo.file.readAsBytes();
+          final xFile = XFile.fromData(bytes, mimeType: 'audio/mpeg');
+          await audioPlayer.setUrl(xFile.path);
+        } else {
+          await audioPlayer.setFilePath(fileInfo.file.path);
+        }
+        setState(() {
+          isCached = true;
+        });
+      } else {
+        await audioPlayer.setUrl(url);
+        setState(() {
+          isCached = false;
+        });
+      }
     } catch (e) {
       debugPrint(e.toString());
 
@@ -417,6 +441,30 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  IconButton(
+                      onPressed: () async {
+                        if (!isCached) {
+                          final url =
+                              "https://hajjaudiofiles.kumthra.com/questions_audiofiles/${question!.no}.mp3";
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text("جاري تحميل المقطع الصوتي...")),
+                          );
+
+                          await DefaultCacheManager().downloadFile(url);
+
+                          setState(() {
+                            isCached = true;
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text("تم حفظ المقطع الصوتي بنجاح")),
+                          );
+                        }
+                      },
+                      icon:
+                          Icon(isCached ? Icons.download_done : Icons.download),
+                      color: Theme.of(context).colorScheme.primary),
                   IconButton(
                       onPressed: () async {
                         // don't remove more than the duration

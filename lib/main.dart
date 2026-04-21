@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:hajj_app/pages/ads_page.dart';
 import 'package:hajj_app/pages/bookmark_page.dart';
@@ -11,7 +12,9 @@ import 'package:hajj_app/color_schemes.g.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:get/get.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:cross_file/cross_file.dart';
 
 void main() {
   usePathUrlStrategy();
@@ -107,17 +110,27 @@ class MyApp extends StatelessWidget {
 Future<void> shareQuestion(Question question) async {
   // check if the file is in the assets folder
 
-  final buffer = await rootBundle.load("assets/audiofiles/${question.no}.mp3");
-
-  final data = Uint8List.view(buffer.buffer);
   try {
-    final file = XFile.fromData(
-      data,
-      mimeType: 'audio/mpeg',
-      name: '${question.no}.mp3',
-      lastModified: DateTime.now(),
-      length: data.length,
-    );
+    final url =
+        "https://hajjaudiofiles.kumthra.com/questions_audiofiles/${question.no}.mp3";
+
+    final cachedFile = await DefaultCacheManager().getSingleFile(url);
+    XFile file;
+
+    if (kIsWeb) {
+      final bytes = await cachedFile.readAsBytes();
+      file = XFile.fromData(
+        bytes,
+        mimeType: 'audio/mpeg',
+        name: '${question.no}.mp3',
+      );
+    } else {
+      file = XFile(
+        cachedFile.path,
+        mimeType: 'audio/mpeg',
+        name: '${question.no}.mp3',
+      );
+    }
 
     final result = await Share.shareXFiles([file], text: """
 ${question.mainTitle} - ${question.subTitle}

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:hajj_app/pages/question_page.dart';
 import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/settings.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:provider/provider.dart';
 
 class BookmarksPage extends StatefulWidget {
@@ -72,16 +75,44 @@ class _Bookmarks2PageState extends State<Bookmarks2Page> {
   Future<void> initAudio() async {
     try {
       // play the first audio and when it ends play the next one
-      audioPlayer.setAsset(
-          "assets/audiofiles/${widget.bookmarkProvider.bookmarks[0].no}.mp3");
-      audioPlayer.playerStateStream.listen((event) {
+      final firstUrl =
+          "https://hajjaudiofiles.kumthra.com/questions_audiofiles/${widget.bookmarkProvider.bookmarks[0].no}.mp3";
+      final firstFileInfo =
+          await DefaultCacheManager().getFileFromCache(firstUrl);
+      if (firstFileInfo != null) {
+        if (kIsWeb) {
+          final bytes = await firstFileInfo.file.readAsBytes();
+          final xFile = XFile.fromData(bytes, mimeType: 'audio/mpeg');
+          await audioPlayer.setUrl(xFile.path);
+        } else {
+          await audioPlayer.setFilePath(firstFileInfo.file.path);
+        }
+      } else {
+        await audioPlayer.setUrl(firstUrl);
+      }
+
+      audioPlayer.playerStateStream.listen((event) async {
         if (event.processingState == ProcessingState.completed) {
           for (var i = 0; i < widget.bookmarkProvider.bookmarks.length; i++) {
             if (widget.bookmarkProvider.bookmarks[i].no ==
                 widget.bookmarkProvider.bookmarks[i].no) {
               if (i + 1 < widget.bookmarkProvider.bookmarks.length) {
-                audioPlayer.setAsset(
-                    "assets/audiofiles/${widget.bookmarkProvider.bookmarks[i + 1].no}.mp3");
+                final nextUrl =
+                    "https://hajjaudiofiles.kumthra.com/questions_audiofiles/${widget.bookmarkProvider.bookmarks[i + 1].no}.mp3";
+                final nextFileInfo =
+                    await DefaultCacheManager().getFileFromCache(nextUrl);
+
+                if (nextFileInfo != null) {
+                  if (kIsWeb) {
+                    final bytes = await nextFileInfo.file.readAsBytes();
+                    final xFile = XFile.fromData(bytes, mimeType: 'audio/mpeg');
+                    await audioPlayer.setUrl(xFile.path);
+                  } else {
+                    await audioPlayer.setFilePath(nextFileInfo.file.path);
+                  }
+                } else {
+                  await audioPlayer.setUrl(nextUrl);
+                }
                 audioPlayer.play();
               } else {
                 audioPlayer.play();
