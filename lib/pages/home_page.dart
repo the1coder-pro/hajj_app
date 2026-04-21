@@ -24,6 +24,89 @@ class _HomePageState extends State<HomePage> {
     {PageType.settings: "الإعدادات"},
   ];
 
+  Widget _buildDrawerContent(BuildContext context, {required bool isModal}) {
+    return ListView(
+      padding: EdgeInsets.zero,
+      children: [
+        DrawerHeader(
+          decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.secondaryContainer),
+          child: Text.rich(TextSpan(children: [
+            TextSpan(
+              text: "حج التمتع\n",
+              style: TextStyle(
+                fontFamily: "Zarids",
+                fontSize: 35,
+                color: Theme.of(context).colorScheme.onSecondaryContainer,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            TextSpan(
+              text: "في سؤال وجواب",
+              style: TextStyle(
+                fontFamily: "Zarids",
+                fontSize: 25,
+                color: Theme.of(context).colorScheme.onSecondaryContainer,
+              ),
+            ),
+          ])),
+        ),
+        ListTile(
+          leading: const Icon(Icons.people),
+          title: const Text(
+            'المعلمين',
+            style: TextStyle(fontFamily: "Zarids", fontSize: 25),
+          ),
+          onTap: () {
+            setState(() {
+              pageType = PageType.instructors;
+            });
+            if (isModal) Navigator.pop(context);
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.new_releases),
+          title: const Text(
+            'الإعلانات',
+            style: TextStyle(fontFamily: "Zarids", fontSize: 25),
+          ),
+          onTap: () {
+            setState(() {
+              pageType = PageType.ads;
+            });
+            if (isModal) Navigator.pop(context);
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.bookmark),
+          title: const Text(
+            'المفضلة',
+            style: TextStyle(fontFamily: "Zarids", fontSize: 25),
+          ),
+          onTap: () {
+            setState(() {
+              pageType = PageType.bookmarks;
+            });
+            if (isModal) Navigator.pop(context);
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.settings),
+          title: const Text(
+            'الإعدادات',
+            style: TextStyle(fontFamily: "Zarids", fontSize: 25),
+          ),
+          onTap: () {
+            setState(() {
+              pageType = PageType.settings;
+            });
+            if (isModal) Navigator.pop(context);
+          },
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     var currentPageTitle = pageTitles
@@ -35,119 +118,71 @@ class _HomePageState extends State<HomePage> {
 
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: Scaffold(
-          appBar: AppBar(
-            centerTitle: true,
-            elevation: 0,
-            backgroundColor:
-                Theme.of(context).colorScheme.surface.withValues(alpha: 0),
-            title: Text(
-              isHome ? "" : currentPageTitle,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontFamily: "Zarids",
-                fontSize: 35,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-            leading: Builder(
-              builder: (context) {
-                return IconButton(
-                  icon: const Icon(Icons.menu),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                  },
-                );
-              },
-            ),
-          ),
-          extendBodyBehindAppBar: isHome,
-          drawer: Drawer(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                DrawerHeader(
-                  decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.secondaryContainer),
-                  child: Text.rich(TextSpan(children: [
-                    TextSpan(
-                      text: "حج التمتع\n",
-                      style: TextStyle(
-                        fontFamily: "Zarids",
-                        fontSize: 35,
-                        color:
-                            Theme.of(context).colorScheme.onSecondaryContainer,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextSpan(
-                      text: "في سؤال وجواب",
-                      style: TextStyle(
-                        fontFamily: "Zarids",
-                        fontSize: 25,
-                        color:
-                            Theme.of(context).colorScheme.onSecondaryContainer,
-                      ),
-                    ),
-                  ])),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.people),
-                  title: const Text(
-                    'المعلمين',
-                    style: TextStyle(fontFamily: "Zarids", fontSize: 25),
-                  ),
-                  onTap: () {
-                    setState(() {
-                      pageType = PageType.instructors;
-                    });
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.new_releases),
-                  title: const Text(
-                    'الإعلانات',
-                    style: TextStyle(fontFamily: "Zarids", fontSize: 25),
-                  ),
-                  onTap: () {
-                    setState(() {
-                      pageType = PageType.ads;
-                    });
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.bookmark),
-                  title: const Text(
-                    'المفضلة',
-                    style: TextStyle(fontFamily: "Zarids", fontSize: 25),
-                  ),
-                  onTap: () {
-                    setState(() {
-                      pageType = PageType.bookmarks;
-                    });
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.settings),
-                  title: const Text(
-                    'الإعدادات',
-                    style: TextStyle(fontFamily: "Zarids", fontSize: 25),
-                  ),
-                  onTap: () {
-                    setState(() {
-                      pageType = PageType.settings;
-                    });
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          bool isLargeScreen = constraints.maxWidth >= 800;
 
-                    Navigator.pop(context);
-                  },
+          Widget scaffold = Scaffold(
+            appBar: AppBar(
+              centerTitle: true,
+              elevation: 0,
+              backgroundColor:
+                  Theme.of(context).colorScheme.surface.withValues(alpha: 0),
+              title: Text(
+                isHome ? "" : currentPageTitle,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontFamily: "Zarids",
+                  fontSize: 35,
+                  fontWeight: FontWeight.w400,
                 ),
-              ],
+              ),
+              leading: isLargeScreen
+                  ? null
+                  : Builder(
+                      builder: (context) {
+                        return IconButton(
+                          icon: const Icon(Icons.menu),
+                          onPressed: () {
+                            Scaffold.of(context).openDrawer();
+                          },
+                        );
+                      },
+                    ),
             ),
-          ),
-          body: currentSelectedPage(pageType)),
+            extendBodyBehindAppBar: isHome,
+            drawer: isLargeScreen
+                ? null
+                : Drawer(
+                    child: _buildDrawerContent(context, isModal: true),
+                  ),
+            body: currentSelectedPage(pageType),
+          );
+
+          if (isLargeScreen) {
+            return Scaffold(
+              body: Row(
+                children: [
+                  SizedBox(
+                    width: 300,
+                    child: Drawer(
+                      elevation: 0,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                      child: _buildDrawerContent(context, isModal: false),
+                    ),
+                  ),
+                  const VerticalDivider(width: 1, thickness: 1),
+                  Expanded(child: scaffold),
+                ],
+              ),
+            );
+          }
+
+          return scaffold;
+        },
+      ),
     );
   }
 }

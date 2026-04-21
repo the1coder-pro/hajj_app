@@ -9,9 +9,11 @@ import 'package:provider/provider.dart';
 class QuestionTile extends StatelessWidget {
   final Question? question;
   final OtherQuestion? questionModelAr;
+  final void Function(Question)? onTap;
   const QuestionTile({
     this.question,
     this.questionModelAr,
+    this.onTap,
     super.key,
   });
 
@@ -32,9 +34,13 @@ class QuestionTile extends StatelessWidget {
             child: InkWell(
               borderRadius: BorderRadius.circular(15),
               onTap: () {
-                Get.to(() => QuestionPage(question!),
-                    transition: Transition.downToUp,
-                    routeName: '/question/${question!.no}');
+                if (onTap != null) {
+                  onTap!(question!);
+                } else {
+                  Get.to(() => QuestionPage(question!),
+                      transition: Transition.downToUp,
+                      routeName: '/question/${question!.no}');
+                }
                 // Get.to(() => QuestionPage(question!),
                 //     transition: Transition.downToUp);
               },

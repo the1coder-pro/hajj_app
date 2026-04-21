@@ -20,9 +20,12 @@ import 'package:http/http.dart' as http;
 import 'package:hajj_app/main.dart';
 
 class QuestionPage extends StatefulWidget {
-  const QuestionPage(this.questionData, {super.key});
+  const QuestionPage(this.questionData,
+      {super.key, this.onBack, this.showAppBar = true});
 
   final dynamic questionData;
+  final VoidCallback? onBack;
+  final bool showAppBar;
 
   @override
   State<QuestionPage> createState() => _QuestionPageState();
@@ -82,9 +85,7 @@ class _QuestionPageState extends State<QuestionPage> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
+  void _initQuestionData() {
     dynamic data = widget.questionData;
     if ((data == null || data.toString() == 'null') &&
         Get.parameters.containsKey('id')) {
@@ -92,14 +93,43 @@ class _QuestionPageState extends State<QuestionPage> {
     }
 
     if (data is Question) {
-      question = data;
-      isLoading = false;
+      setState(() {
+        question = data;
+        isLoading = false;
+        isAudioFileThere = false;
+        isCachedLocal = false;
+      });
       checkAudioState();
     } else if (data is int) {
+      setState(() {
+        isAudioFileThere = false;
+        isCachedLocal = false;
+      });
       fetchQuestion(data);
     } else if (data is String) {
+      setState(() {
+        isAudioFileThere = false;
+        isCachedLocal = false;
+      });
       int? id = int.tryParse(data);
       if (id != null) fetchQuestion(id);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initQuestionData();
+  }
+
+  @override
+  void didUpdateWidget(covariant QuestionPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.questionData != oldWidget.questionData) {
+      setState(() {
+        isLoading = true;
+      });
+      _initQuestionData();
     }
   }
 
@@ -120,20 +150,21 @@ class _QuestionPageState extends State<QuestionPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-          appBar: AppBar(
-            actions: [
-              IconButton(
-                  icon: const Icon(Icons.share_outlined),
-                  onPressed: () async {
-                    try {
-                      // final bytes = await controller.capture();
-                      // if (bytes != null) {
-                      //   final directory = await getTemporaryDirectory();
-                      //   // final file = File('${directory.path}/question.png');
-                      //   // await file.writeAsBytes(bytes);
-                      // }
+          appBar: widget.showAppBar
+              ? AppBar(
+                  actions: [
+                    IconButton(
+                        icon: const Icon(Icons.share_outlined),
+                        onPressed: () async {
+                          try {
+                            // final bytes = await controller.capture();
+                            // if (bytes != null) {
+                            //   final directory = await getTemporaryDirectory();
+                            //   // final file = File('${directory.path}/question.png');
+                            //   // await file.writeAsBytes(bytes);
+                            // }
 
-                      await Share.share("""
+                            await Share.share("""
 ${question!.mainTitle} - ${question!.subTitle}
 
 ${question!.question} 
@@ -145,46 +176,49 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
 
 من تطبيق حج التمتع في سؤال وجواب
 """);
-                    } catch (e) {
-                      debugPrint(e.toString());
-                    }
-                  }),
-              IconButton(
-                icon: const Icon(Icons.video_settings),
-                onPressed: () {
-                  openQuestionSettings(context, prefsProvider);
-                },
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: IconButton(
-                  // if the question is bookmarked, show the bookmarked icon if not show the normal icon
-                  icon: bookmarkProvider.bookmarks.contains(question)
-                      ? const Icon(Icons.bookmark)
-                      : const Icon(Icons.bookmark_border),
-                  onPressed: () {
-                    if (bookmarkProvider.bookmarks.contains(question)) {
-                      bookmarkProvider.removeBookmark(question!);
-                    } else {
-                      bookmarkProvider.addBookmark(question!);
-                    }
-                  },
-                ),
-              ),
-            ],
-            leading:
-                // close the page
-                IconButton(
-              onPressed: () {
-                if (Navigator.canPop(context)) {
-                  Navigator.pop(context);
-                } else {
-                  Get.offAllNamed('/');
-                }
-              },
-              icon: const Icon(Icons.arrow_back),
-            ),
-          ),
+                          } catch (e) {
+                            debugPrint(e.toString());
+                          }
+                        }),
+                    IconButton(
+                      icon: const Icon(Icons.video_settings),
+                      onPressed: () {
+                        openQuestionSettings(context, prefsProvider);
+                      },
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: IconButton(
+                        // if the question is bookmarked, show the bookmarked icon if not show the normal icon
+                        icon: bookmarkProvider.bookmarks.contains(question)
+                            ? const Icon(Icons.bookmark)
+                            : const Icon(Icons.bookmark_border),
+                        onPressed: () {
+                          if (bookmarkProvider.bookmarks.contains(question)) {
+                            bookmarkProvider.removeBookmark(question!);
+                          } else {
+                            bookmarkProvider.addBookmark(question!);
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                  leading:
+                      // close the page
+                      IconButton(
+                    onPressed: () {
+                      if (widget.onBack != null) {
+                        widget.onBack!();
+                      } else if (Navigator.canPop(context)) {
+                        Navigator.pop(context);
+                      } else {
+                        Get.offAllNamed('/');
+                      }
+                    },
+                    icon: const Icon(Icons.arrow_back),
+                  ),
+                )
+              : null,
           body: Stack(
             children: [
               WidgetsToImage(
@@ -197,6 +231,67 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
                   padding: const EdgeInsets.all(10),
                   child: ListView(
                     children: [
+                      if (!widget.showAppBar)
+                        Row(
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                if (widget.onBack != null) {
+                                  widget.onBack!();
+                                } else if (Navigator.canPop(context)) {
+                                  Navigator.pop(context);
+                                } else {
+                                  Get.offAllNamed('/');
+                                }
+                              },
+                              icon: const Icon(Icons.close),
+                            ),
+                            const Spacer(),
+                            IconButton(
+                                icon: const Icon(Icons.share_outlined),
+                                onPressed: () async {
+                                  try {
+                                    await Share.share("""
+${question!.mainTitle} - ${question!.subTitle}
+
+${question!.question} 
+
+${question!.answerText}
+
+رابط السؤال:
+${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.web.app/question/${question!.no}")}
+
+من تطبيق حج التمتع في سؤال وجواب
+""");
+                                  } catch (e) {
+                                    debugPrint(e.toString());
+                                  }
+                                }),
+                            IconButton(
+                              icon: const Icon(Icons.video_settings),
+                              onPressed: () {
+                                openQuestionSettings(context, prefsProvider);
+                              },
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: IconButton(
+                                icon: bookmarkProvider.bookmarks
+                                        .contains(question)
+                                    ? const Icon(Icons.bookmark)
+                                    : const Icon(Icons.bookmark_border),
+                                onPressed: () {
+                                  if (bookmarkProvider.bookmarks
+                                      .contains(question)) {
+                                    bookmarkProvider.removeBookmark(question!);
+                                  } else {
+                                    bookmarkProvider.addBookmark(question!);
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
