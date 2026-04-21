@@ -422,197 +422,65 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
           child: Column(
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  IconButton(
+                  Expanded(
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: IconButton(
+                          onPressed: () async {
+                            if (!isCachedLocal) {
+                              final url =
+                                  "https://hajjaudiofiles.kumthra.com/questions_audiofiles/${question!.no}.mp3";
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content:
+                                        Text("جاري تحميل المقطع الصوتي...")),
+                              );
+
+                              await DefaultCacheManager().downloadFile(url);
+
+                              if (mounted) {
+                                setState(() {
+                                  isCachedLocal = true;
+                                });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content:
+                                          Text("تم حفظ المقطع الصوتي بنجاح")),
+                                );
+                              }
+                              if (isCurrentQuestion) {
+                                audioProvider.setCached(true);
+                              }
+                            }
+                          },
+                          icon: Icon(isCachedLocal
+                              ? Icons.download_done
+                              : Icons.download),
+                          color: Theme.of(context).colorScheme.primary),
+                    ),
+                  ),
+                  IconButton.outlined(
+                      color: Theme.of(context).colorScheme.primary,
                       onPressed: () async {
-                        if (!isCachedLocal) {
-                          final url =
-                              "https://hajjaudiofiles.kumthra.com/questions_audiofiles/${question!.no}.mp3";
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text("جاري تحميل المقطع الصوتي...")),
-                          );
-
-                          await DefaultCacheManager().downloadFile(url);
-
-                          if (mounted) {
-                            setState(() {
-                              isCachedLocal = true;
-                            });
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text("تم حفظ المقطع الصوتي بنجاح")),
-                            );
-                          }
-                          if (isCurrentQuestion) {
-                            audioProvider.setCached(true);
+                        audioPlayer.setSpeed(prefsProvider.audioSpeed);
+                        if (!isCurrentQuestion) {
+                          await audioProvider.initAudio(question!);
+                          audioPlayer.play();
+                        } else {
+                          if (isPlaying) {
+                            audioPlayer.pause();
+                          } else {
+                            audioPlayer.play();
                           }
                         }
                       },
-                      icon: Icon(
-                          isCachedLocal ? Icons.download_done : Icons.download),
-                      color: Theme.of(context).colorScheme.primary),
-                  IconButton(
-                      onPressed: isCurrentQuestion
-                          ? () async {
-                              // don't remove more than the duration
-                              if (audioPlayer.position.inSeconds - 10 < 0) {
-                                await audioPlayer
-                                    .seek(const Duration(seconds: 0));
-                              } else {
-                                await audioPlayer.seek(audioPlayer.position -
-                                    const Duration(seconds: 10));
-                              }
-                            }
-                          : null,
-                      icon: const Icon(Icons.fast_forward),
-                      color: Theme.of(context).colorScheme.primary),
-                  Center(
-                    child: IconButton.outlined(
-                        color: Theme.of(context).colorScheme.primary,
-                        onPressed: () async {
-                          audioPlayer.setSpeed(prefsProvider.audioSpeed);
-                          if (!isCurrentQuestion) {
-                            await audioProvider.initAudio(question!);
-                            audioPlayer.play();
-                          } else {
-                            if (isPlaying) {
-                              audioPlayer.pause();
-                            } else {
-                              audioPlayer.play();
-                            }
-                          }
-                        },
-                        icon: isPlaying
-                            ? const Icon(Icons.pause)
-                            : const Icon(Icons.play_arrow)),
-                  ),
-                  IconButton(
-                      color: Theme.of(context).colorScheme.primary,
-                      onPressed: isCurrentQuestion
-                          ? () async {
-                              // don't add more than the duration
-                              if (audioPlayer.position.inSeconds + 10 >
-                                  audioPlayer.duration!.inSeconds) {
-                                await audioPlayer.seek(audioPlayer.duration!);
-                              } else {
-                                await audioPlayer.seek(audioPlayer.position +
-                                    const Duration(seconds: 10));
-                              }
-                            }
-                          : null,
-                      icon: const Icon(Icons.fast_rewind)),
+                      icon: isPlaying
+                          ? const Icon(Icons.pause)
+                          : const Icon(Icons.play_arrow)),
+                  const Spacer(),
                 ],
               ),
-              // duration of the audio
-              if (isCurrentQuestion && audioPlayer.duration != null)
-                SizedBox(
-                  width: double.infinity,
-                  height: 30,
-                  child: StreamBuilder<Duration?>(
-                    stream: audioPlayer.durationStream,
-                    builder: (context, snapshot) {
-                      final duration = snapshot.data;
-                      return StreamBuilder<Duration>(
-                        stream: audioPlayer.positionStream,
-                        builder: (context, snapshot) {
-                          if (snapshot.data == null) {
-                            return const SizedBox();
-                          }
-                          var position = snapshot.data;
-                          position ??= const Duration();
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                "${position.inMinutes}:${position.inSeconds.remainder(60) < 10 ? "0" : ""}${position.inSeconds.remainder(60)}",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall!
-                                    .copyWith(
-                                        fontSize: 20,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary),
-                              ),
-                              Slider(
-                                inactiveColor: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withValues(alpha: 0.2),
-                                value: position.inSeconds.toDouble(),
-                                thumbColor:
-                                    Theme.of(context).colorScheme.primary,
-                                activeColor: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withValues(alpha: 0.5),
-                                onChanged: (value) {
-                                  audioPlayer
-                                      .seek(Duration(seconds: value.toInt()));
-                                },
-                                min: 0.0,
-                                max: duration!.inSeconds.toDouble(),
-                              ),
-                              Text(
-                                  // add zero to the seconds if it's less than 10
-                                  "${duration.inMinutes}:${duration.inSeconds.remainder(60) < 10 ? "0" : ""}${duration.inSeconds.remainder(60)}",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall!
-                                      .copyWith(
-                                          fontSize: 20,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary)),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ),
-              if (!isCurrentQuestion || audioPlayer.duration == null)
-                SizedBox(
-                  width: double.infinity,
-                  height: 30,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        "0:00",
-                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                            fontSize: 20,
-                            color: Theme.of(context).colorScheme.primary),
-                      ),
-                      Slider(
-                        inactiveColor: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.2),
-                        value: 0.0,
-                        thumbColor: Theme.of(context).colorScheme.primary,
-                        activeColor: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.5),
-                        onChanged: null,
-                        min: 0.0,
-                        max: 1.0,
-                      ),
-                      Text(
-                        "0:00",
-                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                            fontSize: 20,
-                            color: Theme.of(context).colorScheme.primary),
-                      ),
-                    ],
-                  ),
-                ),
             ],
           ),
         ));

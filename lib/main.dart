@@ -156,8 +156,8 @@ class GlobalMiniPlayer extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Card(
-              elevation: 8,
-              color: Theme.of(context).colorScheme.secondaryContainer,
+              elevation: 4,
+              color: Theme.of(context).colorScheme.primaryContainer,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -180,14 +180,20 @@ class GlobalMiniPlayer extends StatelessWidget {
                                 question.question ?? "",
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
+                                style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimaryContainer,
                                     fontFamily: "Zarids",
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16),
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.close),
+                              icon: Icon(Icons.close,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer),
                               onPressed: () {
                                 audioProvider.stopAudio();
                               },
@@ -206,7 +212,9 @@ class GlobalMiniPlayer extends StatelessWidget {
                                 }
                               },
                               icon: const Icon(Icons.skip_next),
-                              color: Theme.of(context).colorScheme.primary,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onPrimaryContainer,
                             ),
                             IconButton(
                               onPressed: () async {
@@ -218,10 +226,12 @@ class GlobalMiniPlayer extends StatelessWidget {
                                       const Duration(seconds: 10));
                                 }
                               },
-                              icon: const Icon(Icons.fast_forward),
-                              color: Theme.of(context).colorScheme.primary,
+                              icon: const Icon(Icons.forward_10_outlined),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onPrimaryContainer,
                             ),
-                            IconButton.outlined(
+                            IconButton(
                               onPressed: () {
                                 if (audioProvider.isPlaying) {
                                   audioPlayer.pause();
@@ -233,8 +243,11 @@ class GlobalMiniPlayer extends StatelessWidget {
                                 audioProvider.isPlaying
                                     ? Icons.pause
                                     : Icons.play_arrow,
+                                size: 30,
                               ),
-                              color: Theme.of(context).colorScheme.primary,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onPrimaryContainer,
                             ),
                             IconButton(
                               onPressed: () async {
@@ -247,8 +260,10 @@ class GlobalMiniPlayer extends StatelessWidget {
                                       const Duration(seconds: 10));
                                 }
                               },
-                              icon: const Icon(Icons.fast_rewind),
-                              color: Theme.of(context).colorScheme.primary,
+                              icon: const Icon(Icons.replay_10_outlined),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onPrimaryContainer,
                             ),
                             IconButton(
                               onPressed: () {
@@ -259,7 +274,9 @@ class GlobalMiniPlayer extends StatelessWidget {
                                 }
                               },
                               icon: const Icon(Icons.skip_previous),
-                              color: Theme.of(context).colorScheme.primary,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onPrimaryContainer,
                             ),
                           ],
                         ),
@@ -288,21 +305,21 @@ class GlobalMiniPlayer extends StatelessWidget {
                                                   fontSize: 16,
                                                   color: Theme.of(context)
                                                       .colorScheme
-                                                      .primary),
+                                                      .onPrimaryContainer),
                                         ),
                                         Expanded(
                                           child: Slider(
                                             inactiveColor: Theme.of(context)
                                                 .colorScheme
-                                                .onSurface
+                                                .onPrimaryContainer
                                                 .withValues(alpha: 0.2),
                                             value: 0.0,
                                             thumbColor: Theme.of(context)
                                                 .colorScheme
-                                                .primary,
+                                                .onPrimaryContainer,
                                             activeColor: Theme.of(context)
                                                 .colorScheme
-                                                .onSurface
+                                                .onPrimaryContainer
                                                 .withValues(alpha: 0.5),
                                             onChanged: null,
                                           ),
@@ -316,7 +333,7 @@ class GlobalMiniPlayer extends StatelessWidget {
                                                   fontSize: 16,
                                                   color: Theme.of(context)
                                                       .colorScheme
-                                                      .primary),
+                                                      .onPrimaryContainer),
                                         ),
                                       ],
                                     ),
@@ -337,21 +354,21 @@ class GlobalMiniPlayer extends StatelessWidget {
                                                 fontSize: 16,
                                                 color: Theme.of(context)
                                                     .colorScheme
-                                                    .primary),
+                                                    .onPrimaryContainer),
                                       ),
                                       Expanded(
                                         child: Slider(
                                           inactiveColor: Theme.of(context)
                                               .colorScheme
-                                              .onSurface
+                                              .onPrimaryContainer
                                               .withValues(alpha: 0.2),
                                           value: position.inSeconds.toDouble(),
                                           thumbColor: Theme.of(context)
                                               .colorScheme
-                                              .primary,
+                                              .onPrimaryContainer,
                                           activeColor: Theme.of(context)
                                               .colorScheme
-                                              .onSurface
+                                              .onPrimaryContainer
                                               .withValues(alpha: 0.5),
                                           onChanged: (value) {
                                             audioPlayer.seek(Duration(
@@ -370,7 +387,7 @@ class GlobalMiniPlayer extends StatelessWidget {
                                                 fontSize: 16,
                                                 color: Theme.of(context)
                                                     .colorScheme
-                                                    .primary),
+                                                    .onPrimaryContainer),
                                       ),
                                     ],
                                   ),
