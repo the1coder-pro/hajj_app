@@ -152,11 +152,207 @@ class GlobalMiniPlayer extends StatelessWidget {
         }
         final question = audioProvider.currentQuestion!;
         final audioPlayer = audioProvider.audioPlayer;
+        final isLargeScreen = MediaQuery.of(context).size.width >= 800;
+
+        final titleWidget = Text(
+          question.question ?? "",
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+              fontFamily: "Zarids",
+              fontWeight: FontWeight.bold,
+              fontSize: 16),
+        );
+
+        final closeButton = IconButton(
+          icon: Icon(Icons.close,
+              color: Theme.of(context).colorScheme.onPrimaryContainer),
+          onPressed: () {
+            audioProvider.stopAudio();
+          },
+        );
+
+        final playbackButtons = Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: () {
+                int currentId = int.tryParse(question.no.toString()) ?? 1;
+                if (currentId > 1) {
+                  audioProvider.playQuestionById(currentId - 1);
+                }
+              },
+              icon: const Icon(Icons.skip_next),
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            ),
+            IconButton(
+              onPressed: () async {
+                if (audioPlayer.position.inSeconds - 10 < 0) {
+                  await audioPlayer.seek(const Duration(seconds: 0));
+                } else {
+                  await audioPlayer
+                      .seek(audioPlayer.position - const Duration(seconds: 10));
+                }
+              },
+              icon: const Icon(Icons.forward_10_outlined),
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            ),
+            IconButton(
+              onPressed: () {
+                if (audioProvider.isPlaying) {
+                  audioPlayer.pause();
+                } else {
+                  audioPlayer.play();
+                }
+              },
+              icon: Icon(
+                audioProvider.isPlaying ? Icons.pause : Icons.play_arrow,
+                size: 30,
+              ),
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            ),
+            IconButton(
+              onPressed: () async {
+                if (audioPlayer.duration != null &&
+                    audioPlayer.position.inSeconds + 10 >
+                        audioPlayer.duration!.inSeconds) {
+                  await audioPlayer.seek(audioPlayer.duration!);
+                } else {
+                  await audioPlayer
+                      .seek(audioPlayer.position + const Duration(seconds: 10));
+                }
+              },
+              icon: const Icon(Icons.replay_10_outlined),
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            ),
+            IconButton(
+              onPressed: () {
+                int currentId = int.tryParse(question.no.toString()) ?? 1;
+                if (currentId < 322) {
+                  audioProvider.playQuestionById(currentId + 1);
+                }
+              },
+              icon: const Icon(Icons.skip_previous),
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            ),
+          ],
+        );
+
+        final trackWidget = StreamBuilder<Duration?>(
+          stream: audioPlayer.durationStream,
+          builder: (context, snapshot) {
+            final duration = snapshot.data;
+            return StreamBuilder<Duration>(
+              stream: audioPlayer.positionStream,
+              builder: (context, snapshot) {
+                var position = snapshot.data ?? Duration.zero;
+                if (duration == null) {
+                  return SizedBox(
+                    width: double.infinity,
+                    height: 30,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "0:00",
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall!
+                              .copyWith(
+                                  fontSize: 16,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer),
+                        ),
+                        Expanded(
+                          child: Slider(
+                            inactiveColor: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer
+                                .withValues(alpha: 0.2),
+                            value: 0.0,
+                            thumbColor: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer,
+                            activeColor: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer
+                                .withValues(alpha: 0.5),
+                            onChanged: null,
+                          ),
+                        ),
+                        Text(
+                          "0:00",
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall!
+                              .copyWith(
+                                  fontSize: 16,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                return SizedBox(
+                  width: double.infinity,
+                  height: 30,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "${position.inMinutes}:${position.inSeconds.remainder(60).toString().padLeft(2, '0')}",
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            fontSize: 16,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer),
+                      ),
+                      Expanded(
+                        child: Slider(
+                          inactiveColor: Theme.of(context)
+                              .colorScheme
+                              .onPrimaryContainer
+                              .withValues(alpha: 0.2),
+                          value: position.inSeconds.toDouble(),
+                          thumbColor:
+                              Theme.of(context).colorScheme.onPrimaryContainer,
+                          activeColor: Theme.of(context)
+                              .colorScheme
+                              .onPrimaryContainer
+                              .withValues(alpha: 0.5),
+                          onChanged: (value) {
+                            audioPlayer.seek(Duration(seconds: value.toInt()));
+                          },
+                          min: 0.0,
+                          max: duration.inSeconds.toDouble(),
+                        ),
+                      ),
+                      Text(
+                        "${duration.inMinutes}:${duration.inSeconds.remainder(60).toString().padLeft(2, '0')}",
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            fontSize: 16,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        );
 
         return Align(
             alignment: Alignment.bottomCenter,
             child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 600),
+                constraints:
+                    BoxConstraints(maxWidth: isLargeScreen ? 800 : 600),
                 child: Padding(
                   padding: EdgeInsets.only(
                       left: 16.0,
@@ -178,262 +374,45 @@ class GlobalMiniPlayer extends StatelessWidget {
                         child: Directionality(
                           textDirection: TextDirection.rtl,
                           child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        question.question ?? "",
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimaryContainer,
-                                            fontFamily: "Zarids",
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16),
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.close,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimaryContainer),
-                                      onPressed: () {
-                                        audioProvider.stopAudio();
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    IconButton(
-                                      onPressed: () {
-                                        int currentId = int.tryParse(
-                                                question.no.toString()) ??
-                                            1;
-                                        if (currentId > 1) {
-                                          audioProvider
-                                              .playQuestionById(currentId - 1);
-                                        }
-                                      },
-                                      icon: const Icon(Icons.skip_next),
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimaryContainer,
-                                    ),
-                                    IconButton(
-                                      onPressed: () async {
-                                        if (audioPlayer.position.inSeconds -
-                                                10 <
-                                            0) {
-                                          await audioPlayer
-                                              .seek(const Duration(seconds: 0));
-                                        } else {
-                                          await audioPlayer.seek(
-                                              audioPlayer.position -
-                                                  const Duration(seconds: 10));
-                                        }
-                                      },
-                                      icon:
-                                          const Icon(Icons.forward_10_outlined),
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimaryContainer,
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        if (audioProvider.isPlaying) {
-                                          audioPlayer.pause();
-                                        } else {
-                                          audioPlayer.play();
-                                        }
-                                      },
-                                      icon: Icon(
-                                        audioProvider.isPlaying
-                                            ? Icons.pause
-                                            : Icons.play_arrow,
-                                        size: 30,
-                                      ),
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimaryContainer,
-                                    ),
-                                    IconButton(
-                                      onPressed: () async {
-                                        if (audioPlayer.duration != null &&
-                                            audioPlayer.position.inSeconds +
-                                                    10 >
-                                                audioPlayer
-                                                    .duration!.inSeconds) {
-                                          await audioPlayer
-                                              .seek(audioPlayer.duration!);
-                                        } else {
-                                          await audioPlayer.seek(
-                                              audioPlayer.position +
-                                                  const Duration(seconds: 10));
-                                        }
-                                      },
-                                      icon:
-                                          const Icon(Icons.replay_10_outlined),
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimaryContainer,
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        int currentId = int.tryParse(
-                                                question.no.toString()) ??
-                                            1;
-                                        if (currentId < 322) {
-                                          audioProvider
-                                              .playQuestionById(currentId + 1);
-                                        }
-                                      },
-                                      icon: const Icon(Icons.skip_previous),
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimaryContainer,
-                                    ),
-                                  ],
-                                ),
-                                StreamBuilder<Duration?>(
-                                  stream: audioPlayer.durationStream,
-                                  builder: (context, snapshot) {
-                                    final duration = snapshot.data;
-                                    return StreamBuilder<Duration>(
-                                      stream: audioPlayer.positionStream,
-                                      builder: (context, snapshot) {
-                                        var position =
-                                            snapshot.data ?? Duration.zero;
-                                        if (duration == null) {
-                                          return SizedBox(
-                                            width: double.infinity,
-                                            height: 30,
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  "0:00",
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodySmall!
-                                                      .copyWith(
-                                                          fontSize: 16,
-                                                          color: Theme.of(
-                                                                  context)
-                                                              .colorScheme
-                                                              .onPrimaryContainer),
-                                                ),
-                                                Expanded(
-                                                  child: Slider(
-                                                    inactiveColor:
-                                                        Theme.of(context)
-                                                            .colorScheme
-                                                            .onPrimaryContainer
-                                                            .withValues(
-                                                                alpha: 0.2),
-                                                    value: 0.0,
-                                                    thumbColor:
-                                                        Theme.of(context)
-                                                            .colorScheme
-                                                            .onPrimaryContainer,
-                                                    activeColor:
-                                                        Theme.of(context)
-                                                            .colorScheme
-                                                            .onPrimaryContainer
-                                                            .withValues(
-                                                                alpha: 0.5),
-                                                    onChanged: null,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  "0:00",
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodySmall!
-                                                      .copyWith(
-                                                          fontSize: 16,
-                                                          color: Theme.of(
-                                                                  context)
-                                                              .colorScheme
-                                                              .onPrimaryContainer),
-                                                ),
-                                              ],
+                            padding: const EdgeInsets.all(8.0),
+                            child: isLargeScreen
+                                ? Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      // closeButton,
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 8.0, bottom: 4.0),
+                                              child: titleWidget,
                                             ),
-                                          );
-                                        }
-                                        return SizedBox(
-                                          width: double.infinity,
-                                          height: 30,
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                "${position.inMinutes}:${position.inSeconds.remainder(60).toString().padLeft(2, '0')}",
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodySmall!
-                                                    .copyWith(
-                                                        fontSize: 16,
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .onPrimaryContainer),
-                                              ),
-                                              Expanded(
-                                                child: Slider(
-                                                  inactiveColor:
-                                                      Theme.of(context)
-                                                          .colorScheme
-                                                          .onPrimaryContainer
-                                                          .withValues(
-                                                              alpha: 0.2),
-                                                  value: position.inSeconds
-                                                      .toDouble(),
-                                                  thumbColor: Theme.of(context)
-                                                      .colorScheme
-                                                      .onPrimaryContainer,
-                                                  activeColor: Theme.of(context)
-                                                      .colorScheme
-                                                      .onPrimaryContainer
-                                                      .withValues(alpha: 0.5),
-                                                  onChanged: (value) {
-                                                    audioPlayer.seek(Duration(
-                                                        seconds:
-                                                            value.toInt()));
-                                                  },
-                                                  min: 0.0,
-                                                  max: duration.inSeconds
-                                                      .toDouble(),
-                                                ),
-                                              ),
-                                              Text(
-                                                "${duration.inMinutes}:${duration.inSeconds.remainder(60).toString().padLeft(2, '0')}",
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodySmall!
-                                                    .copyWith(
-                                                        fontSize: 16,
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .onPrimaryContainer),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
+                                            trackWidget,
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      playbackButtons,
+                                    ],
+                                  )
+                                : Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(child: titleWidget),
+                                          closeButton,
+                                        ],
+                                      ),
+                                      playbackButtons,
+                                      trackWidget,
+                                    ],
+                                  ),
                           ),
                         ),
                       )),
