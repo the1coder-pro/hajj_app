@@ -260,8 +260,14 @@ class GlobalMiniPlayer extends StatelessWidget {
                       await audioPlayer.pause();
                     } else {
                       if (processingState == ProcessingState.completed) {
+                        final position = audioPlayer.position;
+                        final duration = audioPlayer.duration ?? Duration.zero;
+
                         await audioPlayer.stop();
                         await audioProvider.initAudio(question, force: true);
+                        if (position.inSeconds < duration.inSeconds - 1) {
+                          await audioPlayer.seek(position);
+                        }
                       }
                       audioPlayer.play();
                     }
