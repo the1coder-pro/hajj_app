@@ -19,7 +19,9 @@ class ContactFooter extends StatelessWidget {
       child: Column(
         children: <Widget>[
           Align(
-            alignment: AlignmentGeometry.centerRight,
+            alignment: isLargeScreen
+                ? AlignmentGeometry.centerRight
+                : Alignment.center,
             child: Text(
               'للتواصل معنا',
               style: TextStyle(

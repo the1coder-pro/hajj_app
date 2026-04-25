@@ -20,6 +20,7 @@ class QuestionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bookmarkProvider = Provider.of<BookmarkProvider>(context);
+    final isLargeScreen = MediaQuery.of(context).size.width >= 800;
     if (question != null) {
       return Directionality(
         textDirection: TextDirection.rtl,
@@ -58,17 +59,50 @@ class QuestionTile extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Row(
+                        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //   children: [
+                        //     Text(
+                        //       question!.subTitle!,
+                        //       style: TextStyle(
+                        //           fontFamily: "Zarids",
+                        //           color: Theme.of(context).colorScheme.primary,
+                        //           fontSize: 20,
+                        //           fontWeight: FontWeight.bold),
+                        //     ),
+
+                        //   ],
+                        // ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              question!.subTitle!,
-                              style: TextStyle(
-                                  fontFamily: "Zarids",
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold),
-                            ),
+                            if (!isLargeScreen)
+                              Align(
+                                  alignment: Alignment.centerRight,
+                                  child: RichText(
+                                    text: TextSpan(children: [
+                                      TextSpan(
+                                          text: "${question!.mainTitle!} / ",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .displaySmall!
+                                              .copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary)),
+                                      TextSpan(
+                                          text: question!.subTitle,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .displaySmall!
+                                              .copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .secondary)),
+                                    ]),
+                                  )),
                             IconButton(
                               // if the question is bookmarked, show the bookmarked icon if not show the normal icon
                               icon:
@@ -94,28 +128,6 @@ class QuestionTile extends StatelessWidget {
                               fontSize: 28,
                               fontWeight: FontWeight.w400),
                         ),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Chip(
-                              backgroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .secondaryContainer,
-                              padding: const EdgeInsets.all(4),
-                              label: Text(
-                                question!.mainTitle!,
-                                style: TextStyle(
-                                    fontFamily: "Zarids",
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSecondaryContainer,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ],
-                        )
                       ],
                     ),
                   )),

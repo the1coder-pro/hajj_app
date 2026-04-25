@@ -106,25 +106,35 @@ class _InstructorsPageState extends State<InstructorsPage> {
               snap: false,
               floating: true,
               stretchTriggerOffset: 300.0,
-              expandedHeight: isLargeScreen ? 150.0 : 200.0,
+              expandedHeight: isLargeScreen ? 180.0 : 200.0,
               flexibleSpace: FlexibleSpaceBar(
                 // centerTitle: true,
                 // title: Text('المعلمين'),
 
                 background: Center(
-                  child: Container(
-                    // rounded
-                    decoration: BoxDecoration(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Container(
+                      // rounded
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: themeProvider.themeMode == ThemeMode.dark
+                                ? Colors.black
+                                : Colors.white,
+                          )),
+                      constraints: BoxConstraints(
+                          maxWidth: isLargeScreen ? 600 : double.infinity),
+                      child: ClipRRect(
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all()),
-                    constraints: BoxConstraints(
-                        maxWidth: isLargeScreen ? 600 : double.infinity),
-                    child: Image.asset(
-                      themeProvider.themeMode == ThemeMode.dark
-                          ? "assets/main_banner_dark.jpg"
-                          : "assets/main_banner_light.jpg",
-                      fit: BoxFit.fitWidth,
-                      width: double.infinity,
+                        child: Image.asset(
+                          themeProvider.themeMode == ThemeMode.dark
+                              ? "assets/main_banner_dark.jpg"
+                              : "assets/main_banner_light.jpg",
+                          fit: BoxFit.fitWidth,
+                          width: double.infinity,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -149,6 +159,8 @@ class _InstructorsPageState extends State<InstructorsPage> {
                                 ? "assets/contact_banner_dark.jpg"
                                 : "assets/contact_banner_light.jpg",
                             fit: BoxFit.fitWidth,
+                            // move image to the right
+                            alignment: Alignment.center,
                             width: double.infinity,
                           ),
                         ),
@@ -158,11 +170,11 @@ class _InstructorsPageState extends State<InstructorsPage> {
                             Container(
                               decoration: BoxDecoration(
                                 color: Colors.green,
-                                borderRadius: BorderRadius.circular(15),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                               child: IconButton(
                                 icon: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.all(5),
                                   child: Icon(CommunityMaterialIcons.whatsapp,
                                       color: Theme.of(context)
                                           .colorScheme
@@ -181,11 +193,11 @@ class _InstructorsPageState extends State<InstructorsPage> {
                             Container(
                               decoration: BoxDecoration(
                                 color: Colors.green,
-                                borderRadius: BorderRadius.circular(15),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                               child: IconButton(
                                 icon: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.all(5),
                                   child: Icon(Icons.phone_outlined,
                                       color: Theme.of(context)
                                           .colorScheme
@@ -208,13 +220,22 @@ class _InstructorsPageState extends State<InstructorsPage> {
                 ),
               ),
             ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: Divider(
+                  color: Theme.of(context).colorScheme.secondary,
+                  thickness: 2,
+                ),
+              ),
+            ),
             SliverPadding(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(5),
               sliver: SliverGrid(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
                     return Padding(
-                      padding: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(5),
                       child: Card.outlined(
                         color: Theme.of(context)
                             .colorScheme
@@ -272,100 +293,120 @@ class _InstructorsPageState extends State<InstructorsPage> {
                                         body: Padding(
                                           padding: const EdgeInsets.only(
                                               left: 10, right: 10),
-                                          child: GridView.builder(
-                                            gridDelegate:
-                                                const SliverGridDelegateWithMaxCrossAxisExtent(
-                                              maxCrossAxisExtent: 250,
-                                            ),
-                                            itemCount:
-                                                generatedMainTitles[index]
-                                                        ['subTitles']
-                                                    .length,
-                                            itemBuilder: (context, i) {
-                                              return Padding(
-                                                padding:
-                                                    const EdgeInsets.all(10),
-                                                child: Card.outlined(
-                                                  clipBehavior: Clip.antiAlias,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .surfaceContainerHighest
-                                                      .withValues(alpha: 0.5),
-                                                  shape: RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              30)),
-                                                  child: Ink(
-                                                    decoration:
-                                                        const BoxDecoration(
-                                                      image: DecorationImage(
-                                                        image: AssetImage(
-                                                            'assets/kabba.jpg'),
-                                                        fit: BoxFit.cover,
-                                                        // blur
-                                                        colorFilter:
-                                                            ColorFilter.mode(
-                                                          Colors.black54,
-                                                          BlendMode.darken,
+                                          child: Builder(builder: (context) {
+                                            bool isInnerLargeScreen =
+                                                MediaQuery.of(context)
+                                                        .size
+                                                        .width >=
+                                                    800;
+                                            return GridView.builder(
+                                              gridDelegate:
+                                                  SliverGridDelegateWithMaxCrossAxisExtent(
+                                                maxCrossAxisExtent:
+                                                    isInnerLargeScreen
+                                                        ? 400
+                                                        : 250,
+                                                childAspectRatio:
+                                                    isInnerLargeScreen
+                                                        ? 2.0
+                                                        : 1.0,
+                                              ),
+                                              itemCount:
+                                                  generatedMainTitles[index]
+                                                          ['subTitles']
+                                                      .length,
+                                              itemBuilder: (context, i) {
+                                                return Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(5),
+                                                  child: Card.outlined(
+                                                    clipBehavior:
+                                                        Clip.antiAlias,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .surfaceContainerHighest
+                                                        .withValues(alpha: 0.5),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        30)),
+                                                    child: Ink(
+                                                      decoration:
+                                                          const BoxDecoration(
+                                                        image: DecorationImage(
+                                                          image: AssetImage(
+                                                              'assets/kabba.jpg'),
+                                                          fit: BoxFit.cover,
+                                                          // blur
+                                                          colorFilter:
+                                                              ColorFilter.mode(
+                                                            Colors.black54,
+                                                            BlendMode.darken,
+                                                          ),
                                                         ),
                                                       ),
-                                                    ),
-                                                    child: InkWell(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              30),
-                                                      onTap: () {
-                                                        Get.to(
-                                                          () => SubTitlePage(
-                                                              index: index,
-                                                              i: i,
-                                                              mainTitles:
-                                                                  generatedMainTitles,
-                                                              questions:
-                                                                  questions,
-                                                              showAppBar: true),
-                                                          transition: Transition
-                                                              .leftToRight,
+                                                      child: InkWell(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(30),
+                                                        onTap: () {
+                                                          Get.to(
+                                                            () => SubTitlePage(
+                                                                index: index,
+                                                                i: i,
+                                                                mainTitles:
+                                                                    generatedMainTitles,
+                                                                questions:
+                                                                    questions,
+                                                                showAppBar:
+                                                                    true),
+                                                            transition:
+                                                                Transition
+                                                                    .leftToRight,
 
-                                                          // routeName:
-                                                          //     '/section/${generatedMainTitles[index]['title']}/${generatedMainTitles[index]['subTitles'][i]}'
-                                                        );
-                                                      },
-                                                      child: Center(
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .symmetric(
-                                                                  horizontal:
-                                                                      16.0,
-                                                                  vertical:
-                                                                      8.0),
-                                                          child: Text(
-                                                            generatedMainTitles[
-                                                                    index][
-                                                                'subTitles'][i],
-                                                            style: TextStyle(
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .colorScheme
-                                                                    .primaryContainer,
-                                                                fontSize: 24,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                fontFamily:
-                                                                    "Zarids"),
-                                                            textAlign: TextAlign
-                                                                .center,
+                                                            // routeName:
+                                                            //     '/section/${generatedMainTitles[index]['title']}/${generatedMainTitles[index]['subTitles'][i]}'
+                                                          );
+                                                        },
+                                                        child: Center(
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .symmetric(
+                                                                    horizontal:
+                                                                        16.0,
+                                                                    vertical:
+                                                                        8.0),
+                                                            child: Text(
+                                                              generatedMainTitles[
+                                                                      index][
+                                                                  'subTitles'][i],
+                                                              style: TextStyle(
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .colorScheme
+                                                                      .primaryContainer,
+                                                                  fontSize: 24,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontFamily:
+                                                                      "Zarids"),
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                            ),
                                                           ),
                                                         ),
                                                       ),
                                                     ),
                                                   ),
-                                                ),
-                                              );
-                                            },
-                                          ),
+                                                );
+                                              },
+                                            );
+                                          }),
                                         ),
                                       )),
                                   transition: Transition.leftToRight,
@@ -395,8 +436,9 @@ class _InstructorsPageState extends State<InstructorsPage> {
                   },
                   childCount: generatedMainTitles.length,
                 ),
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 250,
+                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: isLargeScreen ? 400 : 250,
+                  childAspectRatio: isLargeScreen ? 2.0 : 1.0,
                 ),
               ),
             ),
