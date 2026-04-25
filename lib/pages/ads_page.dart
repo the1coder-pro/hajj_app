@@ -18,6 +18,8 @@ class AdvertismentsPage extends StatefulWidget {
 class _AdvertismentsPageState extends State<AdvertismentsPage> {
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
+  static List<Map>? _cachedAdsList;
+  static List<Map>? _cachedLatest3Ads;
   List<Map> _adsList = [];
   late Future<void> _initAdsData;
 
@@ -64,79 +66,110 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
                             CarouselSlider(
                               options: CarouselOptions(
                                   height: 250.0,
-                                  autoPlay: true,
+                                  autoPlay: latest3Ads.length > 1,
+                                  enableInfiniteScroll: latest3Ads.length > 1,
                                   autoPlayInterval: const Duration(seconds: 5)),
                               // items are the three latest ads
                               items: latest3Ads.map<Widget>((item) {
-                                // get id from Google drive link "https://drive.google.com/open?id=1LuvZ2inwSYe1L7qLba2btdnCeASfqSvs"
-                                String id =
-                                    item['Image'].toString().split('id=')[1];
-                                String imageURL =
-                                    "https://lh3.googleusercontent.com/d/$id=s1000?authuser=0";
+                                String imageStr =
+                                    item['Image']?.toString() ?? '';
+                                String imageURL = '';
+                                if (imageStr.contains('id=')) {
+                                  String id = imageStr.split('id=')[1];
+                                  imageURL =
+                                      "https://lh3.googleusercontent.com/d/$id=s1000?authuser=0";
+                                }
+
+                                Widget fallbackWidget = Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      item['Title'] ?? 'بدون عنوان',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        fontFamily: "Zarids",
+                                      ),
+                                    ),
+                                  ),
+                                );
 
                                 return Card(
                                   child: InkWell(
                                     onTap: () {
+                                      int initialIndex = _adsList.indexOf(item);
+                                      if (initialIndex == -1) initialIndex = 0;
                                       Get.to(
                                           () => AdDetailsPage(
-                                              imageURL: imageURL,
-                                              title: item['Title'],
-                                              description: item['Description'],
-                                              link: item['Link']),
+                                              ads: _adsList,
+                                              initialIndex: initialIndex),
                                           transition: Transition.downToUp);
                                     },
-                                    child: Image.network(imageURL,
-                                        fit: BoxFit.cover),
+                                    child: imageURL.isNotEmpty
+                                        ? Image.network(
+                                            imageURL,
+                                            fit: BoxFit.cover,
+                                            width: double.infinity,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return fallbackWidget;
+                                            },
+                                          )
+                                        : fallbackWidget,
                                   ),
                                 );
                               }).toList(),
                             ),
-                            const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Text("جميع الإعلانات الحالية:",
-                                      style: TextStyle(fontSize: 25))),
-                            ),
-                            Expanded(
-                                flex: 4,
-                                child: GridView.builder(
-                                    gridDelegate:
-                                        const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                    ),
-                                    reverse: true,
-                                    shrinkWrap: true,
-                                    itemCount: _adsList.length,
-                                    itemBuilder: (context, index) {
-                                      // get id from Google drive link "https://drive.google.com/open?id=1LuvZ2inwSYe1L7qLba2btdnCeASfqSvs"
-                                      String id = _adsList[index]['Image']
-                                          .toString()
-                                          .split('id=')[1];
-                                      String imageURL =
-                                          "https://lh3.googleusercontent.com/d/$id=s1000?authuser=0";
+                            if (_adsList.length > 1) ...[
+                              const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Text("جميع الإعلانات الحالية:",
+                                        style: TextStyle(fontSize: 25))),
+                              ),
+                              Expanded(
+                                  flex: 4,
+                                  child: GridView.builder(
+                                      gridDelegate:
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 3,
+                                      ),
+                                      reverse: true,
+                                      shrinkWrap: true,
+                                      itemCount: _adsList.length,
+                                      itemBuilder: (context, index) {
+                                        String imageStr = _adsList[index]
+                                                    ['Image']
+                                                ?.toString() ??
+                                            '';
+                                        String imageURL = '';
+                                        if (imageStr.contains('id=')) {
+                                          String id = imageStr.split('id=')[1];
+                                          imageURL =
+                                              "https://lh3.googleusercontent.com/d/$id=s1000?authuser=0";
+                                        }
 
-                                      return Card(
-                                        child: InkWell(
-                                            onTap: () {
-                                              Get.to(
-                                                  () => AdDetailsPage(
-                                                      imageURL: imageURL,
-                                                      title: _adsList[index]
-                                                          ['Title'],
-                                                      description:
-                                                          _adsList[index]
-                                                              ['Description'],
-                                                      link: _adsList[index]
-                                                          ['Link']),
-                                                  transition:
-                                                      Transition.downToUp);
-                                            },
-                                            child: Center(
-                                                child: Text(
-                                                    _adsList[index]['Title']))),
-                                      );
-                                    }))
+                                        return Card(
+                                          child: InkWell(
+                                              onTap: () {
+                                                Get.to(
+                                                    () => AdDetailsPage(
+                                                        ads: _adsList,
+                                                        initialIndex: index),
+                                                    transition:
+                                                        Transition.downToUp);
+                                              },
+                                              child: Center(
+                                                  child: Text(_adsList[index]
+                                                      ['Title']))),
+                                        );
+                                      })),
+                            ]
                           ]));
               }
           }
@@ -144,6 +177,13 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
   }
 
   Future<void> _initAds() async {
+    if (_cachedAdsList != null && _cachedLatest3Ads != null) {
+      setState(() {
+        _adsList = _cachedAdsList!;
+        latest3Ads = _cachedLatest3Ads!;
+      });
+      return;
+    }
     final response = await http.get(Uri.parse(
         'https://opensheet.elk.sh/1IR-c-DM1_G0Qr6sr-iy7gZKwWN5zuQfo_Vr8Ky29BgE/1'));
     if (response.statusCode == 200) {
@@ -170,6 +210,8 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
         } else {
           latest3Ads = validAds;
         }
+        _cachedAdsList = _adsList;
+        _cachedLatest3Ads = latest3Ads;
       });
     } else {
       throw Exception('Failed to load data');
@@ -203,6 +245,8 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
         } else {
           latest3Ads = validAds;
         }
+        _cachedAdsList = _adsList;
+        _cachedLatest3Ads = latest3Ads;
       });
     } else {
       throw Exception('Failed to load data');
