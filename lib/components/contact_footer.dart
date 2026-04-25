@@ -12,6 +12,7 @@ class ContactFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Theme.of(context);
     return Container(
       width: double.infinity,
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -47,14 +48,20 @@ class ContactFooter extends StatelessWidget {
                 // ),
 
                 const SizedBox(width: 5),
-                const ContactButton(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Color(0xFF2b7b7a),
+                ContactButton(
+                    backgroundColor: themeProvider.brightness == Brightness.dark
+                        ? Colors.black26
+                        : Colors.white,
+                    foregroundColor: themeProvider.brightness == Brightness.dark
+                        ? Colors.white
+                        : Color(0xFF2b7b7a),
                     icon: CommunityMaterialIcons.face_agent,
                     link: 'https://wa.me/+966500155187'),
                 const SizedBox(width: 5),
-                const ContactButton(
-                  backgroundColor: Colors.blue,
+                ContactButton(
+                  backgroundColor: themeProvider.brightness == Brightness.dark
+                      ? Colors.black26
+                      : Colors.blue,
                   foregroundColor: Colors.white,
                   icon: CommunityMaterialIcons.facebook,
                   link:
@@ -67,7 +74,10 @@ class ContactFooter extends StatelessWidget {
                       RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10)),
                     ),
-                    backgroundColor: WidgetStateProperty.all(Colors.yellow),
+                    backgroundColor: WidgetStateProperty.all(
+                        themeProvider.brightness == Brightness.dark
+                            ? Colors.black26
+                            : Colors.yellow),
                   ),
                   color: Colors.white,
                   onPressed: () async {
@@ -78,23 +88,29 @@ class ContactFooter extends StatelessWidget {
                       throw Exception('Could not launch $url');
                     }
                   },
-                  icon: const Stack(children: [
+                  icon: Stack(children: [
                     Icon(FontAwesome.snapchat_ghost, color: Colors.white),
                     Icon(
                       CommunityMaterialIcons.snapchat,
-                      color: Colors.black,
+                      color: themeProvider.brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
                     ),
                   ]),
                 ),
                 const SizedBox(width: 5),
-                const ContactButton(
-                    backgroundColor: Colors.pink,
+                ContactButton(
+                    backgroundColor: themeProvider.brightness == Brightness.dark
+                        ? Colors.black26
+                        : Colors.pink,
                     foregroundColor: Colors.white,
                     icon: CommunityMaterialIcons.instagram,
                     link: 'https://www.instagram.com/h_alkalaf/?hl=en'),
                 const SizedBox(width: 5),
-                const ContactButton(
-                    backgroundColor: Colors.white,
+                ContactButton(
+                    backgroundColor: themeProvider.brightness == Brightness.dark
+                        ? Colors.black26
+                        : Colors.white,
                     foregroundColor: Colors.red,
                     icon: CommunityMaterialIcons.youtube,
                     link: 'https://www.youtube.com/@halkalaf'),
