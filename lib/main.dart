@@ -63,8 +63,14 @@ class GlobalAudioProvider extends ChangeNotifier {
   bool isFetching = false;
   bool autoPlayNext = true;
   List<dynamic>? _cachedData;
+  Duration? lastKnownDuration;
 
   GlobalAudioProvider() {
+    audioPlayer.durationStream.listen((d) {
+      if (d != null) {
+        lastKnownDuration = d;
+      }
+    });
     audioPlayer.playerStateStream.listen((state) {
       isPlaying = state.playing;
       if (state.processingState == ProcessingState.completed) {
@@ -119,6 +125,7 @@ class GlobalAudioProvider extends ChangeNotifier {
     currentQuestion = question;
     if (!force) {
       isCached = false;
+      lastKnownDuration = null; // Clear when loading a completely new question
       notifyListeners();
     }
 
@@ -299,12 +306,12 @@ class GlobalMiniPlayer extends StatelessWidget {
         final trackWidget = StreamBuilder<Duration?>(
           stream: audioPlayer.durationStream,
           builder: (context, snapshot) {
-            final duration = snapshot.data;
+            final duration = snapshot.data ?? audioProvider.lastKnownDuration;
             return StreamBuilder<Duration>(
               stream: audioPlayer.positionStream,
               builder: (context, snapshot) {
                 var position = snapshot.data ?? Duration.zero;
-                if (duration == null) {
+                if (duration == null || duration.inSeconds == 0) {
                   return SizedBox(
                     width: double.infinity,
                     height: 30,
