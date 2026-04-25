@@ -17,6 +17,7 @@ class AdDetailsPage extends StatefulWidget {
 
 class _AdDetailsPageState extends State<AdDetailsPage> {
   late int _currentIndex;
+  double _drawerWidth = 300.0;
 
   @override
   void initState() {
@@ -239,10 +240,26 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   SizedBox(
-                    width: 300,
+                    width: _drawerWidth,
                     child: drawerContent,
                   ),
-                  const VerticalDivider(width: 1, thickness: 1),
+                  MouseRegion(
+                    cursor: SystemMouseCursors.resizeColumn,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onPanUpdate: (details) {
+                        setState(() {
+                          _drawerWidth -= details.delta.dx;
+                          _drawerWidth = _drawerWidth.clamp(
+                              200.0, constraints.maxWidth * 0.5);
+                        });
+                      },
+                      child: const SizedBox(
+                        width: 10,
+                        child: VerticalDivider(width: 1, thickness: 1),
+                      ),
+                    ),
+                  ),
                   Expanded(
                     child: mainContent,
                   ),

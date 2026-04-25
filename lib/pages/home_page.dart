@@ -21,6 +21,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   var pageType = PageType.instructors;
+  double _drawerWidth = 300.0;
 
   List<Map<PageType, String>> pageTitles = [
     {PageType.instructors: "الرئيسية"},
@@ -290,7 +291,7 @@ class _HomePageState extends State<HomePage> {
                         body: Row(
                           children: [
                             SizedBox(
-                              width: 300,
+                              width: _drawerWidth,
                               child: Drawer(
                                 elevation: 0,
                                 shape: const RoundedRectangleBorder(
@@ -300,7 +301,24 @@ class _HomePageState extends State<HomePage> {
                                     isModal: false),
                               ),
                             ),
-                            const VerticalDivider(width: 1, thickness: 1),
+                            MouseRegion(
+                              cursor: SystemMouseCursors.resizeColumn,
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.translucent,
+                                onPanUpdate: (details) {
+                                  setState(() {
+                                    _drawerWidth -= details.delta.dx;
+                                    _drawerWidth = _drawerWidth.clamp(
+                                        200.0, constraints.maxWidth * 0.5);
+                                  });
+                                },
+                                child: const SizedBox(
+                                  width: 10,
+                                  child:
+                                      VerticalDivider(width: 1, thickness: 1),
+                                ),
+                              ),
+                            ),
                             Expanded(child: scaffold),
                           ],
                         ),

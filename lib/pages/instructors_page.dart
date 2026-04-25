@@ -484,6 +484,8 @@ class LargeScreenSubtitlesPage extends StatefulWidget {
 class _LargeScreenSubtitlesPageState extends State<LargeScreenSubtitlesPage> {
   int _selectedSubtitleIndex = 0;
   Question? _selectedQuestion;
+  double _drawerWidth = 300.0;
+  double _detailsWidth = 400.0;
 
   @override
   Widget build(BuildContext context) {
@@ -496,7 +498,7 @@ class _LargeScreenSubtitlesPageState extends State<LargeScreenSubtitlesPage> {
         body: Row(
           children: [
             SizedBox(
-              width: 300,
+              width: _drawerWidth,
               child: Drawer(
                 elevation: 0,
                 shape: const RoundedRectangleBorder(
@@ -593,9 +595,24 @@ class _LargeScreenSubtitlesPageState extends State<LargeScreenSubtitlesPage> {
                 ),
               ),
             ),
-            const VerticalDivider(width: 1, thickness: 1),
+            MouseRegion(
+              cursor: SystemMouseCursors.resizeColumn,
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onPanUpdate: (details) {
+                  setState(() {
+                    _drawerWidth -= details.delta.dx;
+                    _drawerWidth = _drawerWidth.clamp(
+                        200.0, MediaQuery.of(context).size.width * 0.5);
+                  });
+                },
+                child: const SizedBox(
+                  width: 10,
+                  child: VerticalDivider(width: 1, thickness: 1),
+                ),
+              ),
+            ),
             Expanded(
-              flex: 1,
               child: SubTitlePage(
                 index: widget.mainTitleIndex,
                 i: _selectedSubtitleIndex,
@@ -610,10 +627,26 @@ class _LargeScreenSubtitlesPageState extends State<LargeScreenSubtitlesPage> {
               ),
             ),
             if (_selectedQuestion != null)
-              const VerticalDivider(width: 1, thickness: 1),
+              MouseRegion(
+                cursor: SystemMouseCursors.resizeColumn,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onPanUpdate: (details) {
+                    setState(() {
+                      _detailsWidth += details.delta.dx;
+                      _detailsWidth = _detailsWidth.clamp(
+                          300.0, MediaQuery.of(context).size.width * 0.5);
+                    });
+                  },
+                  child: const SizedBox(
+                    width: 10,
+                    child: VerticalDivider(width: 1, thickness: 1),
+                  ),
+                ),
+              ),
             if (_selectedQuestion != null)
-              Expanded(
-                flex: 2,
+              SizedBox(
+                width: _detailsWidth,
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 250),
                   transitionBuilder: (child, animation) {
