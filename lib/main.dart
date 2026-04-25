@@ -174,6 +174,7 @@ class GlobalMiniPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final prefsProvider = Provider.of<QuestionPrefsProvider>(context);
     return Consumer<GlobalAudioProvider>(
       builder: (context, audioProvider, child) {
         if (audioProvider.currentQuestion == null) {
@@ -269,6 +270,7 @@ class GlobalMiniPlayer extends StatelessWidget {
                           await audioPlayer.seek(position);
                         }
                       }
+                      audioPlayer.setSpeed(prefsProvider.audioSpeed);
                       audioPlayer.play();
                     }
                   },
@@ -305,6 +307,36 @@ class GlobalMiniPlayer extends StatelessWidget {
               },
               icon: const Icon(Icons.skip_previous),
               color: Theme.of(context).colorScheme.onPrimaryContainer,
+            ),
+            Tooltip(
+              message: "سرعة التشغيل",
+              child: TextButton(
+                onPressed: () {
+                  double nextSpeed = prefsProvider.audioSpeed + 0.5;
+                  if (nextSpeed > 2.0) {
+                    nextSpeed = 0.5;
+                  }
+                  prefsProvider.audioSpeed = nextSpeed;
+                  audioPlayer.setSpeed(nextSpeed);
+                },
+                style: TextButton.styleFrom(
+                  minimumSize: Size.zero,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 8.0),
+                ),
+                child: SizedBox(
+                  width: 40,
+                  child: Text(
+                    "${prefsProvider.audioSpeed == 1.0 ? '1' : prefsProvider.audioSpeed}x",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         );
