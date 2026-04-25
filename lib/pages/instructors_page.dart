@@ -13,6 +13,7 @@ import 'package:hajj_app/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:hajj_app/main.dart';
 
 class InstructorsPage extends StatefulWidget {
   const InstructorsPage({super.key});
@@ -449,8 +450,8 @@ class _InstructorsPageState extends State<InstructorsPage> {
           ],
         ),
         floatingActionButton: FloatingActionButton(
-          backgroundColor: Theme.of(context).colorScheme.secondary,
-          foregroundColor: Theme.of(context).colorScheme.secondaryContainer,
+          backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+          foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
           onPressed: () {
             showSearch(
               context: context,
@@ -620,6 +621,8 @@ class _LargeScreenSubtitlesPageState extends State<LargeScreenSubtitlesPage> {
                 questions: widget.questions,
                 showAppBar: false,
                 onQuestionTap: (question) {
+                  Provider.of<GlobalAudioProvider>(context, listen: false)
+                      .setBookmarkMode(false);
                   setState(() {
                     _selectedQuestion = question;
                   });

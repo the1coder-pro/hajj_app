@@ -65,6 +65,15 @@ class GlobalAudioProvider extends ChangeNotifier {
   List<dynamic>? _cachedData;
   Duration? lastKnownDuration;
   bool _isStopped = false;
+  bool isBookmarkMode = false;
+  List<Question> bookmarkPlaylist = [];
+
+  void setBookmarkMode(bool mode, [List<Question>? playlist]) {
+    isBookmarkMode = mode;
+    if (playlist != null) {
+      bookmarkPlaylist = playlist;
+    }
+  }
 
   GlobalAudioProvider() {
     audioPlayer.durationStream.listen((d) {
@@ -77,12 +86,26 @@ class GlobalAudioProvider extends ChangeNotifier {
       if (state.processingState == ProcessingState.completed) {
         // Only auto-skip if it naturally finished while playing and isn't just starting
         if (state.playing && audioPlayer.position.inMilliseconds > 500) {
-          if (currentQuestion != null) {
-            int currentId = int.tryParse(currentQuestion!.no.toString()) ?? 1;
-            if (autoPlayNext && currentId < 322) {
-              // Prevent multiple triggers while the next audio is still loading
-              if (!isFetching) {
-                playQuestionById(currentId + 1);
+          if (currentQuestion != null && autoPlayNext) {
+            if (isBookmarkMode && bookmarkPlaylist.isNotEmpty) {
+              int currentIndex = bookmarkPlaylist.indexWhere(
+                  (q) => q.no.toString() == currentQuestion!.no.toString());
+              if (currentIndex != -1) {
+                if (!isFetching) {
+                  int nextIndex = (currentIndex + 1) % bookmarkPlaylist.length;
+                  int nextId =
+                      int.tryParse(bookmarkPlaylist[nextIndex].no.toString()) ??
+                          1;
+                  playQuestionById(nextId);
+                }
+              }
+            } else {
+              int currentId = int.tryParse(currentQuestion!.no.toString()) ?? 1;
+              if (currentId < 322) {
+                // Prevent multiple triggers while the next audio is still loading
+                if (!isFetching) {
+                  playQuestionById(currentId + 1);
+                }
               }
             }
           }
@@ -239,9 +262,28 @@ class GlobalMiniPlayer extends StatelessWidget {
             ),
             IconButton(
               onPressed: () {
-                int currentId = int.tryParse(question.no.toString()) ?? 1;
-                if (currentId > 1) {
-                  audioProvider.playQuestionById(currentId - 1);
+                if (audioProvider.isBookmarkMode &&
+                    audioProvider.bookmarkPlaylist.isNotEmpty) {
+                  int currentIndex = audioProvider.bookmarkPlaylist.indexWhere(
+                      (q) => q.no.toString() == question.no.toString());
+                  if (currentIndex > 0) {
+                    int prevId = int.tryParse(audioProvider
+                            .bookmarkPlaylist[currentIndex - 1].no
+                            .toString()) ??
+                        1;
+                    audioProvider.playQuestionById(prevId);
+                  } else if (currentIndex == 0) {
+                    int prevId = int.tryParse(audioProvider
+                            .bookmarkPlaylist.last.no
+                            .toString()) ??
+                        1;
+                    audioProvider.playQuestionById(prevId);
+                  }
+                } else {
+                  int currentId = int.tryParse(question.no.toString()) ?? 1;
+                  if (currentId > 1) {
+                    audioProvider.playQuestionById(currentId - 1);
+                  }
                 }
               },
               icon: const Icon(Icons.skip_next),
@@ -313,9 +355,24 @@ class GlobalMiniPlayer extends StatelessWidget {
             ),
             IconButton(
               onPressed: () {
-                int currentId = int.tryParse(question.no.toString()) ?? 1;
-                if (currentId < 322) {
-                  audioProvider.playQuestionById(currentId + 1);
+                if (audioProvider.isBookmarkMode &&
+                    audioProvider.bookmarkPlaylist.isNotEmpty) {
+                  int currentIndex = audioProvider.bookmarkPlaylist.indexWhere(
+                      (q) => q.no.toString() == question.no.toString());
+                  if (currentIndex != -1) {
+                    int nextIndex = (currentIndex + 1) %
+                        audioProvider.bookmarkPlaylist.length;
+                    int nextId = int.tryParse(audioProvider
+                            .bookmarkPlaylist[nextIndex].no
+                            .toString()) ??
+                        1;
+                    audioProvider.playQuestionById(nextId);
+                  }
+                } else {
+                  int currentId = int.tryParse(question.no.toString()) ?? 1;
+                  if (currentId < 322) {
+                    audioProvider.playQuestionById(currentId + 1);
+                  }
                 }
               },
               icon: const Icon(Icons.skip_previous),

@@ -42,6 +42,7 @@ class _QuestionPageState extends State<QuestionPage> {
 
   bool isAudioFileThere = false;
   bool isCachedLocal = false;
+  bool isDownloading = false;
 
   Future<void> checkAudioState() async {
     if (question == null) return;
@@ -98,18 +99,21 @@ class _QuestionPageState extends State<QuestionPage> {
         isLoading = false;
         isAudioFileThere = false;
         isCachedLocal = false;
+        isDownloading = false;
       });
       checkAudioState();
     } else if (data is int) {
       setState(() {
         isAudioFileThere = false;
         isCachedLocal = false;
+        isDownloading = false;
       });
       fetchQuestion(data);
     } else if (data is String) {
       setState(() {
         isAudioFileThere = false;
         isCachedLocal = false;
+        isDownloading = false;
       });
       int? id = int.tryParse(data);
       if (id != null) fetchQuestion(id);
@@ -418,106 +422,119 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
 
   Future<dynamic> openQuestionSettings(
       BuildContext context, QuestionPrefsProvider prefsProvider) {
-    return showModalBottomSheet(
+    return showDialog(
       context: context,
       builder: (context) {
+        final isLargeScreen = MediaQuery.of(context).size.width >= 800;
+
         return Directionality(
           textDirection: TextDirection.rtl,
-          child: Scaffold(
-            appBar: AppBar(
-              title: Text("إعدادات",
-                  style: Theme.of(context)
-                      .textTheme
-                      .displayMedium!
-                      .copyWith(fontWeight: FontWeight.normal)),
-            ),
-            body: ListView(
-              children: [
-                ListTile(
-                  title: const Text(
-                    "سرعة الصوت",
-                    style: TextStyle(
-                      fontFamily: "Zarids",
-                      fontSize: 25,
-                    ),
-                  ),
-                  subtitle: Slider(
-                    label: prefsProvider.audioSpeed.toString(),
-                    value: prefsProvider.audioSpeed,
-                    min: 0.5,
-                    max: 5,
-                    // divisions are 5 4.5 4 3.5 3 2.5 2 1.5 1 0.5
-                    divisions: 9,
-                    onChanged: (value) {
-                      prefsProvider.audioSpeed = value;
-                    },
-                  ),
-                  leading: IconButton(
-                      onPressed: () {
-                        // reset
-                        prefsProvider.audioSpeed = 1.0;
-                      },
-                      icon: const Icon(Icons.restore)),
-                  trailing: CircleAvatar(
-                    backgroundColor:
-                        Theme.of(context).colorScheme.secondaryContainer,
-                    child: Center(
-                      child: Text(
-                        prefsProvider.audioSpeed.toStringAsFixed(1),
+          child: AlertDialog(
+            title: Text("إعدادات",
+                style: Theme.of(context)
+                    .textTheme
+                    .displayMedium!
+                    .copyWith(fontWeight: FontWeight.normal)),
+            content: SizedBox(
+              width: isLargeScreen ? 400 : double.maxFinite,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      title: const Text(
+                        "سرعة الصوت",
                         style: TextStyle(
-                            fontSize: 18,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSecondaryContainer),
-                        textAlign: TextAlign.center,
+                          fontFamily: "Zarids",
+                          fontSize: 25,
+                        ),
+                      ),
+                      subtitle: Slider(
+                        label: prefsProvider.audioSpeed.toString(),
+                        value: prefsProvider.audioSpeed,
+                        min: 0.5,
+                        max: 5,
+                        // divisions are 5 4.5 4 3.5 3 2.5 2 1.5 1 0.5
+                        divisions: 9,
+                        onChanged: (value) {
+                          prefsProvider.audioSpeed = value;
+                        },
+                      ),
+                      leading: IconButton(
+                          onPressed: () {
+                            // reset
+                            prefsProvider.audioSpeed = 1.0;
+                          },
+                          icon: const Icon(Icons.restore)),
+                      trailing: CircleAvatar(
+                        backgroundColor:
+                            Theme.of(context).colorScheme.secondaryContainer,
+                        child: Center(
+                          child: Text(
+                            prefsProvider.audioSpeed.toStringAsFixed(1),
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSecondaryContainer),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                ListTile(
-                  title: const Text(
-                    "حجم الخط",
-                    style: TextStyle(
-                      fontFamily: "Zarids",
-                      fontSize: 25,
-                    ),
-                  ),
-                  subtitle: Slider(
-                    label: prefsProvider.fontSize.toString(),
-                    value: prefsProvider.fontSize,
-                    min: 20,
-                    max: 40,
-                    divisions: 5,
-                    onChanged: (value) {
-                      prefsProvider.fontSize = value;
-                    },
-                  ),
-                  leading: IconButton(
-                    onPressed: () {
-                      // reset
-                      prefsProvider.fontSize = 25;
-                    },
-                    icon: const Icon(Icons.restore),
-                  ),
-                  trailing: CircleAvatar(
-                    backgroundColor:
-                        Theme.of(context).colorScheme.secondaryContainer,
-                    child: Center(
-                      child: Text(
-                        prefsProvider.fontSize.toString(),
+                    const SizedBox(height: 10),
+                    ListTile(
+                      title: const Text(
+                        "حجم الخط",
                         style: TextStyle(
-                            fontSize: 22,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSecondaryContainer),
-                        textAlign: TextAlign.center,
+                          fontFamily: "Zarids",
+                          fontSize: 25,
+                        ),
+                      ),
+                      subtitle: Slider(
+                        label: prefsProvider.fontSize.toString(),
+                        value: prefsProvider.fontSize,
+                        min: 20,
+                        max: 40,
+                        divisions: 5,
+                        onChanged: (value) {
+                          prefsProvider.fontSize = value;
+                        },
+                      ),
+                      leading: IconButton(
+                        onPressed: () {
+                          // reset
+                          prefsProvider.fontSize = 25;
+                        },
+                        icon: const Icon(Icons.restore),
+                      ),
+                      trailing: CircleAvatar(
+                        backgroundColor:
+                            Theme.of(context).colorScheme.secondaryContainer,
+                        child: Center(
+                          child: Text(
+                            prefsProvider.fontSize.toString(),
+                            style: TextStyle(
+                                fontSize: 22,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSecondaryContainer),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("إغلاق",
+                    style: TextStyle(fontFamily: "Zarids", fontSize: 18)),
+              ),
+            ],
           ),
         );
       },
@@ -548,25 +565,35 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
                       alignment: AlignmentDirectional.centerStart,
                       child: IconButton(
                           onPressed: () async {
-                            if (!isCachedLocal) {
+                            if (!isCachedLocal && !isDownloading) {
                               final url =
                                   "https://hajjaudiofiles.kumthra.com/questions_audiofiles/${question!.no}.mp3";
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content:
-                                        Text("جاري تحميل المقطع الصوتي...")),
+                                    content: Text(
+                                        "جاري حفظ السؤال للاستماع لاحقا ...")),
                               );
+
+                              if (mounted) {
+                                setState(() {
+                                  isDownloading = true;
+                                });
+                              }
 
                               await DefaultCacheManager().downloadFile(url);
 
                               if (mounted) {
+                                // Instantly hide the "Downloading..." snackbar so they don't queue up
+                                ScaffoldMessenger.of(context)
+                                    .hideCurrentSnackBar();
+
                                 setState(() {
                                   isCachedLocal = true;
+                                  isDownloading = false;
                                 });
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                      content:
-                                          Text("تم حفظ المقطع الصوتي بنجاح")),
+                                      content: Text("تم حفظ السؤال بنجاح")),
                                 );
                               }
                               if (isCurrentQuestion) {
@@ -574,9 +601,15 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
                               }
                             }
                           },
-                          icon: Icon(isCachedLocal
-                              ? Icons.download_done
-                              : Icons.download),
+                          icon: isDownloading
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2))
+                              : Icon(isCachedLocal
+                                  ? Icons.offline_pin
+                                  : Icons.download_for_offline_outlined),
                           color: Theme.of(context).colorScheme.primary),
                     ),
                   ),

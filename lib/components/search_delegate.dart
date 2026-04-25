@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/pages/question_page.dart';
+import 'package:provider/provider.dart';
+import 'package:hajj_app/main.dart';
 
 class QuestionSearch extends SearchDelegate<String> {
   final List<Question> questions;
@@ -44,27 +46,43 @@ class QuestionSearch extends SearchDelegate<String> {
     );
   }
 
+  String _normalizeText(String text) {
+    return text
+        .replaceAll('أ', 'ا')
+        .replaceAll('إ', 'ا')
+        .replaceAll('آ', 'ا')
+        .replaceAll('٠', '0')
+        .replaceAll('١', '1')
+        .replaceAll('٢', '2')
+        .replaceAll('٣', '3')
+        .replaceAll('٤', '4')
+        .replaceAll('٥', '5')
+        .replaceAll('٦', '6')
+        .replaceAll('٧', '7')
+        .replaceAll('٨', '8')
+        .replaceAll('٩', '9')
+        .toLowerCase();
+  }
+
+  List<Question> _getFilteredQuestions(String query) {
+    if (query.trim().isEmpty) {
+      return questions;
+    }
+
+    final normalizedQuery = _normalizeText(query);
+    final queryWords =
+        normalizedQuery.split(' ').where((w) => w.isNotEmpty).toList();
+
+    return questions.where((q) {
+      final normalizedTitle = _normalizeText(q.question ?? "");
+      // Ensure any word in the query appears somewhere in the question
+      return queryWords.any((word) => normalizedTitle.contains(word));
+    }).toList();
+  }
+
   @override
   Widget buildResults(BuildContext context) {
-    // get the suggestionList from the query but even if the word is not complete
-    final List<Question> suggestionList = questions;
-
-    // get the questions that have the same words (order not important)
-
-    // split the query into words
-    final List<String> queryList = query.split(' ');
-
-    // get all the questions that have any of the query words (order not important)
-    if (query.isNotEmpty) {
-      suggestionList.clear();
-      for (var question in questions) {
-        for (String word in queryList) {
-          if (question.question!.split(' ').contains(word)) {
-            suggestionList.add(question);
-          }
-        }
-      }
-    }
+    final List<Question> suggestionList = _getFilteredQuestions(query);
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -72,10 +90,13 @@ class QuestionSearch extends SearchDelegate<String> {
           itemCount: suggestionList.length,
           itemBuilder: (context, index) => ListTile(
                 title: Text(
-                  suggestionList[index].question!,
+                  // Safely handle null questions so it doesn't crash the search page
+                  suggestionList[index].question ?? 'بدون عنوان',
                   style: const TextStyle(fontFamily: "Zarids", fontSize: 24),
                 ),
                 onTap: () {
+                  Provider.of<GlobalAudioProvider>(context, listen: false)
+                      .setBookmarkMode(false);
                   Get.to(() => QuestionPage(suggestionList[index]),
                       transition: Transition.rightToLeft,
                       routeName: '/question/${suggestionList[index].no}');
@@ -86,16 +107,7 @@ class QuestionSearch extends SearchDelegate<String> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    List<Question> suggestionList = questions;
-
-    if (query.isEmpty) {
-      suggestionList = questions;
-    } else {
-      // // make search more flexible that it could give you the question even if the query is reversed or not complete
-      // suggestionList = questions.where((element) {
-      //   return element.question!.contains(query);
-      // }).toList();
-    }
+    final List<Question> suggestionList = _getFilteredQuestions(query);
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -103,10 +115,13 @@ class QuestionSearch extends SearchDelegate<String> {
         itemCount: suggestionList.length,
         itemBuilder: (context, index) => ListTile(
           title: Text(
-            suggestionList[index].question!,
+            // Safely handle null questions so it doesn't crash the search page
+            suggestionList[index].question ?? 'بدون عنوان',
             style: const TextStyle(fontFamily: "Zarids", fontSize: 24),
           ),
           onTap: () {
+            Provider.of<GlobalAudioProvider>(context, listen: false)
+                .setBookmarkMode(false);
             Get.to(() => QuestionPage(suggestionList[index]),
                 transition: Transition.rightToLeft,
                 routeName: '/question/${suggestionList[index].no}');

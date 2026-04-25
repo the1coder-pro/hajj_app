@@ -28,7 +28,7 @@ class ContactFooter extends StatelessWidget {
               style: TextStyle(
                   fontFamily: "Zarids",
                   fontSize: 20,
-                  color: Theme.of(context).colorScheme.onSecondaryContainer),
+                  color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
           const SizedBox(height: 10),
@@ -47,16 +47,6 @@ class ContactFooter extends StatelessWidget {
                 //   },
                 // ),
 
-                const SizedBox(width: 5),
-                ContactButton(
-                    backgroundColor: themeProvider.brightness == Brightness.dark
-                        ? Colors.black26
-                        : Colors.white,
-                    foregroundColor: themeProvider.brightness == Brightness.dark
-                        ? Colors.white
-                        : Color(0xFF2b7b7a),
-                    icon: CommunityMaterialIcons.face_agent,
-                    link: 'https://wa.me/+966500155187'),
                 const SizedBox(width: 5),
                 ContactButton(
                   backgroundColor: themeProvider.brightness == Brightness.dark
@@ -111,7 +101,9 @@ class ContactFooter extends StatelessWidget {
                     backgroundColor: themeProvider.brightness == Brightness.dark
                         ? Colors.black26
                         : Colors.white,
-                    foregroundColor: Colors.red,
+                    foregroundColor: themeProvider.brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.red,
                     icon: CommunityMaterialIcons.youtube,
                     link: 'https://www.youtube.com/@halkalaf'),
                 const SizedBox(width: 10),
@@ -119,10 +111,43 @@ class ContactFooter extends StatelessWidget {
                   "@h_alkhalaf",
                   textDirection: TextDirection.ltr,
                   style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 15),
                 )
               ],
+            ),
+          ),
+          const SizedBox(height: 15),
+          SizedBox(
+            width: 250,
+            height: 50,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: themeProvider.brightness == Brightness.dark
+                    ? Colors.black26
+                    : Colors.white,
+                foregroundColor: themeProvider.brightness == Brightness.dark
+                    ? Colors.white
+                    : const Color(0xFF2b7b7a),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 0,
+              ),
+              onPressed: () async {
+                Uri url = Uri.parse('https://wa.me/+966500155187');
+                if (!await launchUrl(url)) {
+                  throw Exception('Could not launch $url');
+                }
+              },
+              icon: const Icon(CommunityMaterialIcons.face_agent),
+              label: const Text(
+                "خدمة العملاء",
+                style: TextStyle(
+                    fontFamily: "Zarids",
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
+              ),
             ),
           ),
           if (!isLargeScreen) const SizedBox(height: 50),

@@ -5,6 +5,7 @@ import 'package:hajj_app/pages/question_page.dart';
 import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/settings.dart';
 import 'package:provider/provider.dart';
+import 'package:hajj_app/main.dart';
 
 class QuestionTile extends StatelessWidget {
   final Question? question;
@@ -38,6 +39,8 @@ class QuestionTile extends StatelessWidget {
                 if (onTap != null) {
                   onTap!(question!);
                 } else {
+                  Provider.of<GlobalAudioProvider>(context, listen: false)
+                      .setBookmarkMode(false);
                   Get.to(() => QuestionPage(question!),
                       transition: Transition.downToUp,
                       routeName: '/question/${question!.no}');
