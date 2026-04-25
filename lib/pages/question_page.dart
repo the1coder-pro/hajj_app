@@ -606,7 +606,9 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
                             } else {
                               if (processingState ==
                                   ProcessingState.completed) {
-                                await audioPlayer.seek(Duration.zero);
+                                await audioPlayer.stop();
+                                await audioProvider.initAudio(question!,
+                                    force: true);
                               }
                               audioPlayer.play();
                             }

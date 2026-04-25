@@ -285,7 +285,11 @@ class _Bookmarks2PageState extends State<Bookmarks2Page> {
                                                           .colorScheme
                                                           .surface,
                                                   value: position.inSeconds
-                                                      .toDouble(),
+                                                      .toDouble()
+                                                      .clamp(
+                                                          0.0,
+                                                          duration!.inSeconds
+                                                              .toDouble()),
                                                   onChanged: (value) {
                                                     audioPlayer.seek(Duration(
                                                         seconds:

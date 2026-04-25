@@ -253,7 +253,7 @@ class GlobalMiniPlayer extends StatelessWidget {
                       await audioPlayer.pause();
                     } else {
                       if (processingState == ProcessingState.completed) {
-                        // Re-initialize audio fully to bypass Web stream freezing on replay
+                        await audioPlayer.stop();
                         await audioProvider.initAudio(question, force: true);
                       }
                       audioPlayer.play();
@@ -374,7 +374,9 @@ class GlobalMiniPlayer extends StatelessWidget {
                               .colorScheme
                               .onPrimaryContainer
                               .withValues(alpha: 0.2),
-                          value: position.inSeconds.toDouble(),
+                          value: position.inSeconds
+                              .toDouble()
+                              .clamp(0.0, duration.inSeconds.toDouble()),
                           thumbColor:
                               Theme.of(context).colorScheme.onPrimaryContainer,
                           activeColor: Theme.of(context)
