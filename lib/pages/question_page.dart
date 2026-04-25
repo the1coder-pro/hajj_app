@@ -216,12 +216,6 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
                       // close the page
                       IconButton(
                     onPressed: () {
-                      final audioProvider = Provider.of<GlobalAudioProvider>(
-                          context,
-                          listen: false);
-                      if (audioProvider.currentQuestion?.no == question?.no) {
-                        audioProvider.stopAudio();
-                      }
                       if (widget.onBack != null) {
                         widget.onBack!();
                       } else if (Navigator.canPop(context)) {
@@ -251,13 +245,6 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
                           children: [
                             IconButton(
                               onPressed: () {
-                                final audioProvider =
-                                    Provider.of<GlobalAudioProvider>(context,
-                                        listen: false);
-                                if (audioProvider.currentQuestion?.no ==
-                                    question?.no) {
-                                  audioProvider.stopAudio();
-                                }
                                 if (widget.onBack != null) {
                                   widget.onBack!();
                                 } else if (Navigator.canPop(context)) {
@@ -380,7 +367,7 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
                             ),
                             color: Theme.of(context)
                                 .colorScheme
-                                .onSecondaryContainer,
+                                .secondaryContainer,
                             child: Center(
                               child: Text("نص الجواب",
                                   style: TextStyle(
@@ -389,7 +376,7 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
                                       fontWeight: FontWeight.w600,
                                       color: Theme.of(context)
                                           .colorScheme
-                                          .secondaryContainer)),
+                                          .onSecondaryContainer)),
                             ),
                           )),
                       SizedBox(

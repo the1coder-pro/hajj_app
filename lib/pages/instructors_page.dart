@@ -388,7 +388,7 @@ class _InstructorsPageState extends State<InstructorsPage> {
                                                                   color: Theme.of(
                                                                           context)
                                                                       .colorScheme
-                                                                      .primaryContainer,
+                                                                      .onPrimaryContainer,
                                                                   fontSize: 24,
                                                                   fontWeight:
                                                                       FontWeight
@@ -563,9 +563,8 @@ class _LargeScreenSubtitlesPageState extends State<LargeScreenSubtitlesPage> {
                         itemBuilder: (context, index) {
                           return ListTile(
                             selected: _selectedSubtitleIndex == index,
-                            selectedTileColor: Theme.of(context)
-                                .colorScheme
-                                .secondaryContainer,
+                            selectedTileColor:
+                                Theme.of(context).colorScheme.primaryContainer,
                             title: Text(
                               subtitles[index],
                               style: TextStyle(
@@ -577,7 +576,7 @@ class _LargeScreenSubtitlesPageState extends State<LargeScreenSubtitlesPage> {
                                 color: _selectedSubtitleIndex == index
                                     ? Theme.of(context)
                                         .colorScheme
-                                        .onSecondaryContainer
+                                        .onPrimaryContainer
                                     : Theme.of(context).colorScheme.onSurface,
                               ),
                             ),

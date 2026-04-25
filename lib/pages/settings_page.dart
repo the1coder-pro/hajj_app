@@ -29,6 +29,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               child: Column(
                 children: [
+                  const SizedBox(height: 10),
                   // dark mode switch
                   SwitchListTile(
                     title: Text("الوضع الداكن",

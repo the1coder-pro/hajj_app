@@ -225,15 +225,15 @@ class GlobalMiniPlayer extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
+              color: Theme.of(context).colorScheme.onSurface,
               fontFamily: "Zarids",
               fontWeight: FontWeight.bold,
               fontSize: 16),
         );
 
         final closeButton = IconButton(
-          icon: Icon(Icons.close,
-              color: Theme.of(context).colorScheme.onPrimaryContainer),
+          icon:
+              Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () {
             audioProvider.stopAudio();
           },
@@ -256,7 +256,7 @@ class GlobalMiniPlayer extends StatelessWidget {
                     : Icons.repeat_one),
                 color: Theme.of(context)
                     .colorScheme
-                    .onPrimaryContainer
+                    .onSurface
                     .withValues(alpha: audioProvider.autoPlayNext ? 1.0 : 0.4),
               ),
             ),
@@ -287,7 +287,7 @@ class GlobalMiniPlayer extends StatelessWidget {
                 }
               },
               icon: const Icon(Icons.skip_next),
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             IconButton(
               onPressed: () async {
@@ -299,7 +299,7 @@ class GlobalMiniPlayer extends StatelessWidget {
                 }
               },
               icon: const Icon(Icons.forward_10_outlined),
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             StreamBuilder<PlayerState>(
               stream: audioPlayer.playerStateStream,
@@ -335,7 +335,7 @@ class GlobalMiniPlayer extends StatelessWidget {
                         : Icons.play_arrow,
                     size: 30,
                   ),
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  color: Theme.of(context).colorScheme.onSurface,
                 );
               },
             ),
@@ -351,7 +351,7 @@ class GlobalMiniPlayer extends StatelessWidget {
                 }
               },
               icon: const Icon(Icons.replay_10_outlined),
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             IconButton(
               onPressed: () {
@@ -376,7 +376,7 @@ class GlobalMiniPlayer extends StatelessWidget {
                 }
               },
               icon: const Icon(Icons.skip_previous),
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             Tooltip(
               message: "سرعة التشغيل",
@@ -400,7 +400,7 @@ class GlobalMiniPlayer extends StatelessWidget {
                     "${prefsProvider.audioSpeed == 1.0 ? '1' : prefsProvider.audioSpeed}x",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
@@ -433,23 +433,20 @@ class GlobalMiniPlayer extends StatelessWidget {
                               .bodySmall!
                               .copyWith(
                                   fontSize: 16,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onPrimaryContainer),
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface),
                         ),
                         Expanded(
                           child: Slider(
                             inactiveColor: Theme.of(context)
                                 .colorScheme
-                                .onPrimaryContainer
+                                .onSurface
                                 .withValues(alpha: 0.2),
                             value: 0.0,
-                            thumbColor: Theme.of(context)
-                                .colorScheme
-                                .onPrimaryContainer,
+                            thumbColor: Theme.of(context).colorScheme.onSurface,
                             activeColor: Theme.of(context)
                                 .colorScheme
-                                .onPrimaryContainer
+                                .onSurface
                                 .withValues(alpha: 0.5),
                             onChanged: null,
                           ),
@@ -461,9 +458,8 @@ class GlobalMiniPlayer extends StatelessWidget {
                               .bodySmall!
                               .copyWith(
                                   fontSize: 16,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onPrimaryContainer),
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface),
                         ),
                       ],
                     ),
@@ -479,24 +475,21 @@ class GlobalMiniPlayer extends StatelessWidget {
                         "${position.inMinutes}:${position.inSeconds.remainder(60).toString().padLeft(2, '0')}",
                         style: Theme.of(context).textTheme.bodySmall!.copyWith(
                             fontSize: 16,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onPrimaryContainer),
+                            color: Theme.of(context).colorScheme.onSurface),
                       ),
                       Expanded(
                         child: Slider(
                           inactiveColor: Theme.of(context)
                               .colorScheme
-                              .onPrimaryContainer
+                              .onSurface
                               .withValues(alpha: 0.2),
                           value: position.inSeconds
                               .toDouble()
                               .clamp(0.0, duration.inSeconds.toDouble()),
-                          thumbColor:
-                              Theme.of(context).colorScheme.onPrimaryContainer,
+                          thumbColor: Theme.of(context).colorScheme.onSurface,
                           activeColor: Theme.of(context)
                               .colorScheme
-                              .onPrimaryContainer
+                              .onSurface
                               .withValues(alpha: 0.5),
                           onChanged: (value) {
                             audioPlayer.seek(Duration(seconds: value.toInt()));
@@ -509,9 +502,7 @@ class GlobalMiniPlayer extends StatelessWidget {
                         "${duration.inMinutes}:${duration.inSeconds.remainder(60).toString().padLeft(2, '0')}",
                         style: Theme.of(context).textTheme.bodySmall!.copyWith(
                             fontSize: 16,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onPrimaryContainer),
+                            color: Theme.of(context).colorScheme.onSurface),
                       ),
                     ],
                   ),
@@ -536,7 +527,7 @@ class GlobalMiniPlayer extends StatelessWidget {
                           : 8.0),
                   child: Card(
                       elevation: 4,
-                      color: Theme.of(context).colorScheme.primaryContainer,
+                      color: Theme.of(context).colorScheme.surfaceContainer,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15)),
                       child: InkWell(
