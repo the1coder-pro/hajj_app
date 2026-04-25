@@ -64,6 +64,7 @@ class GlobalAudioProvider extends ChangeNotifier {
   bool autoPlayNext = true;
   List<dynamic>? _cachedData;
   Duration? lastKnownDuration;
+  bool _isStopped = false;
 
   GlobalAudioProvider() {
     audioPlayer.durationStream.listen((d) {
@@ -97,6 +98,7 @@ class GlobalAudioProvider extends ChangeNotifier {
   }
 
   Future<void> playQuestionById(int id) async {
+    _isStopped = false;
     isFetching = true;
     notifyListeners();
     try {
@@ -108,7 +110,9 @@ class GlobalAudioProvider extends ChangeNotifier {
       for (var i = 0; i < _cachedData!.length; i++) {
         if (_cachedData![i]['no'].toString() == id.toString()) {
           Question q = Question.fromJson(_cachedData![i]);
-          await initAudio(q);
+          if (_isStopped) return;
+          bool success = await initAudio(q);
+          if (_isStopped || !success) return;
           audioPlayer.play();
           break;
         }
@@ -116,11 +120,14 @@ class GlobalAudioProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint(e.toString());
     }
-    isFetching = false;
-    notifyListeners();
+    if (!_isStopped) {
+      isFetching = false;
+      notifyListeners();
+    }
   }
 
   Future<bool> initAudio(Question question, {bool force = false}) async {
+    _isStopped = false;
     if (!force && currentQuestion?.no == question.no) return true;
     currentQuestion = question;
     if (!force) {
@@ -140,12 +147,15 @@ class GlobalAudioProvider extends ChangeNotifier {
         if (kIsWeb) {
           final bytes = await fileInfo.file.readAsBytes();
           final xFile = XFile.fromData(bytes, mimeType: 'audio/mpeg');
+          if (_isStopped) return false;
           await audioPlayer.setUrl(xFile.path);
         } else {
+          if (_isStopped) return false;
           await audioPlayer.setFilePath(fileInfo.file.path);
         }
         isCached = true;
       } else {
+        if (_isStopped) return false;
         await audioPlayer.setUrl(url);
         isCached = false;
       }
@@ -153,6 +163,7 @@ class GlobalAudioProvider extends ChangeNotifier {
       debugPrint(e.toString());
       success = false;
     }
+    if (_isStopped) return false;
     notifyListeners();
     return success;
   }
@@ -163,9 +174,11 @@ class GlobalAudioProvider extends ChangeNotifier {
   }
 
   void stopAudio() async {
+    _isStopped = true;
     currentQuestion = null;
+    isFetching = false;
     notifyListeners();
-    await audioPlayer.pause();
+    await audioPlayer.stop();
   }
 }
 
