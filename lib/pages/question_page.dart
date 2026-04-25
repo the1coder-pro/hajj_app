@@ -173,6 +173,9 @@ ${question!.question}
 
 ${question!.answerText}
 
+رابط استماع للإجابة:
+https://hajjaudiofiles.kumthra.com/questions_audiofiles/${question!.no}.mp3
+
 رابط السؤال:
 ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.web.app/question/${question!.no}")}
 
@@ -209,6 +212,12 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
                       // close the page
                       IconButton(
                     onPressed: () {
+                      final audioProvider = Provider.of<GlobalAudioProvider>(
+                          context,
+                          listen: false);
+                      if (audioProvider.currentQuestion?.no == question?.no) {
+                        audioProvider.stopAudio();
+                      }
                       if (widget.onBack != null) {
                         widget.onBack!();
                       } else if (Navigator.canPop(context)) {
@@ -238,6 +247,13 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
                           children: [
                             IconButton(
                               onPressed: () {
+                                final audioProvider =
+                                    Provider.of<GlobalAudioProvider>(context,
+                                        listen: false);
+                                if (audioProvider.currentQuestion?.no ==
+                                    question?.no) {
+                                  audioProvider.stopAudio();
+                                }
                                 if (widget.onBack != null) {
                                   widget.onBack!();
                                 } else if (Navigator.canPop(context)) {
@@ -259,6 +275,11 @@ ${question!.mainTitle} - ${question!.subTitle}
 ${question!.question} 
 
 ${question!.answerText}
+
+
+رابط استماع للإجابة:
+https://hajjaudiofiles.kumthra.com/questions_audiofiles/${question!.no}.mp3
+
 
 رابط السؤال:
 ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.web.app/question/${question!.no}")}
@@ -509,7 +530,9 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
     final audioProvider = Provider.of<GlobalAudioProvider>(context);
     final audioPlayer = audioProvider.audioPlayer;
     final isCurrentQuestion = audioProvider.currentQuestion?.no == question!.no;
-    final isPlaying = isCurrentQuestion && audioProvider.isPlaying;
+    final isPlaying = isCurrentQuestion && audioPlayer.playing;
+    final showPauseIcon =
+        isPlaying && audioPlayer.processingState != ProcessingState.completed;
 
     return Card.outlined(
         elevation: 0.5,
@@ -557,24 +580,42 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
                           color: Theme.of(context).colorScheme.primary),
                     ),
                   ),
-                  IconButton.outlined(
-                      color: Theme.of(context).colorScheme.primary,
-                      onPressed: () async {
-                        audioPlayer.setSpeed(prefsProvider.audioSpeed);
-                        if (!isCurrentQuestion) {
-                          await audioProvider.initAudio(question!);
-                          audioPlayer.play();
-                        } else {
-                          if (isPlaying) {
-                            audioPlayer.pause();
-                          } else {
+                  StreamBuilder<PlayerState>(
+                    stream: audioPlayer.playerStateStream,
+                    builder: (context, snapshot) {
+                      final playerState = snapshot.data;
+                      final processingState = playerState?.processingState ??
+                          audioPlayer.processingState;
+                      final playing =
+                          playerState?.playing ?? audioPlayer.playing;
+                      final showPause = isCurrentQuestion &&
+                          playing &&
+                          processingState != ProcessingState.completed;
+
+                      return IconButton.outlined(
+                        color: Theme.of(context).colorScheme.primary,
+                        onPressed: () async {
+                          audioPlayer.setSpeed(prefsProvider.audioSpeed);
+                          if (!isCurrentQuestion) {
+                            await audioProvider.initAudio(question!);
                             audioPlayer.play();
+                          } else {
+                            if (playing &&
+                                processingState != ProcessingState.completed) {
+                              await audioPlayer.pause();
+                            } else {
+                              if (processingState ==
+                                  ProcessingState.completed) {
+                                await audioPlayer.seek(Duration.zero);
+                              }
+                              audioPlayer.play();
+                            }
                           }
-                        }
-                      },
-                      icon: isPlaying
-                          ? const Icon(Icons.pause)
-                          : const Icon(Icons.play_arrow)),
+                        },
+                        icon: Icon(showPause ? Icons.pause : Icons.play_arrow),
+                      );
+                    },
+                  ),
                   const Spacer(),
                 ],
               ),

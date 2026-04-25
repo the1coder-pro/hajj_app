@@ -286,6 +286,7 @@ class _InstructorsPageState extends State<InstructorsPage> {
                                                 padding:
                                                     const EdgeInsets.all(10),
                                                 child: Card.outlined(
+                                                  clipBehavior: Clip.antiAlias,
                                                   color: Theme.of(context)
                                                       .colorScheme
                                                       .surfaceContainerHighest
@@ -294,36 +295,52 @@ class _InstructorsPageState extends State<InstructorsPage> {
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               30)),
-                                                  child: InkWell(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            30),
-                                                    onTap: () {
-                                                      Get.to(
-                                                        () => SubTitlePage(
-                                                            index: index,
-                                                            i: i,
-                                                            mainTitles:
-                                                                generatedMainTitles,
-                                                            questions:
-                                                                questions,
-                                                            showAppBar: true),
-                                                        transition: Transition
-                                                            .leftToRight,
+                                                  child: Ink(
+                                                    decoration:
+                                                        const BoxDecoration(
+                                                      image: DecorationImage(
+                                                        image: AssetImage(
+                                                            'assets/kabba.jpg'),
+                                                        fit: BoxFit.cover,
+                                                        // blur
+                                                        colorFilter:
+                                                            ColorFilter.mode(
+                                                          Colors.black54,
+                                                          BlendMode.darken,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    child: InkWell(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              30),
+                                                      onTap: () {
+                                                        Get.to(
+                                                          () => SubTitlePage(
+                                                              index: index,
+                                                              i: i,
+                                                              mainTitles:
+                                                                  generatedMainTitles,
+                                                              questions:
+                                                                  questions,
+                                                              showAppBar: true),
+                                                          transition: Transition
+                                                              .leftToRight,
 
-                                                        // routeName:
-                                                        //     '/section/${generatedMainTitles[index]['title']}/${generatedMainTitles[index]['subTitles'][i]}'
-                                                      );
-                                                    },
-                                                    child: Center(
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .only(
-                                                                bottom: 10),
-                                                        child: ListTile(
-                                                          title: Center(
-                                                              child: Text(
+                                                          // routeName:
+                                                          //     '/section/${generatedMainTitles[index]['title']}/${generatedMainTitles[index]['subTitles'][i]}'
+                                                        );
+                                                      },
+                                                      child: Center(
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      16.0,
+                                                                  vertical:
+                                                                      8.0),
+                                                          child: Text(
                                                             generatedMainTitles[
                                                                     index][
                                                                 'subTitles'][i],
@@ -331,7 +348,7 @@ class _InstructorsPageState extends State<InstructorsPage> {
                                                                 color: Theme.of(
                                                                         context)
                                                                     .colorScheme
-                                                                    .primary,
+                                                                    .primaryContainer,
                                                                 fontSize: 24,
                                                                 fontWeight:
                                                                     FontWeight
@@ -340,7 +357,7 @@ class _InstructorsPageState extends State<InstructorsPage> {
                                                                     "Zarids"),
                                                             textAlign: TextAlign
                                                                 .center,
-                                                          )),
+                                                          ),
                                                         ),
                                                       ),
                                                     ),

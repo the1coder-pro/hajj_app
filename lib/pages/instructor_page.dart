@@ -268,34 +268,58 @@ class _InstructorPageState extends State<InstructorPage> {
                                                         //     '/section/${generatedMainTitles[index]['title']}/${generatedMainTitles[index]['subTitles'][i]}'
                                                       );
                                                     },
-                                                    child: Center(
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .only(
-                                                                bottom: 10),
-                                                        child: ListTile(
-                                                          title: Center(
-                                                              child: Text(
-                                                            generatedMainTitles[
-                                                                    index][
-                                                                'subTitles'][i],
-                                                            style: TextStyle(
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .colorScheme
-                                                                    .primary,
-                                                                fontSize: 24,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                fontFamily:
-                                                                    "Zarids"),
-                                                            textAlign: TextAlign
-                                                                .center,
-                                                          )),
+                                                    child: Stack(
+                                                      children: [
+                                                        const Align(
+                                                          alignment:
+                                                              Alignment.topLeft,
+                                                          child: Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    12.0),
+                                                            child: CircleAvatar(
+                                                              radius: 16,
+                                                              // Update with your actual Kaaba asset image path
+                                                              backgroundImage:
+                                                                  AssetImage(
+                                                                      'assets/titlesImages/1.png'),
+                                                            ),
+                                                          ),
                                                         ),
-                                                      ),
+                                                        Center(
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                                    bottom: 10),
+                                                            child: ListTile(
+                                                              title: Center(
+                                                                child: Text(
+                                                                  generatedMainTitles[
+                                                                          index]
+                                                                      [
+                                                                      'subTitles'][i],
+                                                                  style: TextStyle(
+                                                                      color: Theme.of(
+                                                                              context)
+                                                                          .colorScheme
+                                                                          .primary,
+                                                                      fontSize:
+                                                                          24,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      fontFamily:
+                                                                          "Zarids"),
+                                                                  textAlign:
+                                                                      TextAlign
+                                                                          .center,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ),
                                                 ),

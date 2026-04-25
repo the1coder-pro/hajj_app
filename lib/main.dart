@@ -61,13 +61,33 @@ class GlobalAudioProvider extends ChangeNotifier {
   bool isCached = false;
   bool isPlaying = false;
   bool isFetching = false;
+  bool autoPlayNext = true;
   List<dynamic>? _cachedData;
 
   GlobalAudioProvider() {
     audioPlayer.playerStateStream.listen((state) {
       isPlaying = state.playing;
+      if (state.processingState == ProcessingState.completed) {
+        // Only auto-skip if it naturally finished while playing and isn't just starting
+        if (state.playing && audioPlayer.position.inMilliseconds > 500) {
+          if (currentQuestion != null) {
+            int currentId = int.tryParse(currentQuestion!.no.toString()) ?? 1;
+            if (autoPlayNext && currentId < 322) {
+              // Prevent multiple triggers while the next audio is still loading
+              if (!isFetching) {
+                playQuestionById(currentId + 1);
+              }
+            }
+          }
+        }
+      }
       notifyListeners();
     });
+  }
+
+  void toggleAutoPlayNext() {
+    autoPlayNext = !autoPlayNext;
+    notifyListeners();
   }
 
   Future<void> playQuestionById(int id) async {
@@ -94,11 +114,13 @@ class GlobalAudioProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> initAudio(Question question) async {
-    if (currentQuestion?.no == question.no) return true;
+  Future<bool> initAudio(Question question, {bool force = false}) async {
+    if (!force && currentQuestion?.no == question.no) return true;
     currentQuestion = question;
-    isCached = false;
-    notifyListeners();
+    if (!force) {
+      isCached = false;
+      notifyListeners();
+    }
 
     bool success = true;
     try {
@@ -134,9 +156,9 @@ class GlobalAudioProvider extends ChangeNotifier {
   }
 
   void stopAudio() async {
-    await audioPlayer.pause();
     currentQuestion = null;
     notifyListeners();
+    await audioPlayer.pause();
   }
 }
 
@@ -177,6 +199,23 @@ class GlobalMiniPlayer extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
+            Tooltip(
+              message: audioProvider.autoPlayNext
+                  ? "إيقاف التشغيل التلقائي"
+                  : "تفعيل التشغيل التلقائي",
+              child: IconButton(
+                onPressed: () {
+                  audioProvider.toggleAutoPlayNext();
+                },
+                icon: Icon(audioProvider.autoPlayNext
+                    ? Icons.repeat
+                    : Icons.repeat_one),
+                color: Theme.of(context)
+                    .colorScheme
+                    .onPrimaryContainer
+                    .withValues(alpha: audioProvider.autoPlayNext ? 1.0 : 0.4),
+              ),
+            ),
             IconButton(
               onPressed: () {
                 int currentId = int.tryParse(question.no.toString()) ?? 1;
@@ -199,19 +238,36 @@ class GlobalMiniPlayer extends StatelessWidget {
               icon: const Icon(Icons.forward_10_outlined),
               color: Theme.of(context).colorScheme.onPrimaryContainer,
             ),
-            IconButton(
-              onPressed: () {
-                if (audioProvider.isPlaying) {
-                  audioPlayer.pause();
-                } else {
-                  audioPlayer.play();
-                }
+            StreamBuilder<PlayerState>(
+              stream: audioPlayer.playerStateStream,
+              builder: (context, snapshot) {
+                final playerState = snapshot.data;
+                final processingState =
+                    playerState?.processingState ?? audioPlayer.processingState;
+                final playing = playerState?.playing ?? audioPlayer.playing;
+
+                return IconButton(
+                  onPressed: () async {
+                    if (playing &&
+                        processingState != ProcessingState.completed) {
+                      await audioPlayer.pause();
+                    } else {
+                      if (processingState == ProcessingState.completed) {
+                        // Re-initialize audio fully to bypass Web stream freezing on replay
+                        await audioProvider.initAudio(question, force: true);
+                      }
+                      audioPlayer.play();
+                    }
+                  },
+                  icon: Icon(
+                    (playing && processingState != ProcessingState.completed)
+                        ? Icons.pause
+                        : Icons.play_arrow,
+                    size: 30,
+                  ),
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                );
               },
-              icon: Icon(
-                audioProvider.isPlaying ? Icons.pause : Icons.play_arrow,
-                size: 30,
-              ),
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
             ),
             IconButton(
               onPressed: () async {
@@ -380,7 +436,7 @@ class GlobalMiniPlayer extends StatelessWidget {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: [
-                                      // closeButton,
+                                      closeButton,
                                       Expanded(
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
