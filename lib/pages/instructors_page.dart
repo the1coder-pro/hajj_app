@@ -30,7 +30,23 @@ class _InstructorsPageState extends State<InstructorsPage> {
   bool _isLoading = true;
   final String instructor = "شيخ جعفر العبدالكريم";
 
+  static dynamic _cachedJsonData;
+  static List<Question> _cachedQuestions = [];
+  static List<Map> _cachedGeneratedMainTitles = [];
+
   Future<void> loadJsonAsset() async {
+    if (_cachedQuestions.isNotEmpty && _cachedGeneratedMainTitles.isNotEmpty) {
+      if (mounted) {
+        setState(() {
+          jsonData = _cachedJsonData;
+          questions = _cachedQuestions;
+          generatedMainTitles = List.from(_cachedGeneratedMainTitles);
+          _isLoading = false;
+        });
+      }
+      return;
+    }
+
     // https://opensheet.elk.sh/1KxJKKxKBcEd0lguKAbK-UkGIqzAcOXs5is3zNiTnFgY/1
     // get the data from the link
     final response = await http.get(Uri.parse(
@@ -38,9 +54,13 @@ class _InstructorsPageState extends State<InstructorsPage> {
     // json
     var data1 = utf8.decode(response.bodyBytes);
     var data = jsonDecode(data1);
-    setState(() {
+    if (mounted) {
+      setState(() {
+        jsonData = data;
+      });
+    } else {
       jsonData = data;
-    });
+    }
     for (var i = 0; i < jsonData.length; i++) {
       questions.add(Question.fromJson(jsonData[i]));
 
@@ -82,9 +102,15 @@ class _InstructorsPageState extends State<InstructorsPage> {
       generatedMainTitles.add({"title": "مسائل إضافية"});
     }
 
-    setState(() {
-      _isLoading = false;
-    });
+    _cachedJsonData = jsonData;
+    _cachedQuestions = questions;
+    _cachedGeneratedMainTitles = List.from(generatedMainTitles);
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   List<Question> getQuestionsByInstructor(String instructor) {
@@ -141,6 +167,7 @@ class _InstructorsPageState extends State<InstructorsPage> {
                               : "assets/main_banner_light.jpg",
                           fit: BoxFit.fitWidth,
                           width: double.infinity,
+                          gaplessPlayback: true,
                         ),
                       ),
                     ),
@@ -170,6 +197,7 @@ class _InstructorsPageState extends State<InstructorsPage> {
                             // move image to the right
                             alignment: Alignment.center,
                             width: double.infinity,
+                            gaplessPlayback: true,
                           ),
                         ),
                         Row(
@@ -458,6 +486,7 @@ class _InstructorsPageState extends State<InstructorsPage> {
                                     width: 60,
                                     height: 60,
                                     fit: BoxFit.contain,
+                                    gaplessPlayback: true,
                                   ),
                                 ],
                               ),

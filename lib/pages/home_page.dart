@@ -283,7 +283,16 @@ class _HomePageState extends State<HomePage> {
                               child:
                                   _buildDrawerContent(context, isModal: true),
                             ),
-                      body: currentSelectedPage(pageType),
+                      body: IndexedStack(
+                        index: pageTitles.indexWhere(
+                            (element) => element.keys.first == pageType),
+                        children: const [
+                          InstructorsPage(),
+                          AdvertismentsPage(),
+                          BookmarksPage(),
+                          SettingsPage(),
+                        ],
+                      ),
                     );
 
                     if (isLargeScreen) {
@@ -334,19 +343,6 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
-  }
-}
-
-Widget currentSelectedPage(PageType page) {
-  switch (page) {
-    case PageType.instructors:
-      return const InstructorsPage();
-    case PageType.ads:
-      return const AdvertismentsPage();
-    case PageType.settings:
-      return const SettingsPage();
-    case PageType.bookmarks:
-      return const BookmarksPage();
   }
 }
 

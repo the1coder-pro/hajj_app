@@ -17,85 +17,107 @@ class _SettingsPageState extends State<SettingsPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        body: ListView(
-          padding: const EdgeInsets.all(16),
+        body: Column(
           children: [
-            Card.filled(
-              elevation: 1,
-              color: Theme.of(context).colorScheme.surfaceContainerLow,
-              clipBehavior: Clip.antiAlias,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Column(
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(16),
                 children: [
-                  const SizedBox(height: 10),
-                  // dark mode switch
-                  SwitchListTile(
-                    title: Text("الوضع الداكن",
-                        style: Theme.of(context).textTheme.displaySmall),
-                    value: Theme.of(context).brightness == Brightness.dark,
-                    onChanged: (isOn) {
-                      Provider.of<ThemeProvider>(context, listen: false)
-                          .toggleTheme(isOn);
-                    },
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    title: Text("حجم الخط",
-                        style: Theme.of(context).textTheme.displaySmall),
-                    subtitle: Slider(
-                      label: prefsProvider.fontSize.toString(),
-                      value: prefsProvider.fontSize,
-                      min: 20,
-                      max: 40,
-                      divisions: 5,
-                      onChanged: (value) {
-                        prefsProvider.fontSize = value;
-                      },
+                  Card.filled(
+                    elevation: 1,
+                    color: Theme.of(context).colorScheme.surfaceContainerLow,
+                    clipBehavior: Clip.antiAlias,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                    trailing: CircleAvatar(
-                      backgroundColor:
-                          Theme.of(context).colorScheme.secondaryContainer,
-                      child: Text(prefsProvider.fontSize.toString(),
-                          style: TextStyle(
-                              fontSize: 22,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSecondaryContainer),
-                          textAlign: TextAlign.center),
-                    ),
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    title: Text("سرعة الصوت",
-                        style: Theme.of(context).textTheme.displaySmall),
-                    subtitle: Slider(
-                      label: prefsProvider.audioSpeed.toString(),
-                      value: prefsProvider.audioSpeed,
-                      min: 0.5,
-                      max: 5,
-                      // divisions are 5 4.5 4 3.5 3 2.5 2 1.5 1 0.5
-                      divisions: 9,
-                      onChanged: (value) {
-                        prefsProvider.audioSpeed = value;
-                      },
-                    ),
-                    trailing: CircleAvatar(
-                      backgroundColor:
-                          Theme.of(context).colorScheme.secondaryContainer,
-                      child: Text(prefsProvider.audioSpeed.toString(),
-                          style: TextStyle(
-                              fontSize: 22,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSecondaryContainer),
-                          textAlign: TextAlign.center),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 10),
+                        // dark mode switch
+                        SwitchListTile(
+                          title: Text("الوضع الداكن",
+                              style: Theme.of(context).textTheme.displaySmall),
+                          value:
+                              Theme.of(context).brightness == Brightness.dark,
+                          onChanged: (isOn) {
+                            Provider.of<ThemeProvider>(context, listen: false)
+                                .toggleTheme(isOn);
+                          },
+                        ),
+                        const Divider(height: 1),
+                        ListTile(
+                          title: Text("حجم الخط",
+                              style: Theme.of(context).textTheme.displaySmall),
+                          subtitle: Slider(
+                            label: prefsProvider.fontSize.toString(),
+                            value: prefsProvider.fontSize,
+                            min: 20,
+                            max: 40,
+                            divisions: 5,
+                            onChanged: (value) {
+                              prefsProvider.fontSize = value;
+                            },
+                          ),
+                          trailing: CircleAvatar(
+                            backgroundColor: Theme.of(context)
+                                .colorScheme
+                                .secondaryContainer,
+                            child: Text(prefsProvider.fontSize.toString(),
+                                style: TextStyle(
+                                    fontSize: 22,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSecondaryContainer),
+                                textAlign: TextAlign.center),
+                          ),
+                        ),
+                        const Divider(height: 1),
+                        ListTile(
+                          title: Text("سرعة الصوت",
+                              style: Theme.of(context).textTheme.displaySmall),
+                          subtitle: Slider(
+                            label: prefsProvider.audioSpeed.toString(),
+                            value: prefsProvider.audioSpeed,
+                            min: 0.5,
+                            max: 5,
+                            // divisions are 5 4.5 4 3.5 3 2.5 2 1.5 1 0.5
+                            divisions: 9,
+                            onChanged: (value) {
+                              prefsProvider.audioSpeed = value;
+                            },
+                          ),
+                          trailing: CircleAvatar(
+                            backgroundColor: Theme.of(context)
+                                .colorScheme
+                                .secondaryContainer,
+                            child: Text(prefsProvider.audioSpeed.toString(),
+                                style: TextStyle(
+                                    fontSize: 22,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSecondaryContainer),
+                                textAlign: TextAlign.center),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-            )
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  "الإصدار 1.0.2",
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                      fontFamily: "Zarids"),
+                ),
+              ),
+            ),
           ],
         ),
       ),

@@ -196,6 +196,7 @@ class _IntroAudioPageState extends State<IntroAudioPage> {
                         fit: BoxFit.fitWidth,
                         alignment: Alignment.center,
                         width: double.infinity,
+                        gaplessPlayback: true,
                       ),
                     ),
                     Row(
