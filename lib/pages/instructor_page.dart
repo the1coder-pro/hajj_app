@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hajj_app/pages/extra_questions_page.dart';
+import 'package:hajj_app/pages/other_questions_page.dart';
 import 'package:hajj_app/pages/subtitle_page.dart';
 import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/components/search_delegate.dart';
@@ -338,8 +338,8 @@ class _InstructorPageState extends State<InstructorPage> {
                                     routeName:
                                         '/section/${Uri.encodeComponent(generatedMainTitles[index]['title'])}');
                               } else {
-                                Get.to(() => ExtraQuestionsPage(),
-                                    routeName: '/extra-questions');
+                                Get.to(() => const OtherQuestionsPage(),
+                                    routeName: '/other-questions');
                               }
                             },
                             child: Center(

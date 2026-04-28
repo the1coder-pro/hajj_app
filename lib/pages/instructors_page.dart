@@ -4,8 +4,9 @@ import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hajj_app/components/contact_footer.dart';
+import 'package:hajj_app/pages/intro_audio_page.dart';
+import 'package:hajj_app/pages/other_questions_page.dart';
 import 'package:hajj_app/components/search_delegate.dart';
-import 'package:hajj_app/pages/extra_questions_page.dart';
 import 'package:hajj_app/pages/subtitle_page.dart';
 import 'package:hajj_app/pages/question_page.dart';
 import 'package:hajj_app/question_model.dart';
@@ -26,6 +27,7 @@ class _InstructorsPageState extends State<InstructorsPage> {
   dynamic jsonData = "";
   List<Question> questions = [];
   List<Map> generatedMainTitles = [];
+  bool _isLoading = true;
   final String instructor = "شيخ جعفر العبدالكريم";
 
   Future<void> loadJsonAsset() async {
@@ -75,9 +77,14 @@ class _InstructorsPageState extends State<InstructorsPage> {
     }
     // debugPrint(generatedMainTitles as String?);
     questions = getQuestionsByInstructor(instructor);
+    generatedMainTitles.insert(0, {"title": "المقدمة"});
     if (instructor == "شيخ جعفر العبدالكريم") {
       generatedMainTitles.add({"title": "مسائل إضافية"});
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   List<Question> getQuestionsByInstructor(String instructor) {
@@ -235,211 +242,258 @@ class _InstructorsPageState extends State<InstructorsPage> {
               sliver: SliverGrid(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.all(5),
-                      child: Card.outlined(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest
-                            .withValues(alpha: 0.5),
-                        // color: const Color(0xFFe4e4e6),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30)),
-                        child: InkWell(
-                          // radius is like the card
-                          borderRadius: BorderRadius.circular(30),
-                          onTap: () {
-                            if (!(generatedMainTitles[index]['title'] ==
-                                "مسائل إضافية")) {
-                              if (MediaQuery.of(context).size.width >= 800) {
-                                Get.to(
-                                  () => LargeScreenSubtitlesPage(
-                                    mainTitleIndex: index,
-                                    mainTitles: generatedMainTitles,
-                                    questions: questions,
+                    bool isItemLoading =
+                        _isLoading || index >= generatedMainTitles.length;
+                    String currentTitle = isItemLoading
+                        ? ""
+                        : generatedMainTitles[index]['title'];
+                    if (isItemLoading && index == 0) currentTitle = "المقدمة";
+                    if (isItemLoading && index == 7)
+                      currentTitle = "مسائل إضافية";
+
+                    void onItemTap() {
+                      if (isItemLoading) {
+                        if (index == 0) {
+                          Get.to(() => const IntroAudioPage(),
+                              routeName: '/intro');
+                        } else if (index == 7) {
+                          Get.to(() => const OtherQuestionsPage(),
+                              routeName: '/other-questions');
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text("جاري تحميل البيانات...",
+                                    style: TextStyle(fontFamily: "Zarids"))),
+                          );
+                        }
+                        return;
+                      }
+
+                      if (currentTitle == "المقدمة") {
+                        Get.to(() => const IntroAudioPage(),
+                            routeName: '/intro');
+                      } else if (currentTitle == "مسائل إضافية") {
+                        Get.to(() => const OtherQuestionsPage(),
+                            routeName: '/other-questions');
+                      } else {
+                        if (MediaQuery.of(context).size.width >= 800) {
+                          Get.to(
+                            () => LargeScreenSubtitlesPage(
+                              mainTitleIndex: index,
+                              mainTitles: generatedMainTitles,
+                              questions: questions,
+                            ),
+                            routeName:
+                                '/section/${Uri.encodeComponent(currentTitle)}',
+                          );
+                        } else {
+                          Get.to(
+                            () => Directionality(
+                                textDirection: TextDirection.rtl,
+                                child: Scaffold(
+                                  appBar: AppBar(
+                                    title: Padding(
+                                      padding: const EdgeInsets.all(10),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text("- $currentTitle -",
+                                              style: TextStyle(
+                                                  fontSize: 22,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface)),
+                                          Text("اختر القسم",
+                                              style: TextStyle(
+                                                  fontSize: 22,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface,
+                                                  fontWeight: FontWeight.bold))
+                                        ],
+                                      ),
+                                    ),
+                                    centerTitle: true,
+                                    toolbarHeight: 80,
                                   ),
-                                  routeName:
-                                      '/section/${Uri.encodeComponent(generatedMainTitles[index]['title'])}',
-                                );
-                              } else {
-                                Get.to(
-                                  () => Directionality(
-                                      textDirection: TextDirection.rtl,
-                                      child: Scaffold(
-                                        appBar: AppBar(
-                                          title: Padding(
-                                            padding: const EdgeInsets.all(10),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Text(
-                                                    "- ${generatedMainTitles[index]['title']} -",
-                                                    style: TextStyle(
-                                                        fontSize: 22,
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .onSurface)),
-                                                Text("اختر القسم",
-                                                    style: TextStyle(
-                                                        fontSize: 22,
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .onSurface,
-                                                        fontWeight:
-                                                            FontWeight.bold))
-                                              ],
-                                            ),
-                                          ),
-                                          centerTitle: true,
-                                          toolbarHeight: 80,
+                                  body: Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 10, right: 10),
+                                    child: Builder(builder: (context) {
+                                      bool isInnerLargeScreen =
+                                          MediaQuery.of(context).size.width >=
+                                              800;
+                                      return GridView.builder(
+                                        gridDelegate:
+                                            SliverGridDelegateWithMaxCrossAxisExtent(
+                                          maxCrossAxisExtent:
+                                              isInnerLargeScreen ? 400 : 250,
+                                          childAspectRatio:
+                                              isInnerLargeScreen ? 2.0 : 1.0,
                                         ),
-                                        body: Padding(
-                                          padding: const EdgeInsets.only(
-                                              left: 10, right: 10),
-                                          child: Builder(builder: (context) {
-                                            bool isInnerLargeScreen =
-                                                MediaQuery.of(context)
-                                                        .size
-                                                        .width >=
-                                                    800;
-                                            return GridView.builder(
-                                              gridDelegate:
-                                                  SliverGridDelegateWithMaxCrossAxisExtent(
-                                                maxCrossAxisExtent:
-                                                    isInnerLargeScreen
-                                                        ? 400
-                                                        : 250,
-                                                childAspectRatio:
-                                                    isInnerLargeScreen
-                                                        ? 2.0
-                                                        : 1.0,
-                                              ),
-                                              itemCount:
-                                                  generatedMainTitles[index]
-                                                          ['subTitles']
-                                                      .length,
-                                              itemBuilder: (context, i) {
-                                                return Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(5),
-                                                  child: Card.outlined(
-                                                    clipBehavior:
-                                                        Clip.antiAlias,
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .surfaceContainerHighest
-                                                        .withValues(alpha: 0.5),
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        30)),
-                                                    child: Ink(
-                                                      decoration:
-                                                          const BoxDecoration(
-                                                        image: DecorationImage(
-                                                          image: AssetImage(
-                                                              'assets/kabba.jpg'),
-                                                          fit: BoxFit.cover,
-                                                          // blur
-                                                          colorFilter:
-                                                              ColorFilter.mode(
-                                                            Colors.black54,
-                                                            BlendMode.darken,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      child: InkWell(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(30),
-                                                        onTap: () {
-                                                          Get.to(
-                                                            () => SubTitlePage(
-                                                                index: index,
-                                                                i: i,
-                                                                mainTitles:
-                                                                    generatedMainTitles,
-                                                                questions:
-                                                                    questions,
-                                                                showAppBar:
-                                                                    true),
-                                                            transition:
-                                                                Transition
-                                                                    .leftToRight,
-                                                            routeName:
-                                                                '/section/${Uri.encodeComponent(generatedMainTitles[index]['title'])}/${Uri.encodeComponent(generatedMainTitles[index]['subTitles'][i])}',
-                                                          );
-                                                        },
-                                                        child: Center(
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .symmetric(
-                                                                    horizontal:
-                                                                        16.0,
-                                                                    vertical:
-                                                                        8.0),
-                                                            child: Text(
-                                                              generatedMainTitles[
-                                                                      index][
-                                                                  'subTitles'][i],
-                                                              style: TextStyle(
-                                                                  color: Theme.of(
-                                                                          context)
-                                                                      .colorScheme
-                                                                      .onPrimaryContainer,
-                                                                  fontSize: 24,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  fontFamily:
-                                                                      "Zarids"),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                            ),
-                                                          ),
-                                                        ),
+                                        itemCount: generatedMainTitles[index]
+                                                ['subTitles']
+                                            .length,
+                                        itemBuilder: (context, i) {
+                                          return Padding(
+                                            padding: const EdgeInsets.all(5),
+                                            child: Card.outlined(
+                                              clipBehavior: Clip.antiAlias,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .surfaceContainerHighest
+                                                  .withValues(alpha: 0.5),
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          30)),
+                                              child: Ink(
+                                                decoration: const BoxDecoration(
+                                                  image: DecorationImage(
+                                                    image: AssetImage(
+                                                        'assets/kabba.jpg'),
+                                                    fit: BoxFit.cover,
+                                                    // blur
+                                                    colorFilter:
+                                                        ColorFilter.mode(
+                                                      Colors.black54,
+                                                      BlendMode.darken,
+                                                    ),
+                                                  ),
+                                                ),
+                                                child: InkWell(
+                                                  borderRadius:
+                                                      BorderRadius.circular(30),
+                                                  onTap: () {
+                                                    Get.to(
+                                                      () => SubTitlePage(
+                                                          index: index,
+                                                          i: i,
+                                                          mainTitles:
+                                                              generatedMainTitles,
+                                                          questions: questions,
+                                                          showAppBar: true),
+                                                      transition: Transition
+                                                          .leftToRight,
+                                                      routeName:
+                                                          '/section/${Uri.encodeComponent(currentTitle)}/${Uri.encodeComponent(generatedMainTitles[index]['subTitles'][i])}',
+                                                    );
+                                                  },
+                                                  child: Center(
+                                                    child: Padding(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 16.0,
+                                                          vertical: 8.0),
+                                                      child: Text(
+                                                        generatedMainTitles[
+                                                                index]
+                                                            ['subTitles'][i],
+                                                        style: TextStyle(
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .onPrimaryContainer,
+                                                            fontSize: 24,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontFamily:
+                                                                "Zarids"),
+                                                        textAlign:
+                                                            TextAlign.center,
                                                       ),
                                                     ),
                                                   ),
-                                                );
-                                              },
-                                            );
-                                          }),
-                                        ),
-                                      )),
-                                  transition: Transition.leftToRight,
-                                  routeName:
-                                      '/section/${Uri.encodeComponent(generatedMainTitles[index]['title'])}',
-                                );
-                              }
-                            } else {
-                              Get.to(() => ExtraQuestionsPage(),
-                                  routeName: '/extra-questions');
-                            }
-                          },
-                          child: Center(
-                            child: Text(generatedMainTitles[index]['title'],
-                                style: TextStyle(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: "Zarids"),
-                                textAlign: TextAlign.center),
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    }),
+                                  ),
+                                )),
+                            transition: Transition.leftToRight,
+                            routeName:
+                                '/section/${Uri.encodeComponent(currentTitle)}',
+                          );
+                        }
+                      }
+                    }
+
+                    if (isLargeScreen) {
+                      return Padding(
+                        padding: const EdgeInsets.all(5),
+                        child: Card.outlined(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest
+                              .withValues(alpha: 0.5),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30)),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(30),
+                            onTap: onItemTap,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      generatedMainTitles[index]['title'],
+                                      style: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          fontSize: 25,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: "Zarids"),
+                                      textAlign: TextAlign.right,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Image.asset(
+                                    'assets/titlesImages/${index + 1}_icon.png',
+                                    width: 60,
+                                    height: 60,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
+                        ),
+                      );
+                    }
+
+                    return Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: Ink(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          image: DecorationImage(
+                            image: AssetImage(
+                              themeProvider.themeMode == ThemeMode.dark
+                                  ? 'assets/titlesImages/${index + 1}_dark.png'
+                                  : 'assets/titlesImages/${index + 1}.png',
+                            ),
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        child: InkWell(
+                          // radius is like the card
+                          borderRadius: BorderRadius.circular(30),
+                          onTap: onItemTap,
                         ),
                       ),
                     );
                   },
-                  childCount: generatedMainTitles.length,
+                  childCount: _isLoading ? 8 : generatedMainTitles.length,
                 ),
                 gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: isLargeScreen ? 400 : 250,
-                  childAspectRatio: isLargeScreen ? 2.0 : 1.0,
+                  childAspectRatio: isLargeScreen ? 3.0 : 1.0,
                 ),
               ),
             ),

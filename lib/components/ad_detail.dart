@@ -17,12 +17,18 @@ class AdDetailsPage extends StatefulWidget {
 
 class _AdDetailsPageState extends State<AdDetailsPage> {
   late int _currentIndex;
-  double _drawerWidth = 300.0;
+  final ValueNotifier<double> _drawerWidth = ValueNotifier(300.0);
 
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
+  }
+
+  @override
+  void dispose() {
+    _drawerWidth.dispose();
+    super.dispose();
   }
 
   @override
@@ -35,18 +41,24 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
 
     String imageStr = currentAd['Image']?.toString() ?? '';
     String imageURL = '';
-    if (imageStr.contains('id=')) {
-      String id = imageStr.split('id=')[1];
-      imageURL = "https://lh3.googleusercontent.com/d/$id=s1000?authuser=0";
+    if (imageStr.isNotEmpty) {
+      final regExp = RegExp(r'(?:id=|\/d\/)([\w-]+)');
+      final match = regExp.firstMatch(imageStr);
+      if (match != null && match.group(1) != null) {
+        String id = match.group(1)!;
+        imageURL = "https://lh3.googleusercontent.com/d/$id=s1000?authuser=0";
+      } else {
+        imageURL = imageStr; // Fallback in case it's already a direct link
+      }
     }
 
     String title = currentAd['Title'] ?? 'بدون عنوان';
     String description = currentAd['Description'] ?? '';
     String link = currentAd['Link'] ?? '';
-    String? timestamp =
-        (currentAd['StartDate'] != null && currentAd['EndDate'] != null)
-            ? "${currentAd['StartDate']} إلى ${currentAd['EndDate']}"
-            : null;
+    // String? timestamp =
+    //     (currentAd['StartDate'] != null && currentAd['EndDate'] != null)
+    //         ? "${currentAd['StartDate']} إلى ${currentAd['EndDate']}"
+    //         : null;
 
     Widget fallbackWidget = const Padding(
       padding: EdgeInsets.all(30.0),
@@ -54,15 +66,18 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
     );
 
     Widget imageWidget = imageURL.isNotEmpty
-        ? InteractiveViewer(
-            child: Image.network(
-              imageURL,
-              fit: BoxFit.contain,
-              filterQuality: FilterQuality.high,
-              errorBuilder: (context, error, stackTrace) {
-                return fallbackWidget;
-              },
-            ),
+        ? Image.network(
+            imageURL,
+            key: ValueKey(imageURL),
+            fit: BoxFit.contain,
+            filterQuality: FilterQuality.high,
+            errorBuilder: (context, error, stackTrace) {
+              return fallbackWidget;
+            },
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return const Center(child: CircularProgressIndicator());
+            },
           )
         : fallbackWidget;
 
@@ -83,27 +98,27 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (timestamp != null && timestamp.isNotEmpty) ...[
-                    Row(
-                      children: [
-                        Icon(Icons.access_time,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            timestamp,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "Zarids",
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Divider(height: 16),
-                  ],
+                  // if (timestamp != null && timestamp.isNotEmpty) ...[
+                  // Row(
+                  //   children: [
+                  //     Icon(Icons.access_time,
+                  //         color: Theme.of(context).colorScheme.primary,
+                  //         size: 20),
+                  //     const SizedBox(width: 8),
+                  //     Expanded(
+                  //       child: Text(
+                  //         timestamp,
+                  //         style: TextStyle(
+                  //           color: Theme.of(context).colorScheme.primary,
+                  //           fontWeight: FontWeight.bold,
+                  //           fontFamily: "Zarids",
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  // const Divider(height: 16),
+                  // ],
                   Text(
                     description,
                     style: const TextStyle(fontSize: 18, height: 1.5),
@@ -127,7 +142,7 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
                   },
                   iconAlignment: IconAlignment.end,
                   icon: const Icon(Icons.launch_outlined),
-                  label: const Text("رابط",
+                  label: const Text("الرابط",
                       style: TextStyle(fontSize: 18, fontFamily: "Zarids")),
                 ),
               ),
@@ -138,15 +153,17 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
 
     Widget mainContent = ListView(
       children: [
-        Container(
-          color: Theme.of(context)
-              .colorScheme
-              .surfaceContainerHighest
-              .withValues(alpha: 0.3),
-          constraints: const BoxConstraints(
-            maxHeight: 400, // Bound image height so scrolling is pleasant
+        InteractiveViewer(
+          child: Container(
+            color: Theme.of(context)
+                .colorScheme
+                .surfaceContainerHighest
+                .withValues(alpha: 0.3),
+            constraints: const BoxConstraints(
+              maxHeight: 400, // Bound image height so scrolling is pleasant
+            ),
+            child: Center(child: imageWidget),
           ),
-          child: Center(child: imageWidget),
         ),
         detailsWidget,
       ],
@@ -239,20 +256,23 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  SizedBox(
-                    width: _drawerWidth,
-                    child: drawerContent,
+                  ValueListenableBuilder<double>(
+                    valueListenable: _drawerWidth,
+                    builder: (context, width, child) {
+                      return SizedBox(
+                        width: width,
+                        child: drawerContent,
+                      );
+                    },
                   ),
                   MouseRegion(
                     cursor: SystemMouseCursors.resizeColumn,
                     child: GestureDetector(
                       behavior: HitTestBehavior.translucent,
                       onPanUpdate: (details) {
-                        setState(() {
-                          _drawerWidth -= details.delta.dx;
-                          _drawerWidth = _drawerWidth.clamp(
-                              200.0, constraints.maxWidth * 0.5);
-                        });
+                        _drawerWidth.value -= details.delta.dx;
+                        _drawerWidth.value = _drawerWidth.value
+                            .clamp(200.0, constraints.maxWidth * 0.5);
                       },
                       child: const SizedBox(
                         width: 10,

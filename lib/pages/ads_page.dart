@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:typed_data';
+import 'dart:ui';
 
 // import 'package:carousel_slider/carousel_slider.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -61,8 +63,8 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
                     child: _adsList.isEmpty
                         ? const Center(child: Text("لا توجد إعلانات حاليا."))
                         : Column(children: [
-                            const Text("اخر الأخبار",
-                                style: TextStyle(fontSize: 25)),
+                            // const Text("اخر الأخبار",
+                            //     style: TextStyle(fontSize: 25)),
                             CarouselSlider(
                               options: CarouselOptions(
                                   height: 250.0,
@@ -74,13 +76,20 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
                                 String imageStr =
                                     item['Image']?.toString() ?? '';
                                 String imageURL = '';
-                                if (imageStr.contains('id=')) {
-                                  String id = imageStr.split('id=')[1];
-                                  imageURL =
-                                      "https://lh3.googleusercontent.com/d/$id=s1000?authuser=0";
+                                if (imageStr.isNotEmpty) {
+                                  final regExp =
+                                      RegExp(r'(?:id=|\/d\/)([\w-]+)');
+                                  final match = regExp.firstMatch(imageStr);
+                                  if (match != null && match.group(1) != null) {
+                                    String id = match.group(1)!;
+                                    imageURL =
+                                        "https://lh3.googleusercontent.com/d/$id=s1000?authuser=0";
+                                  } else {
+                                    imageURL = imageStr;
+                                  }
                                 }
 
-                                Widget fallbackWidget = Center(
+                                Widget titleWidget = Center(
                                   child: Padding(
                                     padding: const EdgeInsets.all(16.0),
                                     child: Text(
@@ -89,9 +98,11 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
                                       style: TextStyle(
                                         fontSize: 28,
                                         fontWeight: FontWeight.bold,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
+                                        color: imageURL.isNotEmpty
+                                            ? Colors.white
+                                            : Theme.of(context)
+                                                .colorScheme
+                                                .primary,
                                         fontFamily: "Zarids",
                                       ),
                                     ),
@@ -99,6 +110,7 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
                                 );
 
                                 return Card(
+                                  clipBehavior: Clip.antiAlias,
                                   child: InkWell(
                                     onTap: () {
                                       int initialIndex = _adsList.indexOf(item);
@@ -109,17 +121,27 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
                                               initialIndex: initialIndex),
                                           transition: Transition.downToUp);
                                     },
-                                    child: imageURL.isNotEmpty
-                                        ? Image.network(
-                                            imageURL,
-                                            fit: BoxFit.cover,
-                                            width: double.infinity,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return fallbackWidget;
-                                            },
-                                          )
-                                        : fallbackWidget,
+                                    child: Stack(
+                                      fit: StackFit.expand,
+                                      children: [
+                                        if (imageURL.isNotEmpty) ...[
+                                          ImageFiltered(
+                                            imageFilter: ImageFilter.blur(
+                                                sigmaX: 4.0, sigmaY: 4.0),
+                                            child: HttpImageFetcher(
+                                              imageUrl: imageURL,
+                                              fallbackWidget: const SizedBox(),
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          Container(
+                                            color:
+                                                Colors.black.withOpacity(0.5),
+                                          ),
+                                        ],
+                                        titleWidget,
+                                      ],
+                                    ),
                                   ),
                                 );
                               }).toList(),
@@ -148,10 +170,19 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
                                                 ?.toString() ??
                                             '';
                                         String imageURL = '';
-                                        if (imageStr.contains('id=')) {
-                                          String id = imageStr.split('id=')[1];
-                                          imageURL =
-                                              "https://lh3.googleusercontent.com/d/$id=s1000?authuser=0";
+                                        if (imageStr.isNotEmpty) {
+                                          final regExp =
+                                              RegExp(r'(?:id=|\/d\/)([\w-]+)');
+                                          final match =
+                                              regExp.firstMatch(imageStr);
+                                          if (match != null &&
+                                              match.group(1) != null) {
+                                            String id = match.group(1)!;
+                                            imageURL =
+                                                "https://lh3.googleusercontent.com/d/$id=s1000?authuser=0";
+                                          } else {
+                                            imageURL = imageStr;
+                                          }
                                         }
 
                                         return Card(
@@ -251,5 +282,104 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
     } else {
       throw Exception('Failed to load data');
     }
+  }
+}
+
+class HttpImageFetcher extends StatefulWidget {
+  final String imageUrl;
+  final Widget fallbackWidget;
+  final BoxFit fit;
+  final FilterQuality filterQuality;
+
+  const HttpImageFetcher({
+    super.key,
+    required this.imageUrl,
+    required this.fallbackWidget,
+    this.fit = BoxFit.cover,
+    this.filterQuality = FilterQuality.low,
+  });
+
+  @override
+  State<HttpImageFetcher> createState() => _HttpImageFetcherState();
+}
+
+class _HttpImageFetcherState extends State<HttpImageFetcher> {
+  static final Map<String, Uint8List> _imageCache = {};
+  Uint8List? _imageBytes;
+  bool _hasError = false;
+  String _errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchImage();
+  }
+
+  Future<void> _fetchImage() async {
+    if (_imageCache.containsKey(widget.imageUrl)) {
+      if (mounted) setState(() => _imageBytes = _imageCache[widget.imageUrl]);
+      return;
+    }
+
+    try {
+      final response = await http.get(Uri.parse(widget.imageUrl));
+      if (response.statusCode == 200) {
+        _imageCache[widget.imageUrl] = response.bodyBytes;
+        if (mounted) setState(() => _imageBytes = response.bodyBytes);
+      } else {
+        if (mounted) {
+          setState(() {
+            _hasError = true;
+            _errorMessage = 'HTTP Error: ${response.statusCode}';
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _hasError = true;
+          _errorMessage = e.toString();
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_hasError) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            'فشل تحميل الصورة:\n$_errorMessage',
+            textAlign: TextAlign.center,
+            textDirection: TextDirection.ltr,
+            style: const TextStyle(
+                color: Colors.red, fontWeight: FontWeight.bold, fontSize: 14),
+          ),
+        ),
+      );
+    }
+    if (_imageBytes == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return Image.memory(
+      _imageBytes!,
+      fit: widget.fit,
+      width: double.infinity,
+      filterQuality: widget.filterQuality,
+      errorBuilder: (context, error, stackTrace) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            'خطأ في عرض الصورة:\n${error.toString()}',
+            textAlign: TextAlign.center,
+            textDirection: TextDirection.ltr,
+            style: const TextStyle(
+                color: Colors.red, fontWeight: FontWeight.bold, fontSize: 14),
+          ),
+        ),
+      ),
+    );
   }
 }
