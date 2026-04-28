@@ -683,6 +683,14 @@ class MyApp extends StatelessWidget {
                       page: () => QuestionPage(
                           int.tryParse(Get.parameters['id'] ?? '')),
                       transition: Transition.rightToLeft),
+                  GetPage(
+                      name: '/section/:title/:subtitle/:questionNo',
+                      page: () => QuestionPage(
+                          int.tryParse(Get.parameters['questionNo'] ?? ''))),
+                  GetPage(
+                      name: '/q/:questionNo',
+                      page: () => QuestionPage(
+                          int.tryParse(Get.parameters['questionNo'] ?? ''))),
                 ],
                 initialRoute: "/"),
       ),

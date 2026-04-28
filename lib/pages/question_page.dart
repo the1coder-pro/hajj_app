@@ -88,9 +88,12 @@ class _QuestionPageState extends State<QuestionPage> {
 
   void _initQuestionData() {
     dynamic data = widget.questionData;
-    if ((data == null || data.toString() == 'null') &&
-        Get.parameters.containsKey('id')) {
-      data = int.tryParse(Get.parameters['id'] ?? '');
+    if (data == null || data.toString() == 'null') {
+      if (Get.parameters.containsKey('questionNo')) {
+        data = int.tryParse(Get.parameters['questionNo'] ?? '');
+      } else if (Get.parameters.containsKey('id')) {
+        data = int.tryParse(Get.parameters['id'] ?? '');
+      }
     }
 
     if (data is Question) {
@@ -144,6 +147,7 @@ class _QuestionPageState extends State<QuestionPage> {
     final prefsProvider =
         Provider.of<QuestionPrefsProvider>(context, listen: false);
     final bookmarkProvider = Provider.of<BookmarkProvider>(context);
+    final isLargeScreen = MediaQuery.of(context).size.width >= 800;
 
     if (isLoading) {
       return const Scaffold(
@@ -181,7 +185,7 @@ ${question!.answerText}
 https://hajjaudiofiles.kumthra.com/questions_audiofiles/${question!.no}.mp3
 
 رابط السؤال:
-${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.web.app/question/${question!.no}")}
+${(kIsWeb ? "${Uri.base.origin}/q/${question!.no}" : "https://hajj-app-1.web.app/q/${question!.no}")}
 
 من تطبيق حج التمتع في سؤال وجواب
 """);
@@ -228,39 +232,44 @@ ${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.
                   ),
                 )
               : null,
-          body: Stack(
-            children: [
-              WidgetsToImage(
-                controller: controller,
-                child: QuestionImageTemplate(question: question!),
+          body: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: isLargeScreen ? 800 : double.infinity,
               ),
-              Container(
-                color: Theme.of(context).colorScheme.surface,
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: ListView(
-                    children: [
-                      if (!widget.showAppBar)
-                        Row(
-                          children: [
-                            IconButton(
-                              onPressed: () {
-                                if (widget.onBack != null) {
-                                  widget.onBack!();
-                                } else if (Navigator.canPop(context)) {
-                                  Navigator.pop(context);
-                                } else {
-                                  Get.offAllNamed('/');
-                                }
-                              },
-                              icon: const Icon(Icons.close),
-                            ),
-                            const Spacer(),
-                            IconButton(
-                                icon: const Icon(Icons.share_outlined),
-                                onPressed: () async {
-                                  try {
-                                    await Share.share("""
+              child: Stack(
+                children: [
+                  WidgetsToImage(
+                    controller: controller,
+                    child: QuestionImageTemplate(question: question!),
+                  ),
+                  Container(
+                    color: Theme.of(context).colorScheme.surface,
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: ListView(
+                        children: [
+                          if (!widget.showAppBar)
+                            Row(
+                              children: [
+                                IconButton(
+                                  onPressed: () {
+                                    if (widget.onBack != null) {
+                                      widget.onBack!();
+                                    } else if (Navigator.canPop(context)) {
+                                      Navigator.pop(context);
+                                    } else {
+                                      Get.offAllNamed('/');
+                                    }
+                                  },
+                                  icon: const Icon(Icons.close),
+                                ),
+                                const Spacer(),
+                                IconButton(
+                                    icon: const Icon(Icons.share_outlined),
+                                    onPressed: () async {
+                                      try {
+                                        await Share.share("""
 ${question!.mainTitle} - ${question!.subTitle}
 
 ${question!.question} 
@@ -273,136 +282,140 @@ https://hajjaudiofiles.kumthra.com/questions_audiofiles/${question!.no}.mp3
 
 
 رابط السؤال:
-${(kIsWeb ? "${Uri.base.origin}/question/${question!.no}" : "https://hajj-app-1.web.app/question/${question!.no}")}
+${(kIsWeb ? "${Uri.base.origin}/q/${question!.no}" : "https://hajj-app-1.web.app/q/${question!.no}")}
 
 من تطبيق حج التمتع في سؤال وجواب
 """);
-                                  } catch (e) {
-                                    debugPrint(e.toString());
-                                  }
-                                }),
-                            IconButton(
-                              icon: const Icon(Icons.video_settings),
-                              onPressed: () {
-                                openQuestionSettings(context, prefsProvider);
-                              },
+                                      } catch (e) {
+                                        debugPrint(e.toString());
+                                      }
+                                    }),
+                                IconButton(
+                                  icon: const Icon(Icons.video_settings),
+                                  onPressed: () {
+                                    openQuestionSettings(
+                                        context, prefsProvider);
+                                  },
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 8),
+                                  child: IconButton(
+                                    icon: bookmarkProvider.bookmarks
+                                            .contains(question)
+                                        ? const Icon(Icons.bookmark)
+                                        : const Icon(Icons.bookmark_border),
+                                    onPressed: () {
+                                      if (bookmarkProvider.bookmarks
+                                          .contains(question)) {
+                                        bookmarkProvider
+                                            .removeBookmark(question!);
+                                      } else {
+                                        bookmarkProvider.addBookmark(question!);
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 8),
-                              child: IconButton(
-                                icon: bookmarkProvider.bookmarks
-                                        .contains(question)
-                                    ? const Icon(Icons.bookmark)
-                                    : const Icon(Icons.bookmark_border),
-                                onPressed: () {
-                                  if (bookmarkProvider.bookmarks
-                                      .contains(question)) {
-                                    bookmarkProvider.removeBookmark(question!);
-                                  } else {
-                                    bookmarkProvider.addBookmark(question!);
-                                  }
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Align(
-                              alignment: Alignment.centerRight,
-                              child: RichText(
-                                text: TextSpan(children: [
-                                  TextSpan(
-                                      text: "${question!.mainTitle!} / ",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .displaySmall!
-                                          .copyWith(
-                                              fontWeight: FontWeight.bold,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary)),
-                                  TextSpan(
-                                      text: question!.subTitle,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .displaySmall!
-                                          .copyWith(
-                                              fontWeight: FontWeight.bold,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .secondary)),
-                                ]),
-                              )),
-                        ],
-                      ),
-                      const SizedBox(height: 5),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Text(question!.question!.trim(),
-                              textAlign: TextAlign.right,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineMedium!
-                                  .copyWith(
-                                      fontFamily: "Zarids",
-                                      fontSize: 35,
-                                      fontWeight: FontWeight.w300,
-                                      height: 1.2)),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      if (isAudioFileThere) questionAudioPlayer(context),
-                      SizedBox(
-                          height: 50,
-                          width: double.infinity,
-                          child: Card.outlined(
-                            elevation: 0,
-                            // squared
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            color: Theme.of(context)
-                                .colorScheme
-                                .secondaryContainer,
-                            child: Center(
-                              child: Text("نص الجواب",
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontFamily: "Zarids",
-                                      fontWeight: FontWeight.w600,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSecondaryContainer)),
-                            ),
-                          )),
-                      SizedBox(
-                        width: double.infinity,
-                        child: Card.outlined(
-                          elevation: 1,
-                          child: Padding(
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Align(
+                                  alignment: Alignment.centerRight,
+                                  child: RichText(
+                                    text: TextSpan(children: [
+                                      TextSpan(
+                                          text: "${question!.mainTitle!} / ",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .displaySmall!
+                                              .copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary)),
+                                      TextSpan(
+                                          text: question!.subTitle,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .displaySmall!
+                                              .copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .secondary)),
+                                    ]),
+                                  )),
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Consumer<QuestionPrefsProvider>(
-                              builder: (context, provider, _) => Text(
-                                  question!.answerText ?? "لا يوجد نص جواب",
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Text(question!.question!.trim(),
                                   textAlign: TextAlign.right,
-                                  style: TextStyle(
-                                      fontFamily: "Zarids",
-                                      fontWeight: FontWeight.w400,
-                                      fontSize: provider.fontSize)),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium!
+                                      .copyWith(
+                                          fontFamily: "Zarids",
+                                          fontSize: 35,
+                                          fontWeight: FontWeight.w300,
+                                          height: 1.2)),
                             ),
                           ),
-                        ),
+                          const SizedBox(height: 10),
+                          if (isAudioFileThere) questionAudioPlayer(context),
+                          SizedBox(
+                              height: 50,
+                              width: double.infinity,
+                              child: Card.outlined(
+                                elevation: 0,
+                                // squared
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .secondaryContainer,
+                                child: Center(
+                                  child: Text("نص الجواب",
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontFamily: "Zarids",
+                                          fontWeight: FontWeight.w600,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSecondaryContainer)),
+                                ),
+                              )),
+                          SizedBox(
+                            width: double.infinity,
+                            child: Card.outlined(
+                              elevation: 1,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Consumer<QuestionPrefsProvider>(
+                                  builder: (context, provider, _) => Text(
+                                      question!.answerText ?? "لا يوجد نص جواب",
+                                      textAlign: TextAlign.right,
+                                      style: TextStyle(
+                                          fontFamily: "Zarids",
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: provider.fontSize)),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 400),
+                        ],
                       ),
-                      const SizedBox(height: 400),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           )),
     );
   }

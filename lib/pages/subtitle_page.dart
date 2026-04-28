@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:hajj_app/components/question_tile.dart';
 import 'package:hajj_app/question_model.dart';
 
@@ -73,7 +74,9 @@ class _SubTitlePageState extends State<SubTitlePage> {
               if (selectedQuestions.isNotEmpty) {
                 return QuestionTile(
                   question: selectedQuestions[k],
-                  onTap: widget.onQuestionTap,
+                  onTap: widget.onQuestionTap ??
+                      (question) => Get.toNamed(
+                          '/section/${Uri.encodeComponent(question.mainTitle!)}/${Uri.encodeComponent(question.subTitle!)}/${question.no}'),
                 );
               } else {
                 return const Center(

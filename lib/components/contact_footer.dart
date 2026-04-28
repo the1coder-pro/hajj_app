@@ -121,8 +121,8 @@ class ContactFooter extends StatelessWidget {
           SizedBox(
             width: 250,
             height: 50,
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
+            child: FilledButton.icon(
+              style: FilledButton.styleFrom(
                 backgroundColor: themeProvider.brightness == Brightness.dark
                     ? Colors.black26
                     : Colors.white,

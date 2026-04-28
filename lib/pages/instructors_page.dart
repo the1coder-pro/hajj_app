@@ -258,6 +258,8 @@ class _InstructorsPageState extends State<InstructorsPage> {
                                     mainTitles: generatedMainTitles,
                                     questions: questions,
                                   ),
+                                  routeName:
+                                      '/section/${Uri.encodeComponent(generatedMainTitles[index]['title'])}',
                                 );
                               } else {
                                 Get.to(
@@ -366,9 +368,8 @@ class _InstructorsPageState extends State<InstructorsPage> {
                                                             transition:
                                                                 Transition
                                                                     .leftToRight,
-
-                                                            // routeName:
-                                                            //     '/section/${generatedMainTitles[index]['title']}/${generatedMainTitles[index]['subTitles'][i]}'
+                                                            routeName:
+                                                                '/section/${Uri.encodeComponent(generatedMainTitles[index]['title'])}/${Uri.encodeComponent(generatedMainTitles[index]['subTitles'][i])}',
                                                           );
                                                         },
                                                         child: Center(
@@ -411,9 +412,8 @@ class _InstructorsPageState extends State<InstructorsPage> {
                                         ),
                                       )),
                                   transition: Transition.leftToRight,
-                                  // routeName: '/'
-                                  // routeName:
-                                  //     '/section/${generatedMainTitles[index]['title']}'
+                                  routeName:
+                                      '/section/${Uri.encodeComponent(generatedMainTitles[index]['title'])}',
                                 );
                               }
                             } else {

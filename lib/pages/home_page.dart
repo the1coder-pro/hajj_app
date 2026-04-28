@@ -99,7 +99,7 @@ class _HomePageState extends State<HomePage> {
                 ])),
               ),
               ListTile(
-                leading: const Icon(Icons.people),
+                leading: const Icon(Icons.people_outline),
                 title: const Text(
                   'الرئيسية',
                   style: TextStyle(fontFamily: "Zarids", fontSize: 25),
@@ -112,7 +112,7 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.new_releases),
+                leading: const Icon(Icons.new_releases_outlined),
                 title: const Text(
                   'الإعلانات',
                   style: TextStyle(fontFamily: "Zarids", fontSize: 25),
@@ -125,7 +125,7 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.bookmark),
+                leading: const Icon(Icons.bookmark_outline),
                 title: const Text(
                   'المفضلة',
                   style: TextStyle(fontFamily: "Zarids", fontSize: 25),
@@ -138,7 +138,7 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.settings),
+                leading: const Icon(Icons.settings_outlined),
                 title: const Text(
                   'الإعدادات',
                   style: TextStyle(fontFamily: "Zarids", fontSize: 25),
