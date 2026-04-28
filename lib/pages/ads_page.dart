@@ -61,147 +61,211 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
                     key: _refreshIndicatorKey,
                     onRefresh: _refreshAds,
                     child: _adsList.isEmpty
-                        ? const Center(child: Text("لا توجد إعلانات حاليا."))
-                        : Column(children: [
-                            // const Text("اخر الأخبار",
-                            //     style: TextStyle(fontSize: 25)),
-                            CarouselSlider(
-                              options: CarouselOptions(
-                                  height: 250.0,
-                                  autoPlay: latest3Ads.length > 1,
-                                  enableInfiniteScroll: latest3Ads.length > 1,
-                                  autoPlayInterval: const Duration(seconds: 5)),
-                              // items are the three latest ads
-                              items: latest3Ads.map<Widget>((item) {
-                                String imageStr =
-                                    item['Image']?.toString() ?? '';
-                                String imageURL = '';
-                                if (imageStr.isNotEmpty) {
-                                  final regExp =
-                                      RegExp(r'(?:id=|\/d\/)([\w-]+)');
-                                  final match = regExp.firstMatch(imageStr);
-                                  if (match != null && match.group(1) != null) {
-                                    String id = match.group(1)!;
-                                    imageURL =
-                                        "https://lh3.googleusercontent.com/d/$id=s1000?authuser=0";
-                                  } else {
-                                    imageURL = imageStr;
+                        ? ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: const [
+                              SizedBox(height: 100),
+                              Center(child: Text("لا توجد إعلانات حاليا."))
+                            ],
+                          )
+                        : SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            child: Column(children: [
+                              CarouselSlider(
+                                options: CarouselOptions(
+                                    height: 250.0,
+                                    autoPlay: latest3Ads.length > 1,
+                                    enableInfiniteScroll: latest3Ads.length > 1,
+                                    autoPlayInterval:
+                                        const Duration(seconds: 5)),
+                                // items are the three latest ads
+                                items: latest3Ads.map<Widget>((item) {
+                                  String imageStr =
+                                      item['Image']?.toString() ?? '';
+                                  String imageURL = '';
+                                  if (imageStr.isNotEmpty) {
+                                    final regExp =
+                                        RegExp(r'(?:id=|\/d\/)([\w-]+)');
+                                    final match = regExp.firstMatch(imageStr);
+                                    if (match != null &&
+                                        match.group(1) != null) {
+                                      String id = match.group(1)!;
+                                      imageURL =
+                                          "https://lh3.googleusercontent.com/d/$id=s1000?authuser=0";
+                                    } else {
+                                      imageURL = imageStr;
+                                    }
                                   }
-                                }
 
-                                Widget titleWidget = Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Text(
-                                      item['Title'] ?? 'بدون عنوان',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.bold,
-                                        color: imageURL.isNotEmpty
-                                            ? Colors.white
-                                            : Theme.of(context)
-                                                .colorScheme
-                                                .primary,
-                                        fontFamily: "Zarids",
+                                  Widget titleWidget = Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Text(
+                                        item['Title'] ?? 'بدون عنوان',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.bold,
+                                          color: imageURL.isNotEmpty
+                                              ? Colors.white
+                                              : Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                          fontFamily: "Zarids",
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                );
+                                  );
 
-                                return Card(
-                                  clipBehavior: Clip.antiAlias,
-                                  child: InkWell(
-                                    onTap: () {
-                                      int initialIndex = _adsList.indexOf(item);
-                                      if (initialIndex == -1) initialIndex = 0;
-                                      Get.to(
-                                          () => AdDetailsPage(
-                                              ads: _adsList,
-                                              initialIndex: initialIndex),
-                                          transition: Transition.downToUp);
-                                    },
-                                    child: Stack(
-                                      fit: StackFit.expand,
-                                      children: [
-                                        if (imageURL.isNotEmpty) ...[
-                                          ImageFiltered(
-                                            imageFilter: ImageFilter.blur(
-                                                sigmaX: 4.0, sigmaY: 4.0),
-                                            child: HttpImageFetcher(
-                                              imageUrl: imageURL,
-                                              fallbackWidget: const SizedBox(),
-                                              fit: BoxFit.cover,
+                                  return Card(
+                                    clipBehavior: Clip.antiAlias,
+                                    child: InkWell(
+                                      onTap: () {
+                                        int initialIndex =
+                                            _adsList.indexOf(item);
+                                        if (initialIndex == -1)
+                                          initialIndex = 0;
+                                        Get.to(
+                                            () => AdDetailsPage(
+                                                ads: _adsList,
+                                                initialIndex: initialIndex),
+                                            transition: Transition.downToUp);
+                                      },
+                                      child: Stack(
+                                        fit: StackFit.expand,
+                                        children: [
+                                          if (imageURL.isNotEmpty) ...[
+                                            ImageFiltered(
+                                              imageFilter: ImageFilter.blur(
+                                                  sigmaX: 4.0, sigmaY: 4.0),
+                                              child: HttpImageFetcher(
+                                                imageUrl: imageURL,
+                                                fallbackWidget:
+                                                    const SizedBox(),
+                                                fit: BoxFit.cover,
+                                              ),
                                             ),
-                                          ),
-                                          Container(
-                                            color:
-                                                Colors.black.withOpacity(0.5),
-                                          ),
+                                            Container(
+                                              color:
+                                                  Colors.black.withOpacity(0.5),
+                                            ),
+                                          ],
+                                          titleWidget,
                                         ],
-                                        titleWidget,
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                            if (_adsList.length > 1) ...[
-                              const Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Align(
-                                    alignment: Alignment.centerRight,
-                                    child: Text("جميع الإعلانات الحالية:",
-                                        style: TextStyle(fontSize: 25))),
-                              ),
-                              Expanded(
-                                  flex: 4,
-                                  child: GridView.builder(
-                                      gridDelegate:
-                                          const SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 3,
                                       ),
-                                      reverse: true,
-                                      shrinkWrap: true,
-                                      itemCount: _adsList.length,
-                                      itemBuilder: (context, index) {
-                                        String imageStr = _adsList[index]
-                                                    ['Image']
-                                                ?.toString() ??
-                                            '';
-                                        String imageURL = '';
-                                        if (imageStr.isNotEmpty) {
-                                          final regExp =
-                                              RegExp(r'(?:id=|\/d\/)([\w-]+)');
-                                          final match =
-                                              regExp.firstMatch(imageStr);
-                                          if (match != null &&
-                                              match.group(1) != null) {
-                                            String id = match.group(1)!;
-                                            imageURL =
-                                                "https://lh3.googleusercontent.com/d/$id=s1000?authuser=0";
-                                          } else {
-                                            imageURL = imageStr;
-                                          }
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                              if (_adsList.length > 1) ...[
+                                const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Text("جميع الإعلانات الحالية:",
+                                          style: TextStyle(fontSize: 25))),
+                                ),
+                                GridView.builder(
+                                    gridDelegate:
+                                        const SliverGridDelegateWithMaxCrossAxisExtent(
+                                      maxCrossAxisExtent: 250,
+                                      mainAxisExtent: 120,
+                                    ),
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0, vertical: 8.0),
+                                    itemCount: _adsList.length,
+                                    itemBuilder: (context, index) {
+                                      String imageStr = _adsList[index]['Image']
+                                              ?.toString() ??
+                                          '';
+                                      String imageURL = '';
+                                      if (imageStr.isNotEmpty) {
+                                        final regExp =
+                                            RegExp(r'(?:id=|\/d\/)([\w-]+)');
+                                        final match =
+                                            regExp.firstMatch(imageStr);
+                                        if (match != null &&
+                                            match.group(1) != null) {
+                                          String id = match.group(1)!;
+                                          imageURL =
+                                              "https://lh3.googleusercontent.com/d/$id=s1000?authuser=0";
+                                        } else {
+                                          imageURL = imageStr;
                                         }
+                                      }
 
-                                        return Card(
-                                          child: InkWell(
-                                              onTap: () {
-                                                Get.to(
-                                                    () => AdDetailsPage(
-                                                        ads: _adsList,
-                                                        initialIndex: index),
-                                                    transition:
-                                                        Transition.downToUp);
-                                              },
-                                              child: Center(
-                                                  child: Text(_adsList[index]
-                                                      ['Title']))),
-                                        );
-                                      })),
-                            ]
-                          ]));
+                                      String description = _adsList[index]
+                                                  ['Description']
+                                              ?.toString()
+                                              .replaceAll('\n', ' ') ??
+                                          '';
+
+                                      return Card.outlined(
+                                        clipBehavior: Clip.antiAlias,
+                                        child: InkWell(
+                                            onTap: () {
+                                              Get.to(
+                                                  () => AdDetailsPage(
+                                                      ads: _adsList,
+                                                      initialIndex: index),
+                                                  transition:
+                                                      Transition.downToUp);
+                                            },
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(12.0),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    _adsList[index]['Title'] ??
+                                                        'بدون عنوان',
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                      fontFamily: "Zarids",
+                                                      fontSize: 20,
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .primary,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  Divider(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .secondary,
+                                                      height: 2),
+                                                  const SizedBox(height: 5),
+                                                  Expanded(
+                                                    child: Text(
+                                                      description,
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                        fontFamily: "Zarids",
+                                                        fontSize: 16,
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .onSurface,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            )),
+                                      );
+                                    }),
+                              ]
+                            ]),
+                          ));
               }
           }
         });

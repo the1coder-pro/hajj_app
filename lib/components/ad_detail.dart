@@ -127,19 +127,28 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           if (link.isNotEmpty)
             Align(
               alignment: AlignmentDirectional.centerStart,
               child: SizedBox(
                 width: 150,
                 child: FilledButton.icon(
+                  // radius
+                  style: ButtonStyle(
+                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                    ),
+                  ),
                   onPressed: () async {
                     Uri url = Uri.parse(link);
                     if (!await launchUrl(url)) {
                       throw Exception('Could not launch $url');
                     }
                   },
+
                   iconAlignment: IconAlignment.end,
                   icon: const Icon(Icons.launch_outlined),
                   label: const Text("الرابط",
@@ -147,6 +156,7 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
                 ),
               ),
             ),
+          const SizedBox(height: 10)
         ],
       ),
     );

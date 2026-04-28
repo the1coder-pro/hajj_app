@@ -113,7 +113,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   "الإصدار 1.0.2",
                   style: TextStyle(
                       fontSize: 14,
-                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                      color:
+                          Theme.of(context).colorScheme.onSurface.withAlpha(85),
                       fontFamily: "Zarids"),
                 ),
               ),
