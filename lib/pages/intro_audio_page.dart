@@ -1,5 +1,7 @@
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:hajj_app/main.dart';
+import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/settings.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
@@ -13,30 +15,18 @@ class IntroAudioPage extends StatefulWidget {
 }
 
 class _IntroAudioPageState extends State<IntroAudioPage> {
-  late AudioPlayer _audioPlayer;
-  double _currentSpeed = 1.0;
-
-  // TODO: Replace this with your actual Cloudflare URL
   final String introUrl =
       "https://hajjaudiofiles.kumthra.com/questions_audiofiles/intro.mp3";
 
   @override
-  void initState() {
-    super.initState();
-    _audioPlayer = AudioPlayer();
-    _audioPlayer.setUrl(introUrl);
-  }
-
-  @override
-  void dispose() {
-    _audioPlayer.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     var themeProvider = Provider.of<ThemeProvider>(context);
+    var audioProvider = Provider.of<GlobalAudioProvider>(context);
     bool isLargeScreen = MediaQuery.of(context).size.width >= 800;
+
+    bool isIntroPlaying =
+        audioProvider.currentQuestion?.no?.toString() == 'intro' ||
+            audioProvider.currentQuestion?.question == 'المقدمة';
 
     Widget imageSection = Container(
       width: 250,
@@ -61,119 +51,59 @@ class _IntroAudioPageState extends State<IntroAudioPage> {
             borderRadius: BorderRadius.circular(15),
           ),
           child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 8.0, vertical: 18.0),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Expanded(child: SizedBox()),
-                    StreamBuilder<PlayerState>(
-                      stream: _audioPlayer.playerStateStream,
-                      builder: (context, snapshot) {
-                        final playerState = snapshot.data;
-                        final processingState = playerState?.processingState;
-                        final playing = playerState?.playing;
+            padding: const EdgeInsets.symmetric(vertical: 18.0),
+            child: Center(
+              child: StreamBuilder<PlayerState>(
+                stream: audioProvider.audioPlayer.playerStateStream,
+                builder: (context, snapshot) {
+                  final playerState = snapshot.data;
+                  final processingState = playerState?.processingState;
 
-                        if (processingState == ProcessingState.loading ||
-                            processingState == ProcessingState.buffering) {
-                          return const CircularProgressIndicator();
-                        } else if (playing != true) {
-                          return IconButton(
-                            icon: const Icon(Icons.play_circle_fill),
-                            iconSize: 64,
-                            color: Theme.of(context).colorScheme.primary,
-                            onPressed: _audioPlayer.play,
-                          );
-                        } else if (processingState !=
-                            ProcessingState.completed) {
-                          return IconButton(
-                            icon: const Icon(Icons.pause_circle_filled),
-                            iconSize: 64,
-                            color: Theme.of(context).colorScheme.primary,
-                            onPressed: _audioPlayer.pause,
-                          );
+                  if (isIntroPlaying &&
+                      (processingState == ProcessingState.loading ||
+                          processingState == ProcessingState.buffering)) {
+                    return const CircularProgressIndicator();
+                  }
+
+                  bool isPlaying = isIntroPlaying && audioProvider.isPlaying;
+
+                  return IconButton(
+                    icon: Icon(isPlaying
+                        ? Icons.pause_circle_filled
+                        : Icons.play_circle_fill),
+                    iconSize: 64,
+                    color: Theme.of(context).colorScheme.primary,
+                    onPressed: () async {
+                      if (isIntroPlaying) {
+                        if (audioProvider.isPlaying) {
+                          audioProvider.audioPlayer.pause();
                         } else {
-                          return IconButton(
-                            icon: const Icon(Icons.replay_circle_filled),
-                            iconSize: 64,
-                            color: Theme.of(context).colorScheme.primary,
-                            onPressed: () => _audioPlayer.seek(Duration.zero),
-                          );
+                          audioProvider.audioPlayer.play();
                         }
-                      },
-                    ),
-                    Expanded(
-                      child: Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 16.0),
-                          child: Tooltip(
-                            message: "سرعة التشغيل",
-                            child: TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  _currentSpeed += 0.5;
-                                  if (_currentSpeed > 2.0) {
-                                    _currentSpeed = 0.5;
-                                  }
-                                  _audioPlayer.setSpeed(_currentSpeed);
-                                });
-                              },
-                              child: SizedBox(
-                                width: 40,
-                                child: Text(
-                                  "${_currentSpeed == 1.0 ? '1' : _currentSpeed}x",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 5),
-                StreamBuilder<Duration>(
-                  stream: _audioPlayer.positionStream,
-                  builder: (context, snapshot) {
-                    final position = snapshot.data ?? Duration.zero;
-                    final duration = _audioPlayer.duration ?? Duration.zero;
-                    return Column(
-                      children: [
-                        Slider(
-                          value: position.inMilliseconds.toDouble(),
-                          max: duration.inMilliseconds.toDouble(),
-                          onChanged: (value) {
-                            _audioPlayer
-                                .seek(Duration(milliseconds: value.toInt()));
-                          },
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(_formatDuration(position),
-                                  style: const TextStyle(fontFamily: "Zarids")),
-                              Text(_formatDuration(duration),
-                                  style: const TextStyle(fontFamily: "Zarids")),
-                            ],
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ],
+                      } else {
+                        audioProvider.stopAudio();
+                        try {
+                          audioProvider.setBookmarkMode(false);
+                        } catch (e) {}
+                        try {
+                          // Safely assign currentQuestion if it acts as a normal setter
+                          audioProvider.currentQuestion = Question.fromJson({
+                            "no": "intro",
+                            "No": "intro",
+                            "question": "المقدمة",
+                            "Question": "المقدمة",
+                            "MainTitle": "المقدمة",
+                            "SubTitle": "المقدمة",
+                            "instructor": "شيخ جعفر العبدالكريم"
+                          });
+                        } catch (e) {}
+                        await audioProvider.audioPlayer.setUrl(introUrl);
+                        audioProvider.audioPlayer.play();
+                      }
+                    },
+                  );
+                },
+              ),
             ),
           ),
         ),
@@ -294,12 +224,5 @@ class _IntroAudioPageState extends State<IntroAudioPage> {
         ),
       ),
     );
-  }
-
-  String _formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    final minutes = twoDigits(duration.inMinutes.remainder(60));
-    final seconds = twoDigits(duration.inSeconds.remainder(60));
-    return "$minutes:$seconds";
   }
 }

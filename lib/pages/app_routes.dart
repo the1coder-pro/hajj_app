@@ -9,4 +9,6 @@ abstract class Routes {
 
   // e.g., /q/123
   static const questionShortcut = '/q/:questionNo';
+
+  static const adById = '/ad/:id';
 }

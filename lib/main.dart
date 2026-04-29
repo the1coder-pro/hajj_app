@@ -16,13 +16,22 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:hajj_app/components/ad_detail.dart';
+import 'package:hajj_app/pages/intro_audio_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:hive_ce/hive_ce.dart';
+import 'package:path_provider/path_provider.dart';
 
-void main() {
+void main() async {
   usePathUrlStrategy();
 
   WidgetsFlutterBinding.ensureInitialized();
+  if (!kIsWeb) {
+    final appDocumentDir = await getApplicationDocumentsDirectory();
+    Hive.init(appDocumentDir.path);
+  }
+  await Hive.openBox('appBox');
   // load mp3 files
 
   runApp(const MyApp());
@@ -100,11 +109,18 @@ class GlobalAudioProvider extends ChangeNotifier {
                 }
               }
             } else {
-              int currentId = int.tryParse(currentQuestion!.no.toString()) ?? 1;
-              if (currentId < 322) {
-                // Prevent multiple triggers while the next audio is still loading
+              if (currentQuestion!.no?.toString() == 'intro') {
                 if (!isFetching) {
-                  playQuestionById(currentId + 1);
+                  playQuestionById(1);
+                }
+              } else {
+                int currentId =
+                    int.tryParse(currentQuestion!.no.toString()) ?? 1;
+                if (currentId < 322) {
+                  // Prevent multiple triggers while the next audio is still loading
+                  if (!isFetching) {
+                    playQuestionById(currentId + 1);
+                  }
                 }
               }
             }
@@ -369,9 +385,13 @@ class GlobalMiniPlayer extends StatelessWidget {
                     audioProvider.playQuestionById(nextId);
                   }
                 } else {
-                  int currentId = int.tryParse(question.no.toString()) ?? 1;
-                  if (currentId < 322) {
-                    audioProvider.playQuestionById(currentId + 1);
+                  if (question.no?.toString() == 'intro') {
+                    audioProvider.playQuestionById(1);
+                  } else {
+                    int currentId = int.tryParse(question.no.toString()) ?? 1;
+                    if (currentId < 322) {
+                      audioProvider.playQuestionById(currentId + 1);
+                    }
                   }
                 }
               },
@@ -533,7 +553,12 @@ class GlobalMiniPlayer extends StatelessWidget {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(30),
                         onTap: () {
-                          Get.toNamed('/question/${question.no}');
+                          if (question.no?.toString() == 'intro') {
+                            Get.to(() => const IntroAudioPage(),
+                                routeName: '/intro');
+                          } else {
+                            Get.toNamed('/question/${question.no}');
+                          }
                         },
                         child: Directionality(
                           textDirection: TextDirection.rtl,
@@ -691,6 +716,10 @@ class MyApp extends StatelessWidget {
                       name: '/q/:questionNo',
                       page: () => QuestionPage(
                           int.tryParse(Get.parameters['questionNo'] ?? ''))),
+                  GetPage(
+                      name: '/ad/:id',
+                      page: () =>
+                          AdRouteWrapper(adId: Get.parameters['id'] ?? '')),
                 ],
                 initialRoute: "/"),
       ),

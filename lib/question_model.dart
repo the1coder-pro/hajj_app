@@ -48,6 +48,20 @@ class Question {
       answerText: json['AnswerText'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '\$rowIndex': rowIndex,
+      'Instructor': instructor,
+      'MainTitle': mainTitle,
+      'SubTitle': subTitle,
+      'Question': question,
+      'Id': id,
+      'Link': link,
+      'no': no,
+      'AnswerText': answerText,
+    };
+  }
 }
 
 class OtherQuestion {
@@ -70,5 +84,14 @@ class OtherQuestion {
       answerText: json['Answer'],
       section: json['Section'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'Timestamp': timestamp,
+      'Question': question,
+      'Answer': answerText,
+      'Section': section,
+    };
   }
 }

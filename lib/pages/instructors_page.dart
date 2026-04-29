@@ -272,31 +272,76 @@ class _InstructorsPageState extends State<InstructorsPage> {
                   (context, index) {
                     bool isItemLoading =
                         _isLoading || index >= generatedMainTitles.length;
-                    String currentTitle = isItemLoading
-                        ? ""
-                        : generatedMainTitles[index]['title'];
-                    if (isItemLoading && index == 0) currentTitle = "المقدمة";
-                    if (isItemLoading && index == 7)
-                      currentTitle = "مسائل إضافية";
+
+                    if (isItemLoading) {
+                      if (isLargeScreen) {
+                        return Padding(
+                          padding: const EdgeInsets.all(5),
+                          child: PulseSkeleton(
+                            child: Card.outlined(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest
+                                  .withValues(alpha: 0.5),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30)),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20.0),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Container(
+                                        height: 30,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withValues(alpha: 0.2),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Container(
+                                      width: 60,
+                                      height: 60,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withValues(alpha: 0.2),
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      } else {
+                        return Padding(
+                          padding: const EdgeInsets.all(5),
+                          child: PulseSkeleton(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHighest
+                                    .withValues(alpha: 0.5),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+                    }
+
+                    String currentTitle = generatedMainTitles[index]['title'];
 
                     void onItemTap() {
-                      if (isItemLoading) {
-                        if (index == 0) {
-                          Get.to(() => const IntroAudioPage(),
-                              routeName: '/intro');
-                        } else if (index == 7) {
-                          Get.to(() => const OtherQuestionsPage(),
-                              routeName: '/other-questions');
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text("جاري تحميل البيانات...",
-                                    style: TextStyle(fontFamily: "Zarids"))),
-                          );
-                        }
-                        return;
-                      }
-
                       if (currentTitle == "المقدمة") {
                         Get.to(() => const IntroAudioPage(),
                             routeName: '/intro');
@@ -544,6 +589,47 @@ class _InstructorsPageState extends State<InstructorsPage> {
           child: const Icon(Icons.search),
         ),
       ),
+    );
+  }
+}
+
+class PulseSkeleton extends StatefulWidget {
+  final Widget child;
+  const PulseSkeleton({super.key, required this.child});
+
+  @override
+  State<PulseSkeleton> createState() => _PulseSkeletonState();
+}
+
+class _PulseSkeletonState extends State<PulseSkeleton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..repeat(reverse: true);
+    _animation = Tween<double>(begin: 0.4, end: 1.0).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _animation,
+      child: widget.child,
     );
   }
 }

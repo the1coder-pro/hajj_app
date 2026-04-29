@@ -1,15 +1,96 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:get/get.dart';
+import 'package:hajj_app/pages/home_page.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+class AdRouteWrapper extends StatefulWidget {
+  final String adId;
+  const AdRouteWrapper({super.key, required this.adId});
+
+  @override
+  State<AdRouteWrapper> createState() => _AdRouteWrapperState();
+}
+
+class _AdRouteWrapperState extends State<AdRouteWrapper> {
+  bool isLoading = true;
+  List<Map> ads = [];
+  int initialIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAds();
+  }
+
+  Future<void> _fetchAds() async {
+    try {
+      final response = await http.get(Uri.parse(
+          'https://opensheet.elk.sh/1IR-c-DM1_G0Qr6sr-iy7gZKwWN5zuQfo_Vr8Ky29BgE/1'));
+      if (response.statusCode == 200) {
+        var decodedData = utf8.decode(response.bodyBytes);
+        var data = jsonDecode(decodedData);
+        List<Map> validAds = [];
+        for (var i = 0; i < data.length; i++) {
+          var item = data[i];
+          if (DateTime.now().isAfter(DateTime.parse(item['StartDate'])) &&
+              DateTime.now().isBefore(DateTime.parse(item['EndDate']))) {
+            validAds.add(item);
+          }
+        }
+        int index = validAds.indexWhere((ad) {
+          try {
+            return DateTime.parse(ad['StartDate'])
+                    .millisecondsSinceEpoch
+                    .toString() ==
+                widget.adId;
+          } catch (e) {
+            return false;
+          }
+        });
+
+        if (mounted) {
+          setState(() {
+            ads = validAds;
+            initialIndex = index != -1 ? index : 0;
+            isLoading = false;
+          });
+        }
+      } else {
+        if (mounted) setState(() => isLoading = false);
+      }
+    } catch (e) {
+      if (mounted) setState(() => isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (ads.isEmpty) {
+      return const Scaffold(body: Center(child: Text("الإعلان غير متوفر")));
+    }
+    return AdDetailsPage(
+        ads: ads, initialIndex: initialIndex, isFromDeeplink: true);
+  }
+}
 
 class AdDetailsPage extends StatefulWidget {
   const AdDetailsPage({
     super.key,
     required this.ads,
     required this.initialIndex,
+    this.isFromDeeplink = false,
   });
 
   final List<Map> ads;
   final int initialIndex;
+  final bool isFromDeeplink;
 
   @override
   State<AdDetailsPage> createState() => _AdDetailsPageState();
@@ -128,34 +209,90 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
             ),
           ),
           const SizedBox(height: 16),
-          if (link.isNotEmpty)
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: SizedBox(
-                width: 150,
-                child: FilledButton.icon(
-                  // radius
-                  style: ButtonStyle(
-                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                if (link.isNotEmpty)
+                  SizedBox(
+                    width: 150,
+                    child: FilledButton.icon(
+                      // radius
+                      style: ButtonStyle(
+                        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                        ),
                       ),
+                      onPressed: () async {
+                        Uri url = Uri.parse(link);
+                        if (!await launchUrl(url)) {
+                          throw Exception('Could not launch $url');
+                        }
+                      },
+                      iconAlignment: IconAlignment.end,
+                      icon: const Icon(Icons.launch_outlined),
+                      label: const Text("الرابط",
+                          style: TextStyle(fontSize: 18, fontFamily: "Zarids")),
                     ),
                   ),
-                  onPressed: () async {
-                    Uri url = Uri.parse(link);
-                    if (!await launchUrl(url)) {
-                      throw Exception('Could not launch $url');
-                    }
-                  },
+                SizedBox(
+                  width: 150,
+                  child: OutlinedButton.icon(
+                    style: ButtonStyle(
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                      ),
+                    ),
+                    onPressed: () {
+                      String timestampId = "";
+                      try {
+                        timestampId = DateTime.parse(currentAd['StartDate'])
+                            .millisecondsSinceEpoch
+                            .toString();
+                      } catch (e) {
+                        timestampId = "";
+                      }
 
-                  iconAlignment: IconAlignment.end,
-                  icon: const Icon(Icons.launch_outlined),
-                  label: const Text("الرابط",
-                      style: TextStyle(fontSize: 18, fontFamily: "Zarids")),
+                      String baseUrl =
+                          kIsWeb ? Uri.base.origin : 'https://hajj.kumthra.com';
+                      String adUrl = timestampId.isNotEmpty
+                          ? "$baseUrl/ad/$timestampId"
+                          : "";
+
+                      String shareText = "📢 إعلان: $title\n";
+                      if (description.isNotEmpty) {
+                        String desc = description;
+                        if (desc.length > 100) {
+                          desc = '${desc.substring(0, 100)}...';
+                        }
+                        shareText += '\n📝 التفاصيل:\n$desc\n';
+                      }
+                      if (link.isNotEmpty) {
+                        shareText += '\n🔗 الرابط:\n$link\n';
+                      }
+                      if (adUrl.isNotEmpty) {
+                        shareText += '\n🔗 رابط الإعلان في التطبيق:\n$adUrl\n';
+                      }
+                      shareText +=
+                          '\n📱 مشاركة من تطبيق حج التمتع في سؤال وجواب';
+
+                      Share.share(shareText);
+                    },
+                    iconAlignment: IconAlignment.end,
+                    icon: const Icon(Icons.share_outlined),
+                    label: const Text("مشاركة",
+                        style: TextStyle(fontSize: 18, fontFamily: "Zarids")),
+                  ),
                 ),
-              ),
+              ],
             ),
+          ),
           const SizedBox(height: 10)
         ],
       ),
@@ -199,7 +336,13 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
                       IconButton(
                         icon: const Icon(Icons.arrow_back),
                         onPressed: () {
-                          Navigator.pop(context);
+                          if (widget.isFromDeeplink) {
+                            Get.offAllNamed(HomePage.route);
+                          } else {
+                            if (Navigator.canPop(context)) {
+                              Navigator.pop(context);
+                            }
+                          }
                         },
                       ),
                       Expanded(
@@ -258,7 +401,21 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: MediaQuery.of(context).size.width < 800 ? AppBar() : null,
+        appBar: MediaQuery.of(context).size.width < 800
+            ? AppBar(
+                leading: BackButton(
+                  onPressed: () {
+                    if (widget.isFromDeeplink) {
+                      Get.offAllNamed(HomePage.route);
+                    } else {
+                      if (Navigator.canPop(context)) {
+                        Navigator.pop(context);
+                      }
+                    }
+                  },
+                ),
+              )
+            : null,
         body: LayoutBuilder(
           builder: (context, constraints) {
             bool isLargeScreen = constraints.maxWidth >= 800;

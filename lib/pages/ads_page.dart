@@ -162,7 +162,7 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
                                   padding: EdgeInsets.all(8.0),
                                   child: Align(
                                       alignment: Alignment.centerRight,
-                                      child: Text("جميع الإعلانات الحالية:",
+                                      child: Text("الإعلانات الحالية:",
                                           style: TextStyle(fontSize: 25))),
                                 ),
                                 GridView.builder(

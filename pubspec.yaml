@@ -46,7 +46,7 @@ dependencies:
   auto_size_text: ^3.0.0
   get: ^4.7.2
   fluttericon: ^2.0.0
-  hive: ^2.2.3
+  hive_ce: ^2.19.3
   flutter_cache_manager: ^3.4.1
   cross_file: ^0.3.4+2
   carousel_slider: ^5.0.0
@@ -54,6 +54,26 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  flutter_launcher_icons: "^0.14.4"
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/app_icon.jpg"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "assets/app_icon.jpg"
+    background_color: "#f7faf9"
+    theme_color: "#005050"
+  windows:
+    generate: true
+    image_path: "assets/app_icon.jpg"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "assets/app_icon.jpg"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -86,6 +106,7 @@ flutter:
     - assets/titlesImages/
     - assets/kabba.jpg
     - assets/intro.jpg
+    - assets/app_icon.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
