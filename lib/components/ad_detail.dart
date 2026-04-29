@@ -136,10 +136,7 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
     String title = currentAd['Title'] ?? 'بدون عنوان';
     String description = currentAd['Description'] ?? '';
     String link = currentAd['Link'] ?? '';
-    // String? timestamp =
-    //     (currentAd['StartDate'] != null && currentAd['EndDate'] != null)
-    //         ? "${currentAd['StartDate']} إلى ${currentAd['EndDate']}"
-    //         : null;
+    String startDate = currentAd['StartDate']?.toString() ?? '';
 
     Widget fallbackWidget = const Padding(
       padding: EdgeInsets.all(30.0),
@@ -167,7 +164,7 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          SelectableText(
             title,
             style: Theme.of(context).textTheme.displayMedium,
           ),
@@ -179,30 +176,30 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // if (timestamp != null && timestamp.isNotEmpty) ...[
-                  // Row(
-                  //   children: [
-                  //     Icon(Icons.access_time,
-                  //         color: Theme.of(context).colorScheme.primary,
-                  //         size: 20),
-                  //     const SizedBox(width: 8),
-                  //     Expanded(
-                  //       child: Text(
-                  //         timestamp,
-                  //         style: TextStyle(
-                  //           color: Theme.of(context).colorScheme.primary,
-                  //           fontWeight: FontWeight.bold,
-                  //           fontFamily: "Zarids",
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-                  // const Divider(height: 16),
-                  // ],
-                  Text(
+                  if (startDate.isNotEmpty) ...[
+                    Row(
+                      children: [
+                        Icon(Icons.access_time,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            "تاريخ النشر: $startDate",
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Divider(height: 16),
+                  ],
+                  SelectableText(
                     description,
-                    style: const TextStyle(fontSize: 18, height: 1.5),
+                    style: const TextStyle(
+                        fontSize: 24, fontFamily: "Zarids", height: 1.5),
                   ),
                 ],
               ),
@@ -266,6 +263,9 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
                           : "";
 
                       String shareText = "📢 إعلان: $title\n";
+                      if (startDate.isNotEmpty) {
+                        shareText += '\n📅 تاريخ النشر: $startDate\n';
+                      }
                       if (description.isNotEmpty) {
                         String desc = description;
                         if (desc.length > 100) {

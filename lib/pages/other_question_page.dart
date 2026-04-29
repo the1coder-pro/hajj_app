@@ -142,8 +142,8 @@ ${widget.question.answerText}
                             children: [
                               Align(
                                   alignment: Alignment.centerRight,
-                                  child: RichText(
-                                    text: TextSpan(children: [
+                                  child: SelectableText.rich(
+                                    TextSpan(children: [
                                       TextSpan(
                                           text: widget.question.section ?? "",
                                           style: Theme.of(context)
@@ -163,7 +163,8 @@ ${widget.question.answerText}
                             padding: const EdgeInsets.all(8.0),
                             child: Align(
                               alignment: Alignment.center,
-                              child: Text(widget.question.question!.trim(),
+                              child: SelectableText(
+                                  widget.question.question!.trim(),
                                   textAlign: TextAlign.right,
                                   style: Theme.of(context)
                                       .textTheme
@@ -188,7 +189,7 @@ ${widget.question.answerText}
                                     .colorScheme
                                     .secondaryContainer,
                                 child: Center(
-                                  child: Text("نص الجواب",
+                                  child: SelectableText("نص الجواب",
                                       style: TextStyle(
                                           fontSize: 20,
                                           fontFamily: "Zarids",
@@ -205,14 +206,20 @@ ${widget.question.answerText}
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Consumer<QuestionPrefsProvider>(
-                                  builder: (context, provider, _) => Text(
-                                      widget.question.answerText ??
-                                          "لا يوجد نص جواب",
-                                      textAlign: TextAlign.right,
-                                      style: TextStyle(
-                                          fontFamily: "Zarids",
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: provider.fontSize)),
+                                  builder: (context, provider, _) =>
+                                      SelectableText.rich(
+                                    TextSpan(
+                                      children: _buildMarkdownSpans(
+                                        widget.question.answerText ??
+                                            "لا يوجد نص جواب",
+                                        TextStyle(
+                                            fontFamily: "Zarids",
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: provider.fontSize),
+                                      ),
+                                    ),
+                                    textAlign: TextAlign.right,
+                                  ),
                                 ),
                               ),
                             ),
@@ -244,58 +251,79 @@ ${widget.question.answerText}
                     .textTheme
                     .displayMedium!
                     .copyWith(fontWeight: FontWeight.normal)),
+            contentPadding: const EdgeInsets.all(10),
             content: SizedBox(
               width: isLargeScreen ? 400 : double.maxFinite,
               child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ListTile(
-                      title: const Text(
-                        "حجم الخط",
-                        style: TextStyle(
-                          fontFamily: "Zarids",
-                          fontSize: 25,
-                        ),
-                      ),
-                      subtitle: Slider(
-                        label: prefsProvider.fontSize.toString(),
-                        value: prefsProvider.fontSize,
-                        min: 20,
-                        max: 40,
-                        divisions: 5,
-                        onChanged: (value) {
-                          prefsProvider.fontSize = value;
-                        },
-                      ),
-                      leading: IconButton(
-                        onPressed: () {
-                          prefsProvider.fontSize = 25;
-                        },
-                        icon: const Icon(Icons.restore),
-                      ),
-                      trailing: CircleAvatar(
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondaryContainer,
-                        child: Center(
-                          child: Text(
-                            prefsProvider.fontSize.toString(),
-                            style: TextStyle(
-                                fontSize: 22,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSecondaryContainer),
-                            textAlign: TextAlign.center,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "حجم الخط",
+                                style: TextStyle(
+                                  fontFamily: "Zarids",
+                                  fontSize: 25,
+                                ),
+                              ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    onPressed: () {
+                                      prefsProvider.fontSize = 25;
+                                    },
+                                    icon: const Icon(Icons.restore),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  CircleAvatar(
+                                    backgroundColor: Theme.of(context)
+                                        .colorScheme
+                                        .secondaryContainer,
+                                    child: Center(
+                                      child: Text(
+                                        prefsProvider.fontSize.toString(),
+                                        style: TextStyle(
+                                            fontSize: 22,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSecondaryContainer),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                        ),
+                          Slider(
+                            label: prefsProvider.fontSize.toString(),
+                            value: prefsProvider.fontSize,
+                            inactiveColor:
+                                Theme.of(context).colorScheme.surfaceDim,
+                            min: 20,
+                            max: 40,
+                            divisions: 5,
+                            onChanged: (value) {
+                              prefsProvider.fontSize = value;
+                            },
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
             actions: [
-              TextButton(
+              OutlinedButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Text("إغلاق",
                     style: TextStyle(fontFamily: "Zarids", fontSize: 18)),
@@ -358,16 +386,20 @@ class QuestionImageTemplate extends StatelessWidget {
               color: Theme.of(context).colorScheme.surface,
               child: Padding(
                 padding: const EdgeInsets.all(10),
-                child: AutoSizeText(
-                  widget.question.answerText!,
+                child: AutoSizeText.rich(
+                  TextSpan(
+                    children: _buildMarkdownSpans(
+                      widget.question.answerText ?? "",
+                      const TextStyle(
+                          fontSize: 30,
+                          fontFamily: "Zarids",
+                          fontWeight: FontWeight.w400),
+                    ),
+                  ),
                   maxLines: 8,
                   minFontSize: 25,
                   textAlign: TextAlign.right,
                   textDirection: TextDirection.rtl,
-                  style: const TextStyle(
-                      fontSize: 30,
-                      fontFamily: "Zarids",
-                      fontWeight: FontWeight.w400),
                 ),
               ),
             ),
@@ -378,4 +410,35 @@ class QuestionImageTemplate extends StatelessWidget {
       ) /* add child content here */,
     );
   }
+}
+
+List<TextSpan> _buildMarkdownSpans(String text, TextStyle baseStyle) {
+  final spans = <TextSpan>[];
+  final RegExp exp = RegExp(r'\*\*(.*?)\*\*|\*(.*?)\*');
+  int lastMatchEnd = 0;
+
+  for (final match in exp.allMatches(text)) {
+    if (match.start > lastMatchEnd) {
+      spans.add(TextSpan(
+        text: text.substring(lastMatchEnd, match.start),
+        style: baseStyle,
+      ));
+    }
+
+    final boldText = match.group(1) ?? match.group(2) ?? '';
+    spans.add(TextSpan(
+      text: boldText,
+      style: baseStyle.copyWith(fontWeight: FontWeight.bold, fontSize: 26),
+    ));
+    lastMatchEnd = match.end;
+  }
+
+  if (lastMatchEnd < text.length) {
+    spans.add(TextSpan(
+      text: text.substring(lastMatchEnd),
+      style: baseStyle,
+    ));
+  }
+
+  return spans;
 }

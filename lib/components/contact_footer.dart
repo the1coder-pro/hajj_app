@@ -119,8 +119,8 @@ class ContactFooter extends StatelessWidget {
           ),
           const SizedBox(height: 15),
           SizedBox(
-            width: 250,
-            height: 50,
+            width: 270,
+            height: 40,
             child: FilledButton.icon(
               style: FilledButton.styleFrom(
                 backgroundColor: themeProvider.brightness == Brightness.dark
@@ -150,6 +150,7 @@ class ContactFooter extends StatelessWidget {
               ),
             ),
           ),
+
           if (!isLargeScreen) const SizedBox(height: 50),
           // const SizedBox(width: 90),
         ],

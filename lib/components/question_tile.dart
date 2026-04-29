@@ -92,6 +92,7 @@ class QuestionTile extends StatelessWidget {
                                               .textTheme
                                               .displaySmall!
                                               .copyWith(
+                                                  fontSize: 20,
                                                   fontWeight: FontWeight.bold,
                                                   color: Theme.of(context)
                                                       .colorScheme
@@ -102,6 +103,7 @@ class QuestionTile extends StatelessWidget {
                                               .textTheme
                                               .displaySmall!
                                               .copyWith(
+                                                  fontSize: 20,
                                                   fontWeight: FontWeight.bold,
                                                   color: Theme.of(context)
                                                       .colorScheme
@@ -125,14 +127,25 @@ class QuestionTile extends StatelessWidget {
                             )
                           ],
                         ),
-                        Text(
-                          question!.question!,
-                          style: TextStyle(
-                              fontFamily: "Zarids",
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontSize: 28,
-                              fontWeight: FontWeight.w400),
-                        ),
+                        isLargeScreen
+                            ? SelectableText(
+                                question!.question!,
+                                style: TextStyle(
+                                    fontFamily: "Zarids",
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w400),
+                              )
+                            : Text(
+                                question!.question!,
+                                style: TextStyle(
+                                    fontFamily: "Zarids",
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w400),
+                              ),
                       ],
                     ),
                   )),
@@ -189,6 +202,7 @@ class QuestionTile extends StatelessWidget {
                                               .textTheme
                                               .displaySmall!
                                               .copyWith(
+                                                  fontSize: 20,
                                                   fontWeight: FontWeight.bold,
                                                   color: Theme.of(context)
                                                       .colorScheme
@@ -197,14 +211,25 @@ class QuestionTile extends StatelessWidget {
                                   )),
                           ],
                         ),
-                        Text(
-                          questionModelAr!.question!,
-                          style: TextStyle(
-                              fontFamily: "Zarids",
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontSize: 28,
-                              fontWeight: FontWeight.w400),
-                        ),
+                        isLargeScreen
+                            ? SelectableText(
+                                questionModelAr!.question!,
+                                style: TextStyle(
+                                    fontFamily: "Zarids",
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w400),
+                              )
+                            : Text(
+                                questionModelAr!.question!,
+                                style: TextStyle(
+                                    fontFamily: "Zarids",
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w400),
+                              ),
                       ],
                     ),
                   )),

@@ -75,8 +75,10 @@ class QuestionSearch extends SearchDelegate<String> {
 
     return questions.where((q) {
       final normalizedTitle = _normalizeText(q.question ?? "");
-      // Ensure any word in the query appears somewhere in the question
-      return queryWords.any((word) => normalizedTitle.contains(word));
+      final normalizedAnswer = _normalizeText(q.answerText ?? "");
+      // Ensure any word in the query appears somewhere in the question or the answer
+      return queryWords.any((word) =>
+          normalizedTitle.contains(word) || normalizedAnswer.contains(word));
     }).toList();
   }
 
