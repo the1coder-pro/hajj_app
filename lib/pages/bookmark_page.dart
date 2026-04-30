@@ -323,18 +323,16 @@ class _Bookmarks2PageState extends State<Bookmarks2Page> {
       // play the first audio and when it ends play the next one
       final firstUrl =
           "https://hajjaudiofiles.kumthra.com/questions_audiofiles/${widget.bookmarkProvider.bookmarks[0].no}.mp3";
-      final firstFileInfo =
-          await DefaultCacheManager().getFileFromCache(firstUrl);
-      if (firstFileInfo != null) {
-        if (kIsWeb) {
-          final bytes = await firstFileInfo.file.readAsBytes();
-          final xFile = XFile.fromData(bytes, mimeType: 'audio/mpeg');
-          await audioPlayer.setUrl(xFile.path);
-        } else {
-          await audioPlayer.setFilePath(firstFileInfo.file.path);
-        }
-      } else {
+      if (kIsWeb) {
         await audioPlayer.setUrl(firstUrl);
+      } else {
+        final firstFileInfo =
+            await DefaultCacheManager().getFileFromCache(firstUrl);
+        if (firstFileInfo != null) {
+          await audioPlayer.setFilePath(firstFileInfo.file.path);
+        } else {
+          await audioPlayer.setUrl(firstUrl);
+        }
       }
 
       audioPlayer.playerStateStream.listen((event) async {
@@ -345,19 +343,16 @@ class _Bookmarks2PageState extends State<Bookmarks2Page> {
               if (i + 1 < widget.bookmarkProvider.bookmarks.length) {
                 final nextUrl =
                     "https://hajjaudiofiles.kumthra.com/questions_audiofiles/${widget.bookmarkProvider.bookmarks[i + 1].no}.mp3";
-                final nextFileInfo =
-                    await DefaultCacheManager().getFileFromCache(nextUrl);
-
-                if (nextFileInfo != null) {
-                  if (kIsWeb) {
-                    final bytes = await nextFileInfo.file.readAsBytes();
-                    final xFile = XFile.fromData(bytes, mimeType: 'audio/mpeg');
-                    await audioPlayer.setUrl(xFile.path);
-                  } else {
-                    await audioPlayer.setFilePath(nextFileInfo.file.path);
-                  }
-                } else {
+                if (kIsWeb) {
                   await audioPlayer.setUrl(nextUrl);
+                } else {
+                  final nextFileInfo =
+                      await DefaultCacheManager().getFileFromCache(nextUrl);
+                  if (nextFileInfo != null) {
+                    await audioPlayer.setFilePath(nextFileInfo.file.path);
+                  } else {
+                    await audioPlayer.setUrl(nextUrl);
+                  }
                 }
                 audioPlayer.play();
               } else {

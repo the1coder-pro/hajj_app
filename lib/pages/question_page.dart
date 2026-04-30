@@ -49,10 +49,23 @@ class _QuestionPageState extends State<QuestionPage> {
     try {
       final url =
           "https://hajjaudiofiles.kumthra.com/questions_audiofiles/${question!.no}.mp3";
-      final fileInfo = await DefaultCacheManager().getFileFromCache(url);
+      bool isCached = false;
+      if (!kIsWeb) {
+        final directory = await getApplicationDocumentsDirectory();
+        final file = File('${directory.path}/${question!.no}.mp3');
+        if (await file.exists()) {
+          isCached = true;
+        } else {
+          final fileInfo = await DefaultCacheManager().getFileFromCache(url);
+          isCached = fileInfo != null;
+        }
+      } else {
+        final fileInfo = await DefaultCacheManager().getFileFromCache(url);
+        isCached = fileInfo != null;
+      }
       if (mounted) {
         setState(() {
-          isCachedLocal = fileInfo != null;
+          isCachedLocal = isCached;
           isAudioFileThere = true;
         });
       }
@@ -600,24 +613,58 @@ ${(kIsWeb ? "${Uri.base.origin}/q/${question!.no}" : "https://hajj-app-1.web.app
                                 });
                               }
 
-                              await DefaultCacheManager().downloadFile(url);
+                              bool downloadSuccess = false;
+                              if (!kIsWeb) {
+                                try {
+                                  final directory =
+                                      await getApplicationDocumentsDirectory();
+                                  final file = File(
+                                      '${directory.path}/${question!.no}.mp3');
+                                  final response =
+                                      await http.get(Uri.parse(url));
+                                  if (response.statusCode == 200) {
+                                    await file.writeAsBytes(response.bodyBytes);
+                                    downloadSuccess = true;
+                                  }
+                                } catch (e) {
+                                  debugPrint("Download error: $e");
+                                }
+                              } else {
+                                try {
+                                  await DefaultCacheManager().downloadFile(url);
+                                  downloadSuccess = true;
+                                } catch (e) {
+                                  debugPrint("Download error: $e");
+                                }
+                              }
 
                               if (mounted) {
                                 // Instantly hide the "Downloading..." snackbar so they don't queue up
                                 ScaffoldMessenger.of(context)
                                     .hideCurrentSnackBar();
 
-                                setState(() {
-                                  isCachedLocal = true;
-                                  isDownloading = false;
-                                });
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text("تم حفظ السؤال بنجاح")),
-                                );
-                              }
-                              if (isCurrentQuestion) {
-                                audioProvider.setCached(true);
+                                if (downloadSuccess) {
+                                  setState(() {
+                                    isCachedLocal = true;
+                                    isDownloading = false;
+                                  });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text("تم حفظ السؤال بنجاح")),
+                                  );
+                                  if (isCurrentQuestion) {
+                                    audioProvider.setCached(true);
+                                  }
+                                } else {
+                                  setState(() {
+                                    isDownloading = false;
+                                  });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content:
+                                            Text("حدث خطأ أثناء تحميل السؤال")),
+                                  );
+                                }
                               }
                             }
                           },

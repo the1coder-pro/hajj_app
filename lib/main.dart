@@ -22,6 +22,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:hive_ce/hive_ce.dart';
 import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
 void main() async {
   usePathUrlStrategy();
@@ -63,6 +64,22 @@ const textTheme = TextTheme(
     fontSize: 20,
   ),
 );
+
+class AudioMetadata {
+  final String id;
+  final String title;
+  final String album;
+  final String artist;
+  final String? artUri;
+
+  AudioMetadata({
+    required this.id,
+    required this.title,
+    required this.album,
+    required this.artist,
+    this.artUri,
+  });
+}
 
 class GlobalAudioProvider extends ChangeNotifier {
   final AudioPlayer audioPlayer = AudioPlayer();
@@ -180,24 +197,47 @@ class GlobalAudioProvider extends ChangeNotifier {
       final url =
           "https://hajjaudiofiles.kumthra.com/questions_audiofiles/${question.no}.mp3";
 
-      final fileInfo = await DefaultCacheManager().getFileFromCache(url);
+      AudioSource? audioSource;
+      final metadata = AudioMetadata(
+        id: question.no?.toString() ?? '',
+        title: question.question ?? '',
+        album: question.mainTitle ?? '',
+        artist: question.instructor ?? '',
+      );
 
-      if (fileInfo != null) {
-        if (kIsWeb) {
-          final bytes = await fileInfo.file.readAsBytes();
-          final xFile = XFile.fromData(bytes, mimeType: 'audio/mpeg');
-          if (_isStopped) return false;
-          await audioPlayer.setUrl(xFile.path);
-        } else {
-          if (_isStopped) return false;
-          await audioPlayer.setFilePath(fileInfo.file.path);
+      if (!kIsWeb) {
+        try {
+          final directory = await getApplicationDocumentsDirectory();
+          final file = File('${directory.path}/${question.no}.mp3');
+          if (await file.exists()) {
+            audioSource = AudioSource.uri(Uri.file(file.path), tag: metadata);
+            isCached = true;
+          }
+        } catch (e) {
+          debugPrint("Local file check error: $e");
         }
-        isCached = true;
-      } else {
-        if (_isStopped) return false;
-        await audioPlayer.setUrl(url);
-        isCached = false;
       }
+
+      if (audioSource == null) {
+        if (kIsWeb) {
+          audioSource = AudioSource.uri(Uri.parse(url), tag: metadata);
+          final fileInfo = await DefaultCacheManager().getFileFromCache(url);
+          isCached = fileInfo != null;
+        } else {
+          final fileInfo = await DefaultCacheManager().getFileFromCache(url);
+          if (fileInfo != null) {
+            audioSource =
+                AudioSource.uri(Uri.file(fileInfo.file.path), tag: metadata);
+            isCached = true;
+          } else {
+            audioSource = AudioSource.uri(Uri.parse(url), tag: metadata);
+            isCached = false;
+          }
+        }
+      }
+
+      if (_isStopped) return false;
+      await audioPlayer.setAudioSource(audioSource);
     } catch (e) {
       debugPrint(e.toString());
       success = false;

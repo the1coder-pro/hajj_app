@@ -442,6 +442,7 @@ class _InstructorsPageState extends State<InstructorsPage> {
                                                               .stretch,
                                                       children: [
                                                         Expanded(
+                                                          flex: 3,
                                                           child: Padding(
                                                             padding:
                                                                 const EdgeInsets
@@ -460,35 +461,48 @@ class _InstructorsPageState extends State<InstructorsPage> {
                                                                 'assets/kabba.jpg',
                                                                 fit: BoxFit
                                                                     .cover,
+                                                                width: double
+                                                                    .infinity,
                                                               ),
                                                             ),
                                                           ),
                                                         ),
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(12.0),
-                                                          child: Text(
-                                                            generatedMainTitles[
-                                                                    index][
-                                                                'subTitles'][i],
-                                                            style: TextStyle(
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .colorScheme
-                                                                    .primary,
-                                                                fontSize: 22,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                fontFamily:
-                                                                    "Zarids"),
-                                                            textAlign: TextAlign
-                                                                .center,
-                                                            maxLines: 2,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
+                                                        Expanded(
+                                                          flex: 1,
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .symmetric(
+                                                                    horizontal:
+                                                                        12.0,
+                                                                    vertical:
+                                                                        4.0),
+                                                            child: Center(
+                                                              child: Text(
+                                                                generatedMainTitles[
+                                                                        index][
+                                                                    'subTitles'][i],
+                                                                style: TextStyle(
+                                                                    color: Theme.of(
+                                                                            context)
+                                                                        .colorScheme
+                                                                        .primary,
+                                                                    fontSize:
+                                                                        22,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontFamily:
+                                                                        "Zarids"),
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                maxLines: 2,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                              ),
+                                                            ),
                                                           ),
                                                         ),
                                                       ],
