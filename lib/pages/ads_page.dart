@@ -73,7 +73,7 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
                             child: Column(children: [
                               CarouselSlider(
                                 options: CarouselOptions(
-                                    height: 250.0,
+                                    height: 120.0,
                                     autoPlay: latest3Ads.length > 1,
                                     enableInfiniteScroll: latest3Ads.length > 1,
                                     autoPlayInterval:
@@ -104,7 +104,7 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
                                         item['Title'] ?? 'بدون عنوان',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
-                                          fontSize: 28,
+                                          fontSize: 22,
                                           fontWeight: FontWeight.bold,
                                           color: imageURL.isNotEmpty
                                               ? Colors.white
@@ -165,12 +165,7 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
                                       child: Text("الإعلانات الحالية:",
                                           style: TextStyle(fontSize: 25))),
                                 ),
-                                GridView.builder(
-                                    gridDelegate:
-                                        const SliverGridDelegateWithMaxCrossAxisExtent(
-                                      maxCrossAxisExtent: 250,
-                                      mainAxisExtent: 120,
-                                    ),
+                                ListView.builder(
                                     shrinkWrap: true,
                                     physics:
                                         const NeverScrollableScrollPhysics(),
@@ -205,6 +200,8 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
 
                                       return Card.outlined(
                                         clipBehavior: Clip.antiAlias,
+                                        margin:
+                                            const EdgeInsets.only(bottom: 16.0),
                                         child: InkWell(
                                             onTap: () {
                                               Get.to(
@@ -214,52 +211,74 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
                                                   transition:
                                                       Transition.downToUp);
                                             },
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(12.0),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    _adsList[index]['Title'] ??
-                                                        'بدون عنوان',
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: TextStyle(
-                                                      fontFamily: "Zarids",
-                                                      fontSize: 20,
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .primary,
-                                                      fontWeight:
-                                                          FontWeight.bold,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.stretch,
+                                              children: [
+                                                if (imageURL.isNotEmpty)
+                                                  SizedBox(
+                                                    height: 180,
+                                                    child: HttpImageFetcher(
+                                                      imageUrl: imageURL,
+                                                      fallbackWidget:
+                                                          const SizedBox(),
+                                                      fit: BoxFit.cover,
                                                     ),
                                                   ),
-                                                  Divider(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .secondary,
-                                                      height: 2),
-                                                  const SizedBox(height: 5),
-                                                  Expanded(
-                                                    child: Text(
-                                                      description,
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: TextStyle(
-                                                        fontFamily: "Zarids",
-                                                        fontSize: 16,
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .onSurface,
+                                                Padding(
+                                                  padding: const EdgeInsets.all(
+                                                      12.0),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        _adsList[index]
+                                                                ['Title'] ??
+                                                            'بدون عنوان',
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: TextStyle(
+                                                          fontFamily: "Zarids",
+                                                          fontSize: 20,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .primary,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
                                                       ),
-                                                    ),
+                                                      if (description
+                                                          .isNotEmpty) ...[
+                                                        Divider(
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .secondary,
+                                                            height: 15),
+                                                        Text(
+                                                          description,
+                                                          maxLines: 2,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          style: TextStyle(
+                                                            fontFamily:
+                                                                "Zarids",
+                                                            fontSize: 16,
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .onSurface,
+                                                          ),
+                                                        ),
+                                                      ]
+                                                    ],
                                                   ),
-                                                ],
-                                              ),
+                                                ),
+                                              ],
                                             )),
                                       );
                                     }),

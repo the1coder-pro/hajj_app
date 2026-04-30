@@ -150,7 +150,39 @@ class ContactFooter extends StatelessWidget {
               ),
             ),
           ),
-
+          const SizedBox(height: 6),
+          SizedBox(
+            width: 270,
+            height: 40,
+            child: FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: themeProvider.brightness == Brightness.dark
+                    ? Colors.black26
+                    : Colors.white,
+                foregroundColor: themeProvider.brightness == Brightness.dark
+                    ? Colors.white
+                    : const Color(0xFF2b7b7a),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 0,
+              ),
+              onPressed: () async {
+                Uri url = Uri.parse('https://forms.gle/QWdicLcYZLdNtnLb7');
+                if (!await launchUrl(url)) {
+                  throw Exception('Could not launch $url');
+                }
+              },
+              icon: const Icon(Icons.feedback_outlined),
+              label: const Text(
+                "للملاحظات والاقتراحات",
+                style: TextStyle(
+                    fontFamily: "Zarids",
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
           if (!isLargeScreen) const SizedBox(height: 50),
           // const SizedBox(width: 90),
         ],

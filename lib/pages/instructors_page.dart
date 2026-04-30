@@ -400,9 +400,9 @@ class _InstructorsPageState extends State<InstructorsPage> {
                                         gridDelegate:
                                             SliverGridDelegateWithMaxCrossAxisExtent(
                                           maxCrossAxisExtent:
-                                              isInnerLargeScreen ? 400 : 250,
+                                              isInnerLargeScreen ? 350 : 250,
                                           childAspectRatio:
-                                              isInnerLargeScreen ? 2.0 : 1.0,
+                                              isInnerLargeScreen ? 1.1 : 1.0,
                                         ),
                                         itemCount: generatedMainTitles[index]
                                                 ['subTitles']
@@ -411,75 +411,88 @@ class _InstructorsPageState extends State<InstructorsPage> {
                                           return Padding(
                                             padding: const EdgeInsets.all(5),
                                             child: Card.outlined(
-                                              clipBehavior: Clip.antiAlias,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .surfaceContainerHighest
-                                                  .withValues(alpha: 0.5),
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          30)),
-                                              child: Ink(
-                                                decoration: const BoxDecoration(
-                                                  image: DecorationImage(
-                                                    image: AssetImage(
-                                                        'assets/kabba.jpg'),
-                                                    fit: BoxFit.cover,
-                                                    // blur
-                                                    colorFilter:
-                                                        ColorFilter.mode(
-                                                      Colors.black54,
-                                                      BlendMode.darken,
-                                                    ),
-                                                  ),
-                                                ),
+                                                clipBehavior: Clip.antiAlias,
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            30)),
                                                 child: InkWell(
-                                                  borderRadius:
-                                                      BorderRadius.circular(30),
-                                                  onTap: () {
-                                                    Get.to(
-                                                      () => SubTitlePage(
-                                                          index: index,
-                                                          i: i,
-                                                          mainTitles:
-                                                              generatedMainTitles,
-                                                          questions: questions,
-                                                          showAppBar: true),
-                                                      transition: Transition
-                                                          .leftToRight,
-                                                      routeName:
-                                                          '/section/${Uri.encodeComponent(currentTitle)}/${Uri.encodeComponent(generatedMainTitles[index]['subTitles'][i])}',
-                                                    );
-                                                  },
-                                                  child: Center(
-                                                    child: Padding(
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                          horizontal: 16.0,
-                                                          vertical: 8.0),
-                                                      child: Text(
-                                                        generatedMainTitles[
-                                                                index]
-                                                            ['subTitles'][i],
-                                                        style: TextStyle(
-                                                            color: Theme.of(
-                                                                    context)
-                                                                .colorScheme
-                                                                .onPrimaryContainer,
-                                                            fontSize: 24,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontFamily:
-                                                                "Zarids"),
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            30),
+                                                    onTap: () {
+                                                      Get.to(
+                                                        () => SubTitlePage(
+                                                            index: index,
+                                                            i: i,
+                                                            mainTitles:
+                                                                generatedMainTitles,
+                                                            questions:
+                                                                questions,
+                                                            showAppBar: true),
+                                                        transition: Transition
+                                                            .leftToRight,
+                                                        routeName:
+                                                            '/section/${Uri.encodeComponent(currentTitle)}/${Uri.encodeComponent(generatedMainTitles[index]['subTitles'][i])}',
+                                                      );
+                                                    },
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .stretch,
+                                                      children: [
+                                                        Expanded(
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                                    top: 12.0,
+                                                                    left: 12.0,
+                                                                    right:
+                                                                        12.0),
+                                                            child: ClipRRect(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          20),
+                                                              child:
+                                                                  Image.asset(
+                                                                'assets/kabba.jpg',
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(12.0),
+                                                          child: Text(
+                                                            generatedMainTitles[
+                                                                    index][
+                                                                'subTitles'][i],
+                                                            style: TextStyle(
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .colorScheme
+                                                                    .primary,
+                                                                fontSize: 22,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontFamily:
+                                                                    "Zarids"),
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            maxLines: 2,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ))),
                                           );
                                         },
                                       );
