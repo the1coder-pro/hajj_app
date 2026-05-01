@@ -29,7 +29,7 @@ class _AdRouteWrapperState extends State<AdRouteWrapper> {
   Future<void> _fetchAds() async {
     try {
       final response = await http.get(Uri.parse(
-          'https://opensheet.elk.sh/1IR-c-DM1_G0Qr6sr-iy7gZKwWN5zuQfo_Vr8Ky29BgE/1'));
+          'https://opensheet.elk.sh/1IR-c-DM1_G0Qr6sr-iy7gZKwWN5zuQfo_Vr8Ky29BgE/3'));
       if (response.statusCode == 200) {
         var decodedData = utf8.decode(response.bodyBytes);
         var data = jsonDecode(decodedData);

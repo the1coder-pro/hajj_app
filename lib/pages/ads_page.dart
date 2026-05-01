@@ -299,7 +299,7 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
       return;
     }
     final response = await http.get(Uri.parse(
-        'https://opensheet.elk.sh/1IR-c-DM1_G0Qr6sr-iy7gZKwWN5zuQfo_Vr8Ky29BgE/1'));
+        'https://opensheet.elk.sh/1IR-c-DM1_G0Qr6sr-iy7gZKwWN5zuQfo_Vr8Ky29BgE/3'));
     if (response.statusCode == 200) {
       // get data utf8
 
@@ -334,7 +334,7 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
 
   Future<void> _refreshAds() async {
     final response = await http.get(Uri.parse(
-        'https://opensheet.elk.sh/1IR-c-DM1_G0Qr6sr-iy7gZKwWN5zuQfo_Vr8Ky29BgE/1'));
+        'https://opensheet.elk.sh/1IR-c-DM1_G0Qr6sr-iy7gZKwWN5zuQfo_Vr8Ky29BgE/3'));
     if (response.statusCode == 200) {
       // get data utf8
 
