@@ -316,16 +316,23 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
         }
       }
 
-      validAds.sort((a, b) => DateTime.parse(b['StartDate'])
-          .compareTo(DateTime.parse(a['StartDate'])));
+      validAds.sort((a, b) {
+        String timeA = a['Timestamp'] ?? a['StartDate'] ?? '';
+        String timeB = b['Timestamp'] ?? b['StartDate'] ?? '';
+        try {
+          return DateTime.parse(timeA).compareTo(DateTime.parse(timeB));
+        } catch (e) {
+          return 0;
+        }
+      });
 
       setState(() {
-        _adsList = validAds;
         if (validAds.length > 3) {
           latest3Ads = validAds.sublist(0, 3);
         } else {
           latest3Ads = validAds;
         }
+        _adsList = validAds.reversed.toList();
         _cachedAdsList = _adsList;
         _cachedLatest3Ads = latest3Ads;
       });
@@ -353,13 +360,23 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
         }
       }
 
+      validAds.sort((a, b) {
+        String timeA = a['Timestamp'] ?? a['StartDate'] ?? '';
+        String timeB = b['Timestamp'] ?? b['StartDate'] ?? '';
+        try {
+          return DateTime.parse(timeA).compareTo(DateTime.parse(timeB));
+        } catch (e) {
+          return 0;
+        }
+      });
+
       setState(() {
-        _adsList = validAds;
         if (validAds.length > 3) {
           latest3Ads = validAds.sublist(0, 3);
         } else {
           latest3Ads = validAds;
         }
+        _adsList = validAds.reversed.toList();
         _cachedAdsList = _adsList;
         _cachedLatest3Ads = latest3Ads;
       });
