@@ -327,12 +327,12 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
       });
 
       setState(() {
-        if (validAds.length > 3) {
-          latest3Ads = validAds.sublist(0, 3);
-        } else {
-          latest3Ads = validAds;
-        }
         _adsList = validAds.reversed.toList();
+        if (_adsList.length > 3) {
+          latest3Ads = _adsList.sublist(0, 3);
+        } else {
+          latest3Ads = _adsList;
+        }
         _cachedAdsList = _adsList;
         _cachedLatest3Ads = latest3Ads;
       });
@@ -371,12 +371,12 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
       });
 
       setState(() {
-        if (validAds.length > 3) {
-          latest3Ads = validAds.sublist(0, 3);
-        } else {
-          latest3Ads = validAds;
-        }
         _adsList = validAds.reversed.toList();
+        if (_adsList.length > 3) {
+          latest3Ads = _adsList.sublist(0, 3);
+        } else {
+          latest3Ads = _adsList;
+        }
         _cachedAdsList = _adsList;
         _cachedLatest3Ads = latest3Ads;
       });
