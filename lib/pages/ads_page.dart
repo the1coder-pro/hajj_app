@@ -316,11 +316,13 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
         }
       }
 
+      validAds.sort((a, b) => DateTime.parse(b['StartDate'])
+          .compareTo(DateTime.parse(a['StartDate'])));
+
       setState(() {
         _adsList = validAds;
         if (validAds.length > 3) {
-          // latest3Ads = validAds.sublist(0, 3);
-          latest3Ads = validAds.sublist(validAds.length - 3);
+          latest3Ads = validAds.sublist(0, 3);
         } else {
           latest3Ads = validAds;
         }
@@ -354,8 +356,7 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
       setState(() {
         _adsList = validAds;
         if (validAds.length > 3) {
-          // get the last 3 items in validAds
-          latest3Ads = validAds.sublist(validAds.length - 3);
+          latest3Ads = validAds.sublist(0, 3);
         } else {
           latest3Ads = validAds;
         }

@@ -118,6 +118,8 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
       return const Scaffold(body: Center(child: Text("الإعلان غير متوفر")));
     }
 
+    bool isSmallScreen = MediaQuery.of(context).size.width < 800;
+
     Map currentAd = widget.ads[_currentIndex];
 
     String imageStr = currentAd['Image']?.toString() ?? '';
@@ -166,7 +168,9 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
         children: [
           SelectableText(
             title,
-            style: Theme.of(context).textTheme.displayMedium,
+            style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           const SizedBox(height: 16),
           Card.outlined(
@@ -214,7 +218,7 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
               children: [
                 if (link.isNotEmpty)
                   SizedBox(
-                    width: 150,
+                    width: isSmallScreen ? double.infinity : 150,
                     child: FilledButton.icon(
                       // radius
                       style: ButtonStyle(
@@ -237,7 +241,7 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
                     ),
                   ),
                 SizedBox(
-                  width: 150,
+                  width: isSmallScreen ? double.infinity : 150,
                   child: OutlinedButton.icon(
                     style: ButtonStyle(
                       shape: WidgetStateProperty.all<RoundedRectangleBorder>(
