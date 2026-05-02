@@ -204,7 +204,7 @@ class _InstructorPageState extends State<InstructorPage> {
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
                                                   Text(
-                                                      "- ${generatedMainTitles[index]['title']} -",
+                                                      "- ${generatedMainTitles[index]['title'] == "مسائل" ? "شرائط الحج وأحكامه" : generatedMainTitles[index]['title']} -",
                                                       style: TextStyle(
                                                           fontSize: 22,
                                                           color:
@@ -315,6 +315,8 @@ class _InstructorPageState extends State<InstructorPage> {
                                                                         fontWeight:
                                                                             FontWeight
                                                                                 .bold,
+                                                                        height:
+                                                                            1.1,
                                                                         fontFamily:
                                                                             "Zarids"),
                                                                     textAlign:

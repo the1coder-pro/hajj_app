@@ -317,7 +317,8 @@ class _InstructorsPageState extends State<InstructorsPage> {
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Text("- $currentTitle -",
+                                          Text(
+                                              "- ${currentTitle == "مسائل" ? "شرائط الحج وأحكامه" : currentTitle} -",
                                               style: TextStyle(
                                                   fontSize: 22,
                                                   color: Theme.of(context)
@@ -349,7 +350,7 @@ class _InstructorsPageState extends State<InstructorsPage> {
                                           maxCrossAxisExtent:
                                               isInnerLargeScreen ? 350 : 250,
                                           childAspectRatio:
-                                              isInnerLargeScreen ? 1.1 : 1.0,
+                                              isInnerLargeScreen ? 1.0 : 0.85,
                                         ),
                                         itemCount: generatedMainTitles[index]
                                                 ['subTitles']
@@ -389,7 +390,7 @@ class _InstructorsPageState extends State<InstructorsPage> {
                                                               .stretch,
                                                       children: [
                                                         Expanded(
-                                                          flex: 3,
+                                                          flex: 2,
                                                           child: Padding(
                                                             padding:
                                                                 const EdgeInsets
@@ -439,12 +440,13 @@ class _InstructorsPageState extends State<InstructorsPage> {
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .bold,
+                                                                    height: 1.1,
                                                                     fontFamily:
                                                                         "Zarids"),
                                                                 textAlign:
                                                                     TextAlign
                                                                         .center,
-                                                                maxLines: 2,
+                                                                maxLines: 3,
                                                                 overflow:
                                                                     TextOverflow
                                                                         .ellipsis,
@@ -674,7 +676,7 @@ class _LargeScreenSubtitlesPageState extends State<LargeScreenSubtitlesPage> {
                                     widget.mainTitles[widget.mainTitleIndex]
                                                 ['title'] ==
                                             "مسائل"
-                                        ? "شرائط الحج واحكامه"
+                                        ? "شرائط الحج وأحكامه"
                                         : widget.mainTitles[
                                             widget.mainTitleIndex]['title'],
                                     style: TextStyle(
