@@ -108,7 +108,7 @@ class ContactFooter extends StatelessWidget {
                     link: 'https://www.youtube.com/@halkalaf'),
                 const SizedBox(width: 10),
                 Text(
-                  "@h_alkhalaf",
+                  "@h_alkalaf",
                   textDirection: TextDirection.ltr,
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
@@ -283,7 +283,7 @@ class ContactFooterImageTemplate extends StatelessWidget {
                 ),
 
                 const SizedBox(width: 10),
-                Text("@h_alkhalaf",
+                Text("@h_alkalaf",
                     style: TextStyle(
                         color:
                             Theme.of(context).colorScheme.onSecondaryContainer,
@@ -406,7 +406,7 @@ class ContactFooterImage extends StatelessWidget {
                   icon: const Icon(CommunityMaterialIcons.youtube),
                 ),
                 const SizedBox(width: 10),
-                Text("@h_alkhalaf",
+                Text("@h_alkalaf",
                     style: TextStyle(
                         color:
                             Theme.of(context).colorScheme.onSecondaryContainer,
