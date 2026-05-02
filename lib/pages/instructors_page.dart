@@ -26,7 +26,16 @@ class InstructorsPage extends StatefulWidget {
 class _InstructorsPageState extends State<InstructorsPage> {
   dynamic jsonData = "";
   List<Question> questions = [];
-  List<Map> generatedMainTitles = [];
+  List<Map> generatedMainTitles = [
+    {"title": "المقدمة", "subTitles": <String>[]},
+    {"title": "مسائل", "subTitles": <String>[]},
+    {"title": "محرمات الأحرام", "subTitles": <String>[]},
+    {"title": "محرمات الحرم", "subTitles": <String>[]},
+    {"title": "أحكام الكفارة", "subTitles": <String>[]},
+    {"title": "عمرة التمتع", "subTitles": <String>[]},
+    {"title": "حج التمتع", "subTitles": <String>[]},
+    {"title": "مسائل إضافية", "subTitles": <String>[]},
+  ];
   bool _isLoading = true;
   final String instructor = "شيخ جعفر العبدالكريم";
 
@@ -47,69 +56,60 @@ class _InstructorsPageState extends State<InstructorsPage> {
       return;
     }
 
-    // https://opensheet.elk.sh/1KxJKKxKBcEd0lguKAbK-UkGIqzAcOXs5is3zNiTnFgY/1
-    // get the data from the link
-    final response = await http.get(Uri.parse(
-        "https://opensheet.elk.sh/1KxJKKxKBcEd0lguKAbK-UkGIqzAcOXs5is3zNiTnFgY/1"));
-    // json
-    var data1 = utf8.decode(response.bodyBytes);
-    var data = jsonDecode(data1);
-    if (mounted) {
-      setState(() {
-        jsonData = data;
-      });
-    } else {
-      jsonData = data;
-    }
-    for (var i = 0; i < jsonData.length; i++) {
-      questions.add(Question.fromJson(jsonData[i]));
-
-      // get the mainTitles and add them to the generatedMainTitles (without duplicates)
-      if (generatedMainTitles.isEmpty) {
-        generatedMainTitles.add({
-          "title": jsonData[i]['MainTitle'],
-          "subTitles": [jsonData[i]['SubTitle']]
+    try {
+      final response = await http.get(Uri.parse(
+          "https://opensheet.elk.sh/1KxJKKxKBcEd0lguKAbK-UkGIqzAcOXs5is3zNiTnFgY/1"));
+      var data1 = utf8.decode(response.bodyBytes);
+      var data = jsonDecode(data1);
+      if (mounted) {
+        setState(() {
+          jsonData = data;
         });
       } else {
-        bool isExist = false;
-        for (var j = 0; j < generatedMainTitles.length; j++) {
-          if (jsonData[i]['MainTitle'] == generatedMainTitles[j]['title']) {
-            isExist = true;
-          }
-        }
-        if (!isExist) {
-          generatedMainTitles.add({
-            "title": jsonData[i]['MainTitle'],
-            "subTitles": [jsonData[i]['SubTitle']]
+        jsonData = data;
+      }
+
+      String normalize(String s) =>
+          s.replaceAll('أ', 'ا').replaceAll('إ', 'ا').replaceAll('آ', 'ا');
+
+      for (var i = 0; i < jsonData.length; i++) {
+        questions.add(Question.fromJson(jsonData[i]));
+
+        String mainTitle = jsonData[i]['MainTitle']?.toString().trim() ?? '';
+        String subTitle = jsonData[i]['SubTitle']?.toString().trim() ?? '';
+
+        if (mainTitle.isEmpty) continue;
+
+        int index = generatedMainTitles.indexWhere(
+            (element) => normalize(element['title']) == normalize(mainTitle));
+
+        if (index == -1) {
+          generatedMainTitles.insert(generatedMainTitles.length - 1, {
+            "title": mainTitle,
+            "subTitles": [subTitle]
           });
-        }
-      }
-
-      // get the subtitles and add them to the mainTitles (without duplicates)
-      for (var j = 0; j < generatedMainTitles.length; j++) {
-        if (jsonData[i]['MainTitle'] == generatedMainTitles[j]['title']) {
-          if (!generatedMainTitles[j]['subTitles']
-              .contains(jsonData[i]['SubTitle'])) {
-            generatedMainTitles[j]['subTitles'].add(jsonData[i]['SubTitle']);
+        } else {
+          if (!generatedMainTitles[index]['subTitles'].contains(subTitle)) {
+            generatedMainTitles[index]['subTitles'].add(subTitle);
           }
         }
       }
-    }
-    // debugPrint(generatedMainTitles as String?);
-    questions = getQuestionsByInstructor(instructor);
-    generatedMainTitles.insert(0, {"title": "المقدمة"});
-    if (instructor == "شيخ جعفر العبدالكريم") {
-      generatedMainTitles.add({"title": "مسائل إضافية"});
-    }
 
-    _cachedJsonData = jsonData;
-    _cachedQuestions = questions;
-    _cachedGeneratedMainTitles = List.from(generatedMainTitles);
+      questions = getQuestionsByInstructor(instructor);
 
-    if (mounted) {
-      setState(() {
+      _cachedJsonData = jsonData;
+      _cachedQuestions = questions;
+      _cachedGeneratedMainTitles = List.from(generatedMainTitles);
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      } else {
         _isLoading = false;
-      });
+      }
     }
   }
 
@@ -270,78 +270,9 @@ class _InstructorsPageState extends State<InstructorsPage> {
               sliver: SliverGrid(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
-                    bool isItemLoading =
-                        _isLoading || index >= generatedMainTitles.length;
-
-                    if (isItemLoading) {
-                      if (isLargeScreen) {
-                        return Padding(
-                          padding: const EdgeInsets.all(5),
-                          child: PulseSkeleton(
-                            child: Card.outlined(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .surfaceContainerHighest
-                                  .withValues(alpha: 0.5),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30)),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 20.0),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Container(
-                                        height: 30,
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurface
-                                              .withValues(alpha: 0.2),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Container(
-                                      width: 60,
-                                      height: 60,
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurface
-                                            .withValues(alpha: 0.2),
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      } else {
-                        return Padding(
-                          padding: const EdgeInsets.all(5),
-                          child: PulseSkeleton(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .surfaceContainerHighest
-                                    .withValues(alpha: 0.5),
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                            ),
-                          ),
-                        );
-                      }
-                    }
-
                     String currentTitle = generatedMainTitles[index]['title'];
 
-                    void onItemTap() {
+                    void onItemTap() async {
                       if (currentTitle == "المقدمة") {
                         Get.to(() => const IntroAudioPage(),
                             routeName: '/intro');
@@ -349,6 +280,22 @@ class _InstructorsPageState extends State<InstructorsPage> {
                         Get.to(() => const OtherQuestionsPage(),
                             routeName: '/other-questions');
                       } else {
+                        if (_isLoading) {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) => const Center(
+                                child: CircularProgressIndicator()),
+                          );
+                          while (_isLoading && mounted) {
+                            await Future.delayed(
+                                const Duration(milliseconds: 100));
+                          }
+                          if (mounted) {
+                            Navigator.of(context, rootNavigator: true).pop();
+                          }
+                        }
+
                         if (MediaQuery.of(context).size.width >= 800) {
                           Get.to(
                             () => LargeScreenSubtitlesPage(
@@ -541,7 +488,10 @@ class _InstructorsPageState extends State<InstructorsPage> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      generatedMainTitles[index]['title'],
+                                      generatedMainTitles[index]['title'] ==
+                                              "مسائل"
+                                          ? "شرائط الحج وأحكامه"
+                                          : generatedMainTitles[index]['title'],
                                       style: TextStyle(
                                           color: Theme.of(context)
                                               .colorScheme
@@ -590,7 +540,7 @@ class _InstructorsPageState extends State<InstructorsPage> {
                       ),
                     );
                   },
-                  childCount: _isLoading ? 8 : generatedMainTitles.length,
+                  childCount: generatedMainTitles.length,
                 ),
                 gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: isLargeScreen ? 400 : 250,
@@ -722,7 +672,11 @@ class _LargeScreenSubtitlesPageState extends State<LargeScreenSubtitlesPage> {
                                 Expanded(
                                   child: Text(
                                     widget.mainTitles[widget.mainTitleIndex]
-                                        ['title'],
+                                                ['title'] ==
+                                            "مسائل"
+                                        ? "شرائط الحج واحكامه"
+                                        : widget.mainTitles[
+                                            widget.mainTitleIndex]['title'],
                                     style: TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold,
