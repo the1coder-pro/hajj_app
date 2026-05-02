@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
@@ -99,6 +100,7 @@ class AdDetailsPage extends StatefulWidget {
 class _AdDetailsPageState extends State<AdDetailsPage> {
   late int _currentIndex;
   final ValueNotifier<double> _drawerWidth = ValueNotifier(300.0);
+  final List<TapGestureRecognizer> _recognizers = [];
 
   @override
   void initState() {
@@ -108,8 +110,57 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
 
   @override
   void dispose() {
+    for (final recognizer in _recognizers) {
+      recognizer.dispose();
+    }
     _drawerWidth.dispose();
     super.dispose();
+  }
+
+  TextSpan _buildFormattedTextSpan(String text, TextStyle baseStyle) {
+    // Dispose previously created recognizers to prevent memory leaks across rebuilds
+    for (final recognizer in _recognizers) {
+      recognizer.dispose();
+    }
+    _recognizers.clear();
+
+    final spans = <TextSpan>[];
+    text.splitMapJoin(
+      RegExp(r'\*(.*?)\*|(https?:\/\/[^\s]+)', dotAll: true),
+      onMatch: (Match m) {
+        if (m.group(1) != null) {
+          // This is a bold text match
+          spans.add(TextSpan(
+            text: m.group(1),
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ));
+        } else if (m.group(2) != null) {
+          // This is a URL match
+          final url = m.group(2)!;
+          final recognizer = TapGestureRecognizer()
+            ..onTap = () async {
+              final uri = Uri.parse(url);
+              if (await canLaunchUrl(uri)) {
+                await launchUrl(uri);
+              }
+            };
+          _recognizers.add(recognizer);
+          spans.add(TextSpan(
+            text: url,
+            style: TextStyle(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                decoration: TextDecoration.underline),
+            recognizer: recognizer,
+          ));
+        }
+        return '';
+      },
+      onNonMatch: (String n) {
+        spans.add(TextSpan(text: n));
+        return '';
+      },
+    );
+    return TextSpan(style: baseStyle, children: spans);
   }
 
   @override
@@ -200,10 +251,12 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
                     ),
                     const Divider(height: 16),
                   ],
-                  SelectableText(
-                    description,
-                    style: const TextStyle(
-                        fontSize: 24, fontFamily: "Zarids", height: 1.5),
+                  SelectableText.rich(
+                    _buildFormattedTextSpan(
+                      description,
+                      const TextStyle(
+                          fontSize: 24, fontFamily: "Zarids", height: 1.5),
+                    ),
                   ),
                 ],
               ),

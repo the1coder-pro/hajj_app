@@ -157,7 +157,7 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
                                   );
                                 }).toList(),
                               ),
-                              if (_adsList.length > 1) ...[
+                              if (_adsList.isNotEmpty) ...[
                                 const Padding(
                                   padding: EdgeInsets.all(8.0),
                                   child: Align(
@@ -259,12 +259,9 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
                                                                 .colorScheme
                                                                 .secondary,
                                                             height: 15),
-                                                        Text(
+                                                        _buildFormattedText(
                                                           description,
-                                                          maxLines: 2,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          style: TextStyle(
+                                                          TextStyle(
                                                             fontFamily:
                                                                 "Zarids",
                                                             fontSize: 16,
@@ -273,6 +270,7 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
                                                                 .colorScheme
                                                                 .onSurface,
                                                           ),
+                                                          maxLines: 2,
                                                         ),
                                                       ]
                                                     ],
@@ -310,20 +308,27 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
 
       for (var i = 0; i < data.length; i++) {
         var item = data[i];
-        if (DateTime.now().isAfter(DateTime.parse(item['StartDate'])) &&
-            DateTime.now().isBefore(DateTime.parse(item['EndDate']))) {
-          validAds.add(item);
+        DateTime? startDate = _parseDate(item['StartDate']?.toString());
+        DateTime? endDate = _parseDate(item['EndDate']?.toString());
+
+        if (startDate != null && endDate != null) {
+          if (DateTime.now().isAfter(startDate) &&
+              DateTime.now().isBefore(endDate)) {
+            validAds.add(item);
+          }
         }
       }
 
       validAds.sort((a, b) {
-        String timeA = a['Timestamp'] ?? a['StartDate'] ?? '';
-        String timeB = b['Timestamp'] ?? b['StartDate'] ?? '';
-        try {
-          return DateTime.parse(timeA).compareTo(DateTime.parse(timeB));
-        } catch (e) {
-          return 0;
+        DateTime? timeA = _parseDate(
+            a['Timestamp']?.toString() ?? a['StartDate']?.toString());
+        DateTime? timeB = _parseDate(
+            b['Timestamp']?.toString() ?? b['StartDate']?.toString());
+
+        if (timeA != null && timeB != null) {
+          return timeA.compareTo(timeB);
         }
+        return 0;
       });
 
       setState(() {
@@ -354,20 +359,27 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
 
       for (var i = 0; i < data.length; i++) {
         var item = data[i];
-        if (DateTime.now().isAfter(DateTime.parse(item['StartDate'])) &&
-            DateTime.now().isBefore(DateTime.parse(item['EndDate']))) {
-          validAds.add(item);
+        DateTime? startDate = _parseDate(item['StartDate']?.toString());
+        DateTime? endDate = _parseDate(item['EndDate']?.toString());
+
+        if (startDate != null && endDate != null) {
+          if (DateTime.now().isAfter(startDate) &&
+              DateTime.now().isBefore(endDate)) {
+            validAds.add(item);
+          }
         }
       }
 
       validAds.sort((a, b) {
-        String timeA = a['Timestamp'] ?? a['StartDate'] ?? '';
-        String timeB = b['Timestamp'] ?? b['StartDate'] ?? '';
-        try {
-          return DateTime.parse(timeA).compareTo(DateTime.parse(timeB));
-        } catch (e) {
-          return 0;
+        DateTime? timeA = _parseDate(
+            a['Timestamp']?.toString() ?? a['StartDate']?.toString());
+        DateTime? timeB = _parseDate(
+            b['Timestamp']?.toString() ?? b['StartDate']?.toString());
+
+        if (timeA != null && timeB != null) {
+          return timeA.compareTo(timeB);
         }
+        return 0;
       });
 
       setState(() {
@@ -383,6 +395,64 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
     } else {
       throw Exception('Failed to load data');
     }
+  }
+
+  DateTime? _parseDate(String? dateStr) {
+    if (dateStr == null || dateStr.trim().isEmpty) return null;
+    try {
+      // Handle both yyyy/mm/dd and yyyy-mm-dd formats
+      String formatted = dateStr.trim().replaceAll('/', '-');
+
+      // Ensure month and day are zero-padded (DateTime.parse expects 2 digits)
+      List<String> parts = formatted.split('-');
+      if (parts.length >= 3) {
+        String year = parts[0];
+        String month = parts[1].padLeft(2, '0');
+
+        // Support datetime strings that contain a time component
+        List<String> dayParts = parts[2].split(RegExp(r'\s+'));
+        String day = dayParts[0].padLeft(2, '0');
+
+        if (dayParts.length > 1) {
+          String time = dayParts.sublist(1).join(' ');
+          formatted = '$year-$month-$day $time';
+        } else {
+          formatted = '$year-$month-$day';
+        }
+      }
+
+      return DateTime.parse(formatted);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Widget _buildFormattedText(String text, TextStyle baseStyle,
+      {int? maxLines}) {
+    final spans = <TextSpan>[];
+    text.splitMapJoin(
+      RegExp(r'\*(.*?)\*', dotAll: true),
+      onMatch: (Match m) {
+        spans.add(TextSpan(
+          text: m.group(1),
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ));
+        return '';
+      },
+      onNonMatch: (String n) {
+        spans.add(TextSpan(text: n));
+        return '';
+      },
+    );
+
+    return RichText(
+      maxLines: maxLines,
+      overflow: maxLines != null ? TextOverflow.ellipsis : TextOverflow.clip,
+      text: TextSpan(
+        style: baseStyle,
+        children: spans,
+      ),
+    );
   }
 }
 
