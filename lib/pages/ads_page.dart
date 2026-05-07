@@ -216,14 +216,11 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
                                                   CrossAxisAlignment.stretch,
                                               children: [
                                                 if (imageURL.isNotEmpty)
-                                                  SizedBox(
-                                                    height: 180,
-                                                    child: HttpImageFetcher(
-                                                      imageUrl: imageURL,
-                                                      fallbackWidget:
-                                                          const SizedBox(),
-                                                      fit: BoxFit.cover,
-                                                    ),
+                                                  HttpImageFetcher(
+                                                    imageUrl: imageURL,
+                                                    fallbackWidget:
+                                                        const SizedBox(),
+                                                    fit: BoxFit.fitWidth,
                                                   ),
                                                 Padding(
                                                   padding: const EdgeInsets.all(
@@ -461,6 +458,8 @@ class HttpImageFetcher extends StatefulWidget {
   final Widget fallbackWidget;
   final BoxFit fit;
   final FilterQuality filterQuality;
+  final double? height;
+  final double? width;
 
   const HttpImageFetcher({
     super.key,
@@ -468,6 +467,8 @@ class HttpImageFetcher extends StatefulWidget {
     required this.fallbackWidget,
     this.fit = BoxFit.cover,
     this.filterQuality = FilterQuality.low,
+    this.height,
+    this.width = double.infinity,
   });
 
   @override
@@ -537,7 +538,8 @@ class _HttpImageFetcherState extends State<HttpImageFetcher> {
     return Image.memory(
       _imageBytes!,
       fit: widget.fit,
-      width: double.infinity,
+      width: widget.width,
+      height: widget.height,
       filterQuality: widget.filterQuality,
       errorBuilder: (context, error, stackTrace) => Center(
         child: Padding(

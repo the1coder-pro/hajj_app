@@ -20,6 +20,7 @@ import 'package:hajj_app/components/ad_detail.dart';
 import 'package:hajj_app/pages/intro_audio_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:hajj_app/pages/other_question_page.dart';
 import 'package:hive_ce/hive_ce.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
@@ -84,6 +85,7 @@ class AudioMetadata {
 class GlobalAudioProvider extends ChangeNotifier {
   final AudioPlayer audioPlayer = AudioPlayer();
   Question? currentQuestion;
+  OtherQuestion? currentOtherQuestion;
   bool isCached = false;
   bool isPlaying = false;
   bool isFetching = false;
@@ -186,6 +188,7 @@ class GlobalAudioProvider extends ChangeNotifier {
     _isStopped = false;
     if (!force && currentQuestion?.no == question.no) return true;
     currentQuestion = question;
+    currentOtherQuestion = null;
     if (!force) {
       isCached = false;
       lastKnownDuration = null; // Clear when loading a completely new question
@@ -247,6 +250,57 @@ class GlobalAudioProvider extends ChangeNotifier {
     return success;
   }
 
+  Future<bool> initOtherAudio(OtherQuestion question,
+      {bool force = false}) async {
+    _isStopped = false;
+    if (!force && currentOtherQuestion?.question == question.question)
+      return true;
+    currentOtherQuestion = question;
+    currentQuestion = null;
+    if (!force) {
+      isCached = false;
+      lastKnownDuration = null;
+      notifyListeners();
+    }
+
+    bool success = true;
+    try {
+      String url = question.audioLink!;
+
+      // Extract the file ID from the Google Drive link
+      final regExp = RegExp(r'(?:id=|\/d\/)([\w-]+)');
+      final match = regExp.firstMatch(url);
+      final APIKey = 'AIzaSyDhlgBGoJ_X0LjvxaRfeDk_XmbSbwNW82c';
+
+      if (match != null && match.group(1) != null) {
+        String id = match.group(1)!;
+
+        url =
+            "https://www.googleapis.com/drive/v3/files/$id?alt=media&key=$APIKey";
+      }
+
+      AudioSource? audioSource;
+      final metadata = AudioMetadata(
+        id: question.question ?? '',
+        title: question.question ?? '',
+        album: question.section ?? '',
+        artist: '',
+      );
+
+      audioSource = AudioSource.uri(Uri.parse(url), tag: metadata);
+      isCached = false;
+
+      if (_isStopped) return false;
+      await audioPlayer.setAudioSource(audioSource);
+    } catch (e) {
+      debugPrint(e.toString());
+      success = false;
+    }
+    if (_isStopped) return false;
+    notifyListeners();
+    return success;
+  }
+
   void setCached(bool cached) {
     isCached = cached;
     notifyListeners();
@@ -255,6 +309,7 @@ class GlobalAudioProvider extends ChangeNotifier {
   void stopAudio() async {
     _isStopped = true;
     currentQuestion = null;
+    currentOtherQuestion = null;
     isFetching = false;
     notifyListeners();
     await audioPlayer.stop();
@@ -269,15 +324,19 @@ class GlobalMiniPlayer extends StatelessWidget {
     final prefsProvider = Provider.of<QuestionPrefsProvider>(context);
     return Consumer<GlobalAudioProvider>(
       builder: (context, audioProvider, child) {
-        if (audioProvider.currentQuestion == null) {
+        if (audioProvider.currentQuestion == null &&
+            audioProvider.currentOtherQuestion == null) {
           return const SizedBox.shrink();
         }
-        final question = audioProvider.currentQuestion!;
+        final isOther = audioProvider.currentOtherQuestion != null;
+        final questionTitle = isOther
+            ? audioProvider.currentOtherQuestion!.question ?? ""
+            : audioProvider.currentQuestion!.question ?? "";
         final audioPlayer = audioProvider.audioPlayer;
         final isLargeScreen = MediaQuery.of(context).size.width >= 800;
 
         final titleWidget = Text(
-          question.question ?? "",
+          questionTitle,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
@@ -318,27 +377,33 @@ class GlobalMiniPlayer extends StatelessWidget {
             ),
             IconButton(
               onPressed: () {
-                if (audioProvider.isBookmarkMode &&
-                    audioProvider.bookmarkPlaylist.isNotEmpty) {
-                  int currentIndex = audioProvider.bookmarkPlaylist.indexWhere(
-                      (q) => q.no.toString() == question.no.toString());
-                  if (currentIndex > 0) {
-                    int prevId = int.tryParse(audioProvider
-                            .bookmarkPlaylist[currentIndex - 1].no
-                            .toString()) ??
+                if (!isOther) {
+                  if (audioProvider.isBookmarkMode &&
+                      audioProvider.bookmarkPlaylist.isNotEmpty) {
+                    int currentIndex = audioProvider.bookmarkPlaylist
+                        .indexWhere((q) =>
+                            q.no.toString() ==
+                            audioProvider.currentQuestion!.no.toString());
+                    if (currentIndex > 0) {
+                      int prevId = int.tryParse(audioProvider
+                              .bookmarkPlaylist[currentIndex - 1].no
+                              .toString()) ??
+                          1;
+                      audioProvider.playQuestionById(prevId);
+                    } else if (currentIndex == 0) {
+                      int prevId = int.tryParse(audioProvider
+                              .bookmarkPlaylist.last.no
+                              .toString()) ??
+                          1;
+                      audioProvider.playQuestionById(prevId);
+                    }
+                  } else {
+                    int currentId = int.tryParse(
+                            audioProvider.currentQuestion!.no.toString()) ??
                         1;
-                    audioProvider.playQuestionById(prevId);
-                  } else if (currentIndex == 0) {
-                    int prevId = int.tryParse(audioProvider
-                            .bookmarkPlaylist.last.no
-                            .toString()) ??
-                        1;
-                    audioProvider.playQuestionById(prevId);
-                  }
-                } else {
-                  int currentId = int.tryParse(question.no.toString()) ?? 1;
-                  if (currentId > 1) {
-                    audioProvider.playQuestionById(currentId - 1);
+                    if (currentId > 1) {
+                      audioProvider.playQuestionById(currentId - 1);
+                    }
                   }
                 }
               },
@@ -376,7 +441,15 @@ class GlobalMiniPlayer extends StatelessWidget {
                         final duration = audioPlayer.duration ?? Duration.zero;
 
                         await audioPlayer.stop();
-                        await audioProvider.initAudio(question, force: true);
+                        if (isOther) {
+                          await audioProvider.initOtherAudio(
+                              audioProvider.currentOtherQuestion!,
+                              force: true);
+                        } else {
+                          await audioProvider.initAudio(
+                              audioProvider.currentQuestion!,
+                              force: true);
+                        }
                         if (position.inSeconds < duration.inSeconds - 1) {
                           await audioPlayer.seek(position);
                         }
@@ -411,26 +484,33 @@ class GlobalMiniPlayer extends StatelessWidget {
             ),
             IconButton(
               onPressed: () {
-                if (audioProvider.isBookmarkMode &&
-                    audioProvider.bookmarkPlaylist.isNotEmpty) {
-                  int currentIndex = audioProvider.bookmarkPlaylist.indexWhere(
-                      (q) => q.no.toString() == question.no.toString());
-                  if (currentIndex != -1) {
-                    int nextIndex = (currentIndex + 1) %
-                        audioProvider.bookmarkPlaylist.length;
-                    int nextId = int.tryParse(audioProvider
-                            .bookmarkPlaylist[nextIndex].no
-                            .toString()) ??
-                        1;
-                    audioProvider.playQuestionById(nextId);
-                  }
-                } else {
-                  if (question.no?.toString() == 'intro') {
-                    audioProvider.playQuestionById(1);
+                if (!isOther) {
+                  if (audioProvider.isBookmarkMode &&
+                      audioProvider.bookmarkPlaylist.isNotEmpty) {
+                    int currentIndex = audioProvider.bookmarkPlaylist
+                        .indexWhere((q) =>
+                            q.no.toString() ==
+                            audioProvider.currentQuestion!.no.toString());
+                    if (currentIndex != -1) {
+                      int nextIndex = (currentIndex + 1) %
+                          audioProvider.bookmarkPlaylist.length;
+                      int nextId = int.tryParse(audioProvider
+                              .bookmarkPlaylist[nextIndex].no
+                              .toString()) ??
+                          1;
+                      audioProvider.playQuestionById(nextId);
+                    }
                   } else {
-                    int currentId = int.tryParse(question.no.toString()) ?? 1;
-                    if (currentId < 322) {
-                      audioProvider.playQuestionById(currentId + 1);
+                    if (audioProvider.currentQuestion!.no?.toString() ==
+                        'intro') {
+                      audioProvider.playQuestionById(1);
+                    } else {
+                      int currentId = int.tryParse(
+                              audioProvider.currentQuestion!.no.toString()) ??
+                          1;
+                      if (currentId < 322) {
+                        audioProvider.playQuestionById(currentId + 1);
+                      }
                     }
                   }
                 }
@@ -593,11 +673,18 @@ class GlobalMiniPlayer extends StatelessWidget {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(30),
                         onTap: () {
-                          if (question.no?.toString() == 'intro') {
-                            Get.to(() => const IntroAudioPage(),
-                                routeName: '/intro');
+                          if (isOther) {
+                            Get.to(() => OtherQuestionPage(
+                                audioProvider.currentOtherQuestion!));
                           } else {
-                            Get.toNamed('/question/${question.no}');
+                            if (audioProvider.currentQuestion!.no?.toString() ==
+                                'intro') {
+                              Get.to(() => const IntroAudioPage(),
+                                  routeName: '/intro');
+                            } else {
+                              Get.toNamed(
+                                  '/question/${audioProvider.currentQuestion!.no}');
+                            }
                           }
                         },
                         child: Directionality(
@@ -756,6 +843,10 @@ class MyApp extends StatelessWidget {
                       name: '/q/:questionNo',
                       page: () => QuestionPage(
                           int.tryParse(Get.parameters['questionNo'] ?? ''))),
+                  GetPage(
+                      name: '/oq/:id',
+                      page: () =>
+                          OtherQuestionPage(Get.parameters['id'] ?? '')),
                   GetPage(
                       name: '/ad/:id',
                       page: () =>

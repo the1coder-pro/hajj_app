@@ -188,8 +188,6 @@ class _QuestionPageState extends State<QuestionPage> {
                             // }
 
                             await Share.share("""
-${question!.mainTitle} - ${question!.subTitle}
-
 ${question!.question} 
 
 ${question!.answerText}
@@ -198,7 +196,9 @@ ${question!.answerText}
 https://hajjaudiofiles.kumthra.com/questions_audiofiles/${question!.no}.mp3
 
 رابط السؤال:
-${(kIsWeb ? "${Uri.base.origin}/q/${question!.no}" : "https://hajj-app-1.web.app/q/${question!.no}")}
+${(kIsWeb ? "${Uri.base.origin}/q/${question!.no}" : "https://app.h-alkalaf.com/q/${question!.no}")}
+
+${question!.mainTitle} - ${question!.subTitle}
 
 من تطبيق حج التمتع في سؤال وجواب
 """);
@@ -283,19 +283,17 @@ ${(kIsWeb ? "${Uri.base.origin}/q/${question!.no}" : "https://hajj-app-1.web.app
                                     onPressed: () async {
                                       try {
                                         await Share.share("""
-${question!.mainTitle} - ${question!.subTitle}
-
 ${question!.question} 
 
 ${question!.answerText}
 
-
 رابط استماع للإجابة:
 https://hajjaudiofiles.kumthra.com/questions_audiofiles/${question!.no}.mp3
 
-
 رابط السؤال:
-${(kIsWeb ? "${Uri.base.origin}/q/${question!.no}" : "https://hajj-app-1.web.app/q/${question!.no}")}
+${(kIsWeb ? "${Uri.base.origin}/q/${question!.no}" : "https://app.h-alkalaf.com/q/${question!.no}")}
+
+${question!.mainTitle} - ${question!.subTitle}
 
 من تطبيق حج التمتع في سؤال وجواب
 """);

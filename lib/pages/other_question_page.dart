@@ -1,23 +1,29 @@
+import 'dart:convert';
+
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hajj_app/components/contact_footer.dart';
 import 'package:hajj_app/question_model.dart';
 import 'package:hajj_app/settings.dart';
+import 'package:hajj_app/main.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:widgets_to_image/widgets_to_image.dart';
+import 'package:http/http.dart' as http;
 
 class OtherQuestionPage extends StatefulWidget {
   const OtherQuestionPage(
-    this.question, {
+    this.questionData, {
     super.key,
     this.onBack,
     this.showAppBar = true,
   });
 
-  final OtherQuestion question;
+  final dynamic questionData;
   final VoidCallback? onBack;
   final bool showAppBar;
 
@@ -30,11 +36,125 @@ class _OtherQuestionPageState extends State<OtherQuestionPage> {
 // to save image bytes of widget
   Uint8List? bytes;
 
+  OtherQuestion? question;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _initQuestionData();
+  }
+
+  @override
+  void didUpdateWidget(covariant OtherQuestionPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.questionData != oldWidget.questionData) {
+      if (widget.questionData is! OtherQuestion) {
+        setState(() {
+          isLoading = true;
+        });
+      }
+      _initQuestionData();
+    }
+  }
+
+  void _initQuestionData() {
+    dynamic data = widget.questionData;
+    if (data == null || data.toString() == 'null') {
+      if (Get.parameters.containsKey('id')) {
+        data = Get.parameters['id'];
+      }
+    }
+
+    if (data is OtherQuestion) {
+      setState(() {
+        question = data;
+        isLoading = false;
+      });
+    } else if (data is String && data.isNotEmpty) {
+      fetchQuestion(data);
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> fetchQuestion(String id) async {
+    try {
+      final response = await http.get(Uri.parse(
+          'https://opensheet.elk.sh/1IR-c-DM1_G0Qr6sr-iy7gZKwWN5zuQfo_Vr8Ky29BgE/4'));
+      var dataList = jsonDecode(utf8.decode(response.bodyBytes));
+      for (var item in dataList) {
+        final q = OtherQuestion.fromJson(item);
+
+        String derivedId = base64Url
+            .encode(utf8.encode(q.timestamp ?? q.question ?? ''))
+            .replaceAll('=', '');
+        if (derivedId == id ||
+            base64Url.encode(utf8.encode(q.timestamp ?? q.question ?? '')) ==
+                id) {
+          if (mounted) {
+            setState(() {
+              question = q;
+              isLoading = false;
+            });
+          }
+          return;
+        }
+      }
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final prefsProvider =
         Provider.of<QuestionPrefsProvider>(context, listen: false);
     final isLargeScreen = MediaQuery.of(context).size.width >= 800;
+
+    if (isLoading) {
+      return Scaffold(
+        appBar: widget.showAppBar ? AppBar() : null,
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (question == null) {
+      return Scaffold(
+        appBar: widget.showAppBar
+            ? AppBar(
+                leading: IconButton(
+                  onPressed: () {
+                    if (Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    } else {
+                      Get.offAllNamed('/');
+                    }
+                  },
+                  icon: const Icon(Icons.arrow_back),
+                ),
+              )
+            : null,
+        body: const Center(
+          child: Text("السؤال غير موجود",
+              style: TextStyle(fontSize: 20, fontFamily: "Zarids")),
+        ),
+      );
+    }
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -45,12 +165,24 @@ class _OtherQuestionPageState extends State<OtherQuestionPage> {
                     IconButton(
                         onPressed: () async {
                           try {
+                            String derivedId = base64Url
+                                .encode(utf8.encode(question!.timestamp ??
+                                    question!.question ??
+                                    ''))
+                                .replaceAll('=', '');
+
+                            String shareLink = kIsWeb
+                                ? "${Uri.base.origin}/oq/$derivedId"
+                                : "https://app.h-alkalaf.com/oq/$derivedId";
                             await Share.share("""
-${widget.question.section}
+${question!.question} 
 
-${widget.question.question} 
+${question!.answerText}
+${question!.audioLink != null && question!.audioLink!.isNotEmpty ? '\nرابط استماع للإجابة:\n ${question!.audioLink}\n' : ''}
+رابط السؤال:
+$shareLink
 
-${widget.question.answerText}
+${question!.section}
 
 من تطبيق حج التمتع في سؤال وجواب
 """);
@@ -87,7 +219,7 @@ ${widget.question.answerText}
                 children: [
                   WidgetsToImage(
                     controller: controller,
-                    child: QuestionImageTemplate(widget: widget),
+                    child: QuestionImageTemplate(question: question!),
                   ),
                   Container(
                     color: Theme.of(context).colorScheme.surface,
@@ -114,12 +246,24 @@ ${widget.question.answerText}
                                 IconButton(
                                     onPressed: () async {
                                       try {
+                                        String derivedId = base64Url
+                                            .encode(utf8.encode(
+                                                question!.timestamp ??
+                                                    question!.question ??
+                                                    ''))
+                                            .replaceAll('=', '');
+                                        String shareLink = kIsWeb
+                                            ? "${Uri.base.origin}/oq/$derivedId"
+                                            : "https://app.h-alkalaf.com/oq/$derivedId";
                                         await Share.share("""
-${widget.question.section}
+${question!.question} 
 
-${widget.question.question} 
+${question!.answerText}
+${question!.audioLink != null && question!.audioLink!.isNotEmpty ? '\nرابط استماع للإجابة:\n ${question!.audioLink}\n' : ''}
+رابط السؤال:
+$shareLink
 
-${widget.question.answerText}
+${question!.section}
 
 من تطبيق حج التمتع في سؤال وجواب
 """);
@@ -145,7 +289,7 @@ ${widget.question.answerText}
                                   child: SelectableText.rich(
                                     TextSpan(children: [
                                       TextSpan(
-                                          text: widget.question.section ?? "",
+                                          text: question!.section ?? "",
                                           style: Theme.of(context)
                                               .textTheme
                                               .displaySmall!
@@ -163,8 +307,7 @@ ${widget.question.answerText}
                             padding: const EdgeInsets.all(8.0),
                             child: Align(
                               alignment: Alignment.center,
-                              child: SelectableText(
-                                  widget.question.question!.trim(),
+                              child: SelectableText(question!.question!.trim(),
                                   textAlign: TextAlign.right,
                                   style: Theme.of(context)
                                       .textTheme
@@ -177,6 +320,9 @@ ${widget.question.answerText}
                             ),
                           ),
                           const SizedBox(height: 10),
+                          if (question!.audioLink != null &&
+                              question!.audioLink!.isNotEmpty)
+                            _buildAudioPlayer(context, question!),
                           SizedBox(
                               height: 50,
                               width: double.infinity,
@@ -210,7 +356,7 @@ ${widget.question.answerText}
                                       SelectableText.rich(
                                     TextSpan(
                                       children: _buildMarkdownSpans(
-                                        widget.question.answerText ??
+                                        question!.answerText ??
                                             "لا يوجد نص جواب",
                                         TextStyle(
                                             fontFamily: "Zarids",
@@ -233,6 +379,72 @@ ${widget.question.answerText}
               ),
             ),
           )),
+    );
+  }
+
+  Widget _buildAudioPlayer(BuildContext context, OtherQuestion question) {
+    final prefsProvider =
+        Provider.of<QuestionPrefsProvider>(context, listen: false);
+    final audioProvider = Provider.of<GlobalAudioProvider>(context);
+    final audioPlayer = audioProvider.audioPlayer;
+    final isCurrentOther =
+        audioProvider.currentOtherQuestion?.question == question.question;
+
+    return Card.outlined(
+      elevation: 0.5,
+      color: Theme.of(context).colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Row(
+          children: [
+            const Spacer(),
+            StreamBuilder<PlayerState>(
+              stream: audioPlayer.playerStateStream,
+              builder: (context, snapshot) {
+                final playerState = snapshot.data;
+                final processingState =
+                    playerState?.processingState ?? audioPlayer.processingState;
+                final playing = playerState?.playing ?? audioPlayer.playing;
+                final showPause = isCurrentOther &&
+                    playing &&
+                    processingState != ProcessingState.completed;
+
+                return IconButton.outlined(
+                  color: Theme.of(context).colorScheme.primary,
+                  onPressed: () async {
+                    audioPlayer.setSpeed(prefsProvider.audioSpeed);
+                    if (!isCurrentOther) {
+                      bool success =
+                          await audioProvider.initOtherAudio(question);
+                      if (success) audioPlayer.play();
+                    } else {
+                      if (playing &&
+                          processingState != ProcessingState.completed) {
+                        await audioPlayer.pause();
+                      } else {
+                        if (processingState == ProcessingState.completed) {
+                          final position = audioPlayer.position;
+                          final duration =
+                              audioPlayer.duration ?? Duration.zero;
+                          await audioPlayer.stop();
+                          await audioProvider.initOtherAudio(question,
+                              force: true);
+                          if (position.inSeconds < duration.inSeconds - 1) {
+                            await audioPlayer.seek(position);
+                          }
+                        }
+                        audioPlayer.play();
+                      }
+                    }
+                  },
+                  icon: Icon(showPause ? Icons.pause : Icons.play_arrow),
+                );
+              },
+            ),
+            const Spacer(),
+          ],
+        ),
+      ),
     );
   }
 
@@ -339,10 +551,10 @@ ${widget.question.answerText}
 class QuestionImageTemplate extends StatelessWidget {
   const QuestionImageTemplate({
     super.key,
-    required this.widget,
+    required this.question,
   });
 
-  final OtherQuestionPage widget;
+  final OtherQuestion question;
 
   @override
   Widget build(BuildContext context) {
@@ -359,7 +571,7 @@ class QuestionImageTemplate extends StatelessWidget {
                 child: RichText(
                   text: TextSpan(children: [
                     TextSpan(
-                        text: "${widget.question.section!} - ",
+                        text: "${question.section!} - ",
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.secondary,
                             fontWeight: FontWeight.bold,
@@ -371,7 +583,7 @@ class QuestionImageTemplate extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(10),
               child: AutoSizeText(
-                widget.question.question!.trim(),
+                question.question!.trim(),
                 minFontSize: 28,
                 maxLines: 3,
                 style: TextStyle(
@@ -389,7 +601,7 @@ class QuestionImageTemplate extends StatelessWidget {
                 child: AutoSizeText.rich(
                   TextSpan(
                     children: _buildMarkdownSpans(
-                      widget.question.answerText ?? "",
+                      question.answerText ?? "",
                       const TextStyle(
                           fontSize: 30,
                           fontFamily: "Zarids",

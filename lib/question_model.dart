@@ -69,13 +69,14 @@ class OtherQuestion {
   final String? question;
   final String? answerText;
   final String? section;
+  final String? audioLink;
 
-  OtherQuestion({
-    required this.timestamp,
-    required this.question,
-    required this.answerText,
-    required this.section,
-  });
+  OtherQuestion(
+      {required this.timestamp,
+      required this.question,
+      required this.answerText,
+      required this.section,
+      required this.audioLink});
 
   factory OtherQuestion.fromJson(Map<String, dynamic> json) {
     return OtherQuestion(
@@ -83,6 +84,7 @@ class OtherQuestion {
       question: json['Question'],
       answerText: json['Answer'],
       section: json['Section'],
+      audioLink: json['AudioLink'],
     );
   }
 
@@ -92,6 +94,7 @@ class OtherQuestion {
       'Question': question,
       'Answer': answerText,
       'Section': section,
+      'AudioLink': audioLink,
     };
   }
 }

@@ -44,7 +44,9 @@ class _OtherQuestionsPageState extends State<OtherQuestionsPage> {
     for (var item in data) {
       final question = OtherQuestion.fromJson(item);
       final section = question.section ?? 'متفرقات';
-      (questionsBySection[section] ??= []).add(question);
+      if (section != 'متفرقات') {
+        (questionsBySection[section] ??= []).add(question);
+      }
     }
     return questionsBySection;
   }
