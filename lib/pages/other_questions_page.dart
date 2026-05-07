@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:hajj_app/components/question_tile.dart';
-import 'package:hajj_app/pages/other_question_page.dart';
 import 'package:hajj_app/question_model.dart';
+import 'package:hajj_app/pages/other_question_page.dart';
 import 'package:http/http.dart' as http;
 
 class OtherQuestionsPage extends StatefulWidget {
@@ -20,10 +20,13 @@ class _OtherQuestionsPageState extends State<OtherQuestionsPage> {
       'https://opensheet.elk.sh/1IR-c-DM1_G0Qr6sr-iy7gZKwWN5zuQfo_Vr8Ky29BgE/4';
 
   late Future<Map<String, List<OtherQuestion>>> _groupedQuestionsFuture;
-  String? _selectedSection;
-  OtherQuestion? _selectedQuestion;
+
+  static const String _allQuestionsChipTitle = 'الكل';
+  String _selectedSection = _allQuestionsChipTitle;
+
   double _drawerWidth = 300.0;
   double _detailsWidth = 400.0;
+  OtherQuestion? _selectedQuestion;
 
   @override
   void initState() {
@@ -57,35 +60,46 @@ class _OtherQuestionsPageState extends State<OtherQuestionsPage> {
 
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: FutureBuilder<Map<String, List<OtherQuestion>>>(
-        future: _groupedQuestionsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Scaffold(
-                appBar: AppBar(
-                    title: const Text('مسائل إضافية'), centerTitle: true),
-                body: const Center(child: CircularProgressIndicator()));
-          }
-          if (snapshot.hasError) {
-            return Scaffold(
-                appBar: AppBar(
-                    title: const Text('مسائل إضافية'), centerTitle: true),
-                body: Center(
-                    child: Text('فشل تحميل البيانات: ${snapshot.error}')));
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Scaffold(
-                appBar: AppBar(
-                    title: const Text('مسائل إضافية'), centerTitle: true),
-                body: const Center(child: Text("لا توجد أسئلة أخرى")));
-          }
+      child: Scaffold(
+        appBar: isLargeScreen
+            ? null
+            : AppBar(
+                title: Text("مسائل إضافية",
+                    style: TextStyle(
+                        fontSize: 22,
+                        color: Theme.of(context).colorScheme.onSurface)),
+                centerTitle: true,
+              ),
+        body: FutureBuilder<Map<String, List<OtherQuestion>>>(
+          future: _groupedQuestionsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(
+                  child: Text('فشل تحميل البيانات: ${snapshot.error}'));
+            }
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(child: Text("لا توجد أسئلة أخرى"));
+            }
 
-          final groupedQuestions = snapshot.data!;
-          final sections = groupedQuestions.keys.toList();
+            final groupedQuestions = snapshot.data!;
+            final sections = [
+              _allQuestionsChipTitle,
+              ...groupedQuestions.keys.toList()
+            ];
 
-          if (isLargeScreen) {
-            return Scaffold(
-              body: Row(
+            List<OtherQuestion> questionsToShow;
+            if (_selectedSection == _allQuestionsChipTitle) {
+              questionsToShow =
+                  groupedQuestions.values.expand((q) => q).toList();
+            } else {
+              questionsToShow = groupedQuestions[_selectedSection] ?? [];
+            }
+
+            if (isLargeScreen) {
+              return Row(
                 children: [
                   SizedBox(
                     width: _drawerWidth,
@@ -104,23 +118,43 @@ class _OtherQuestionsPageState extends State<OtherQuestionsPage> {
                                   right: 8.0,
                                   left: 16.0,
                                   bottom: 8.0),
-                              child: Row(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.arrow_back),
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.arrow_back),
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          "مسائل إضافية",
+                                          style: TextStyle(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.bold,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                            fontFamily: "Zarids",
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  Expanded(
+                                  const SizedBox(height: 16),
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 16.0),
                                     child: Text(
-                                      "مسائل إضافية",
+                                      "الأقسام",
                                       style: TextStyle(
-                                        fontSize: 24,
+                                        fontSize: 20,
                                         fontWeight: FontWeight.bold,
                                         color: Theme.of(context)
                                             .colorScheme
-                                            .primary,
+                                            .onSurface,
                                         fontFamily: "Zarids",
                                       ),
                                     ),
@@ -189,37 +223,18 @@ class _OtherQuestionsPageState extends State<OtherQuestionsPage> {
                     ),
                   ),
                   Expanded(
-                    child: Scaffold(
-                      appBar: _selectedSection == null
-                          ? null
-                          : AppBar(
-                              title: Text(_selectedSection!),
-                              centerTitle: true,
-                              automaticallyImplyLeading: false,
-                            ),
-                      body: _selectedSection == null
-                          ? const Center(
-                              child: Text(
-                                "الرجاء اختيار قسم",
-                                style: TextStyle(
-                                    fontSize: 22, fontFamily: "Zarids"),
-                              ),
-                            )
-                          : ListView.builder(
-                              itemCount:
-                                  groupedQuestions[_selectedSection!]!.length,
-                              itemBuilder: (context, index) {
-                                return QuestionTile(
-                                  questionModelAr: groupedQuestions[
-                                      _selectedSection!]![index],
-                                  onTapOther: (q) {
-                                    setState(() {
-                                      _selectedQuestion = q;
-                                    });
-                                  },
-                                );
-                              },
-                            ),
+                    child: ListView.builder(
+                      itemCount: questionsToShow.length,
+                      itemBuilder: (context, index) {
+                        return QuestionTile(
+                          questionModelAr: questionsToShow[index],
+                          onTapOther: (q) {
+                            setState(() {
+                              _selectedQuestion = q;
+                            });
+                          },
+                        );
+                      },
                     ),
                   ),
                   if (_selectedQuestion != null)
@@ -243,80 +258,63 @@ class _OtherQuestionsPageState extends State<OtherQuestionsPage> {
                   if (_selectedQuestion != null)
                     SizedBox(
                       width: _detailsWidth,
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 250),
-                        transitionBuilder: (child, animation) {
-                          return FadeTransition(
-                              opacity: animation, child: child);
+                      child: OtherQuestionPage(
+                        _selectedQuestion!,
+                        key: ValueKey(_selectedQuestion!.question),
+                        showAppBar: false,
+                        onBack: () {
+                          setState(() {
+                            _selectedQuestion = null;
+                          });
                         },
-                        child: OtherQuestionPage(
-                          _selectedQuestion!,
-                          key: ValueKey(_selectedQuestion!.question),
-                          showAppBar: false,
-                          onBack: () {
-                            setState(() {
-                              _selectedQuestion = null;
-                            });
-                          },
-                        ),
                       ),
                     ),
                 ],
-              ),
-            );
-          } else {
-            return Scaffold(
-              appBar: AppBar(
-                title: Text(_selectedSection ?? 'مسائل إضافية'),
-                centerTitle: true,
-                leading: _selectedSection != null
-                    ? IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        onPressed: () {
-                          setState(() {
-                            _selectedSection = null;
-                          });
-                        },
-                      )
-                    : null,
-              ),
-              body: _selectedSection == null
-                  ? ListView.builder(
-                      itemCount: sections.length,
-                      itemBuilder: (context, index) {
-                        final section = sections[index];
+              );
+            }
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: sections.map((section) {
                         return Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0, vertical: 4.0),
-                          child: Card.outlined(
-                            child: ListTile(
-                              title: Text(
-                                section,
-                                style: const TextStyle(
-                                    fontFamily: "Zarids", fontSize: 22),
-                              ),
-                              trailing: const Icon(Icons.chevron_right),
-                              onTap: () {
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                          child: ChoiceChip(
+                            label: Text(section),
+                            selected: _selectedSection == section,
+                            onSelected: (selected) {
+                              if (selected) {
                                 setState(() {
                                   _selectedSection = section;
                                 });
-                              },
-                            ),
+                              }
+                            },
                           ),
                         );
-                      },
-                    )
-                  : ListView.builder(
-                      itemCount: groupedQuestions[_selectedSection!]!.length,
-                      itemBuilder: (context, index) {
-                        return QuestionTile(
-                            questionModelAr:
-                                groupedQuestions[_selectedSection!]![index]);
-                      },
+                      }).toList(),
                     ),
+                  ),
+                ),
+                const Divider(height: 1),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: questionsToShow.length,
+                    itemBuilder: (context, index) {
+                      return QuestionTile(
+                        questionModelAr: questionsToShow[index],
+                      );
+                    },
+                  ),
+                ),
+              ],
             );
-          }
-        },
+          },
+        ),
       ),
     );
   }
