@@ -198,7 +198,7 @@ class GlobalAudioProvider extends ChangeNotifier {
     bool success = true;
     try {
       final url =
-          "https://hajjaudiofiles.kumthra.com/questions_audiofiles/${question.no}.mp3";
+          "https://hajjaudiofiles.kumthra.com/questions_audiofiles_hd/${question.no}.m4a";
 
       AudioSource? audioSource;
       final metadata = AudioMetadata(
@@ -211,7 +211,7 @@ class GlobalAudioProvider extends ChangeNotifier {
       if (!kIsWeb) {
         try {
           final directory = await getApplicationDocumentsDirectory();
-          final file = File('${directory.path}/${question.no}.mp3');
+          final file = File('${directory.path}/${question.no}.m4a');
           if (await file.exists()) {
             audioSource = AudioSource.uri(Uri.file(file.path), tag: metadata);
             isCached = true;
@@ -863,7 +863,7 @@ Future<void> shareQuestion(Question question) async {
 
   try {
     final url =
-        "https://hajjaudiofiles.kumthra.com/questions_audiofiles/${question.no}.mp3";
+        "https://hajjaudiofiles.kumthra.com/questions_audiofiles_hd/${question.no}.m4a";
 
     final cachedFile = await DefaultCacheManager().getSingleFile(url);
     XFile file;
@@ -872,14 +872,14 @@ Future<void> shareQuestion(Question question) async {
       final bytes = await cachedFile.readAsBytes();
       file = XFile.fromData(
         bytes,
-        mimeType: 'audio/mpeg',
-        name: '${question.no}.mp3',
+        mimeType: 'audio/mp4',
+        name: '${question.no}.m4a',
       );
     } else {
       file = XFile(
         cachedFile.path,
-        mimeType: 'audio/mpeg',
-        name: '${question.no}.mp3',
+        mimeType: 'audio/mp4',
+        name: '${question.no}.m4a',
       );
     }
 

@@ -322,7 +322,7 @@ class _Bookmarks2PageState extends State<Bookmarks2Page> {
 
       // play the first audio and when it ends play the next one
       final firstUrl =
-          "https://hajjaudiofiles.kumthra.com/questions_audiofiles/${widget.bookmarkProvider.bookmarks[0].no}.mp3";
+          "https://hajjaudiofiles.kumthra.com/questions_audiofiles_hd/${widget.bookmarkProvider.bookmarks[0].no}.m4a";
       if (kIsWeb) {
         await audioPlayer.setUrl(firstUrl);
       } else {
@@ -342,7 +342,7 @@ class _Bookmarks2PageState extends State<Bookmarks2Page> {
                 widget.bookmarkProvider.bookmarks[i].no) {
               if (i + 1 < widget.bookmarkProvider.bookmarks.length) {
                 final nextUrl =
-                    "https://hajjaudiofiles.kumthra.com/questions_audiofiles/${widget.bookmarkProvider.bookmarks[i + 1].no}.mp3";
+                    "https://hajjaudiofiles.kumthra.com/questions_audiofiles_hd/${widget.bookmarkProvider.bookmarks[i + 1].no}.m4a";
                 if (kIsWeb) {
                   await audioPlayer.setUrl(nextUrl);
                 } else {
