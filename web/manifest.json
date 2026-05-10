@@ -1,13 +1,50 @@
 {
-    "name": "hajj_app",
-    "short_name": "hajj_app",
+    "name": "حج التمتع في سؤال وجواب",
+    "short_name": "حج التمتع",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#f7faf9",
     "theme_color": "#005050",
-    "description": "A new Flutter project.",
+    "description": "تطبيق حج المتع في سؤال وجواب",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
+    "screenshots": [
+  {
+    "src": "screenshots/home_light.png",
+    "sizes": "706x1410",
+    "label": "الصفحة الرئيسية"
+  },
+  {
+    "src": "screenshots/home_dark.png",
+    "sizes": "706x1410",
+    "label": "الصفحة الرئيسية (في الوضع الداكن)"
+  }, {
+    "src": "screenshots/drawer.png",
+    "sizes": "706x1410",
+    "label": "اقسام التطبيق"
+  }, {
+    "src": "screenshots/subtitles_light.png",
+    "sizes": "706x1410",
+    "label": "تفرعات احد اقسام المسائل"
+  }, {
+    "src": "screenshots/questions_light.png",
+    "sizes": "706x1410",
+    "label": "المسائل في احد التفرعات"
+  }, {
+    "src": "screenshots/questions_dark.png",
+    "sizes": "706x1410",
+    "label": "المسائل في احد التفرعات (في وضع الداكن)"
+  }, {
+    "src": "screenshots/question_light.png",
+    "sizes": "706x1410",
+    "label": "صفحة احد المسائل"
+  },
+   {
+    "src": "screenshots/question_dark.png",
+    "sizes": "706x1410",
+    "label": "صفحة احد المسائل (في وضع الداكن)"
+  }
+],
     "icons": [
         {
             "src": "icons/Icon-192.png",
