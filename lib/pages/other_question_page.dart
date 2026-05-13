@@ -185,7 +185,7 @@ $shareLink
 ${question!.section}
 
 من تطبيق *مرشد الحج* 
-حج المتع في سؤال وجواب
+حج التمتع في سؤال وجواب
 """);
                           } catch (e) {
                             debugPrint(e.toString());
