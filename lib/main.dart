@@ -799,7 +799,7 @@ class MyApp extends StatelessWidget {
         builder: (context, themeProvider, bookmarkProvider, fontSizeProvider,
                 _) =>
             GetMaterialApp(
-                title: 'حج التمتع',
+                title: 'مرشد الحج',
                 debugShowCheckedModeBanner: false,
                 themeMode: themeProvider.themeMode,
                 theme: ThemeData(
@@ -890,7 +890,8 @@ ${question.question}
 
 ${question.answerText}
 
-من تطبيق حج التمتع في سؤال وجواب
+من تطبيق *مرشد الحج* 
+حج التمتع في سؤال وجواب
 """);
 
     debugPrint('${result.status}');

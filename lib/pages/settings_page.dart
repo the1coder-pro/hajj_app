@@ -24,7 +24,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 padding: const EdgeInsets.all(16),
                 children: [
                   Card.filled(
-                    elevation: 1,
+                    elevation: 0,
                     color: Theme.of(context).colorScheme.surfaceContainerLow,
                     clipBehavior: Clip.antiAlias,
                     shape: RoundedRectangleBorder(
@@ -110,7 +110,7 @@ class _SettingsPageState extends State<SettingsPage> {
               child: Align(
                 alignment: Alignment.centerRight,
                 child: Text(
-                  "الإصدار 1.1.1",
+                  "الإصدار 1.1.2",
                   style: TextStyle(
                       fontSize: 14,
                       color: Theme.of(context)

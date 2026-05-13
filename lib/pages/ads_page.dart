@@ -4,6 +4,7 @@ import 'dart:ui';
 
 // import 'package:carousel_slider/carousel_slider.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hajj_app/components/ad_detail.dart';
@@ -304,15 +305,19 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
       List<Map> validAds = [];
 
       for (var i = 0; i < data.length; i++) {
-        var item = data[i];
-        DateTime? startDate = _parseDate(item['StartDate']?.toString());
-        DateTime? endDate = _parseDate(item['EndDate']?.toString());
+        try {
+          var item = data[i];
+          DateTime? startDate = _parseDate(item['StartDate']?.toString());
+          DateTime? endDate = _parseDate(item['EndDate']?.toString());
 
-        if (startDate != null && endDate != null) {
-          if (DateTime.now().isAfter(startDate) &&
-              DateTime.now().isBefore(endDate)) {
-            validAds.add(item);
+          if (startDate != null && endDate != null) {
+            if (DateTime.now().isAfter(startDate) &&
+                DateTime.now().isBefore(endDate)) {
+              validAds.add(item);
+            }
           }
+        } catch (e) {
+          debugPrint("Error processing ad at index $i: $e");
         }
       }
 
@@ -355,15 +360,19 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
       List<Map> validAds = [];
 
       for (var i = 0; i < data.length; i++) {
-        var item = data[i];
-        DateTime? startDate = _parseDate(item['StartDate']?.toString());
-        DateTime? endDate = _parseDate(item['EndDate']?.toString());
+        try {
+          var item = data[i];
+          DateTime? startDate = _parseDate(item['StartDate']?.toString());
+          DateTime? endDate = _parseDate(item['EndDate']?.toString());
 
-        if (startDate != null && endDate != null) {
-          if (DateTime.now().isAfter(startDate) &&
-              DateTime.now().isBefore(endDate)) {
-            validAds.add(item);
+          if (startDate != null && endDate != null) {
+            if (DateTime.now().isAfter(startDate) &&
+                DateTime.now().isBefore(endDate)) {
+              validAds.add(item);
+            }
           }
+        } catch (e) {
+          debugPrint("Error processing ad at index $i: $e");
         }
       }
 
@@ -397,18 +406,28 @@ class _AdvertismentsPageState extends State<AdvertismentsPage> {
   DateTime? _parseDate(String? dateStr) {
     if (dateStr == null || dateStr.trim().isEmpty) return null;
     try {
-      // Handle both yyyy/mm/dd and yyyy-mm-dd formats
-      String formatted = dateStr.trim().replaceAll('/', '-');
+      String trimmed = dateStr.trim();
+      bool hasSlashes = trimmed.contains('/');
+      String formatted = trimmed.replaceAll('/', '-');
 
-      // Ensure month and day are zero-padded (DateTime.parse expects 2 digits)
       List<String> parts = formatted.split('-');
       if (parts.length >= 3) {
         String year = parts[0];
-        String month = parts[1].padLeft(2, '0');
+        String part1 = parts[1].padLeft(2, '0');
 
-        // Support datetime strings that contain a time component
         List<String> dayParts = parts[2].split(RegExp(r'\s+'));
-        String day = dayParts[0].padLeft(2, '0');
+        String part2 = dayParts[0].padLeft(2, '0');
+
+        String month;
+        String day;
+
+        if (hasSlashes) {
+          day = part1;
+          month = part2;
+        } else {
+          month = part1;
+          day = part2;
+        }
 
         if (dayParts.length > 1) {
           String time = dayParts.sublist(1).join(' ');

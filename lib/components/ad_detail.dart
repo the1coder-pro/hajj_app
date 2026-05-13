@@ -8,6 +8,52 @@ import 'package:hajj_app/pages/home_page.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+DateTime? _parseAdDate(String? dateStr) {
+  if (dateStr == null || dateStr.trim().isEmpty) return null;
+  try {
+    String trimmed = dateStr.trim();
+    bool hasSlashes = trimmed.contains('/');
+    String formatted = trimmed.replaceAll('/', '-');
+    List<String> parts = formatted.split('-');
+    if (parts.length >= 3) {
+      String year = parts[0];
+      String part1 = parts[1].padLeft(2, '0');
+
+      List<String> dayParts = parts[2].split(RegExp(r'\s+'));
+      String part2 = dayParts[0].padLeft(2, '0');
+
+      String month;
+      String day;
+
+      if (hasSlashes) {
+        // yyyy/dd/mm format
+        day = part1;
+        month = part2;
+      } else {
+        // yyyy-mm-dd format
+        month = part1;
+        day = part2;
+      }
+
+      if (dayParts.length > 1) {
+        String time = dayParts.sublist(1).join(' ');
+        formatted = '$year-$month-$day $time';
+      } else {
+        formatted = '$year-$month-$day';
+      }
+    }
+    return DateTime.parse(formatted);
+  } catch (e) {
+    return null;
+  }
+}
+
+String _formatAdDate(String? dateStr) {
+  DateTime? dt = _parseAdDate(dateStr);
+  if (dt == null) return dateStr ?? '';
+  return "${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}";
+}
+
 class AdRouteWrapper extends StatefulWidget {
   final String adId;
   const AdRouteWrapper({super.key, required this.adId});
@@ -36,15 +82,23 @@ class _AdRouteWrapperState extends State<AdRouteWrapper> {
         var data = jsonDecode(decodedData);
         List<Map> validAds = [];
         for (var i = 0; i < data.length; i++) {
-          var item = data[i];
-          if (DateTime.now().isAfter(DateTime.parse(item['StartDate'])) &&
-              DateTime.now().isBefore(DateTime.parse(item['EndDate']))) {
-            validAds.add(item);
+          try {
+            var item = data[i];
+            DateTime? startDate = _parseAdDate(item['StartDate']?.toString());
+            DateTime? endDate = _parseAdDate(item['EndDate']?.toString());
+            if (startDate != null && endDate != null) {
+              if (DateTime.now().isAfter(startDate) &&
+                  DateTime.now().isBefore(endDate)) {
+                validAds.add(item);
+              }
+            }
+          } catch (e) {
+            debugPrint("Error processing ad at index $i: $e");
           }
         }
         int index = validAds.indexWhere((ad) {
           try {
-            return DateTime.parse(ad['StartDate'])
+            return _parseAdDate(ad['StartDate']?.toString())!
                     .millisecondsSinceEpoch
                     .toString() ==
                 widget.adId;
@@ -163,6 +217,14 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
     return TextSpan(style: baseStyle, children: spans);
   }
 
+  bool _isValidUrl(String urlString) {
+    if (urlString.isEmpty) return false;
+    final uri = Uri.tryParse(urlString);
+    return uri != null &&
+        uri.isAbsolute &&
+        (uri.scheme == 'http' || uri.scheme == 'https');
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.ads.isEmpty || _currentIndex >= widget.ads.length) {
@@ -189,7 +251,7 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
     String title = currentAd['Title'] ?? 'بدون عنوان';
     String description = currentAd['Description'] ?? '';
     String link = currentAd['Link'] ?? '';
-    String startDate = currentAd['StartDate']?.toString() ?? '';
+    String startDate = _formatAdDate(currentAd['StartDate']?.toString());
 
     Widget fallbackWidget = const Padding(
       padding: EdgeInsets.all(30.0),
@@ -224,52 +286,56 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
                 ),
           ),
           const SizedBox(height: 16),
-          Card.outlined(
-            elevation: 1,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (startDate.isNotEmpty) ...[
-                    Row(
-                      children: [
-                        Icon(Icons.access_time,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            "تاريخ النشر: $startDate",
-                            style: TextStyle(
+          if (startDate.isNotEmpty || description.trim().isNotEmpty) ...[
+            Card.outlined(
+              elevation: 1,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (startDate.isNotEmpty) ...[
+                      Row(
+                        children: [
+                          Icon(Icons.access_time,
                               color: Theme.of(context).colorScheme.primary,
-                              fontWeight: FontWeight.bold,
+                              size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              "تاريخ النشر: $startDate",
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
+                        ],
+                      ),
+                      if (description.trim().isNotEmpty)
+                        const Divider(height: 16),
+                    ],
+                    if (description.trim().isNotEmpty)
+                      SelectableText.rich(
+                        _buildFormattedTextSpan(
+                          description,
+                          const TextStyle(
+                              fontSize: 24, fontFamily: "Zarids", height: 1.5),
                         ),
-                      ],
-                    ),
-                    const Divider(height: 16),
+                      ),
                   ],
-                  SelectableText.rich(
-                    _buildFormattedTextSpan(
-                      description,
-                      const TextStyle(
-                          fontSize: 24, fontFamily: "Zarids", height: 1.5),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
+          ],
           Align(
             alignment: AlignmentDirectional.centerStart,
             child: Wrap(
               spacing: 10,
               runSpacing: 10,
               children: [
-                if (link.isNotEmpty)
+                if (_isValidUrl(link))
                   SizedBox(
                     width: isSmallScreen ? double.infinity : 150,
                     child: FilledButton.icon(
@@ -306,9 +372,10 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
                     onPressed: () {
                       String timestampId = "";
                       try {
-                        timestampId = DateTime.parse(currentAd['StartDate'])
-                            .millisecondsSinceEpoch
-                            .toString();
+                        timestampId =
+                            _parseAdDate(currentAd['StartDate']?.toString())!
+                                .millisecondsSinceEpoch
+                                .toString();
                       } catch (e) {
                         timestampId = "";
                       }
@@ -336,8 +403,7 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
                       if (adUrl.isNotEmpty) {
                         shareText += '\n🔗 رابط الإعلان في التطبيق:\n$adUrl\n';
                       }
-                      shareText +=
-                          '\n📱 مشاركة من تطبيق حج التمتع في سؤال وجواب';
+                      shareText += '\n🔗 مشاركة من تطبيق مرشد الحج';
 
                       Share.share(shareText);
                     },

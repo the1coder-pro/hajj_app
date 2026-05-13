@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hajj_app/components/ad_detail.dart';
@@ -39,6 +40,44 @@ class _HomePageState extends State<HomePage> {
     _fetchLatestAds();
   }
 
+  DateTime? _parseAdDate(String? dateStr) {
+    if (dateStr == null || dateStr.trim().isEmpty) return null;
+    try {
+      String trimmed = dateStr.trim();
+      bool hasSlashes = trimmed.contains('/');
+      String formatted = trimmed.replaceAll('/', '-');
+      List<String> parts = formatted.split('-');
+      if (parts.length >= 3) {
+        String year = parts[0];
+        String part1 = parts[1].padLeft(2, '0');
+
+        List<String> dayParts = parts[2].split(RegExp(r'\s+'));
+        String part2 = dayParts[0].padLeft(2, '0');
+
+        String month;
+        String day;
+
+        if (hasSlashes) {
+          day = part1;
+          month = part2;
+        } else {
+          month = part1;
+          day = part2;
+        }
+
+        if (dayParts.length > 1) {
+          String time = dayParts.sublist(1).join(' ');
+          formatted = '$year-$month-$day $time';
+        } else {
+          formatted = '$year-$month-$day';
+        }
+      }
+      return DateTime.parse(formatted);
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<void> _fetchLatestAds() async {
     try {
       final response = await http.get(Uri.parse(
@@ -48,10 +87,18 @@ class _HomePageState extends State<HomePage> {
         var data = jsonDecode(decodedData);
         List<Map> validAds = [];
         for (var i = 0; i < data.length; i++) {
-          var item = data[i];
-          if (DateTime.now().isAfter(DateTime.parse(item['StartDate'])) &&
-              DateTime.now().isBefore(DateTime.parse(item['EndDate']))) {
-            validAds.add(item);
+          try {
+            var item = data[i];
+            DateTime? startDate = _parseAdDate(item['StartDate']?.toString());
+            DateTime? endDate = _parseAdDate(item['EndDate']?.toString());
+            if (startDate != null && endDate != null) {
+              if (DateTime.now().isAfter(startDate) &&
+                  DateTime.now().isBefore(endDate)) {
+                validAds.add(item);
+              }
+            }
+          } catch (e) {
+            debugPrint("Error processing ad at index $i: $e");
           }
         }
         if (mounted) {
@@ -80,7 +127,7 @@ class _HomePageState extends State<HomePage> {
                     color: Theme.of(context).colorScheme.secondaryContainer),
                 child: Text.rich(TextSpan(children: [
                   TextSpan(
-                    text: "حج التمتع\n",
+                    text: "مرشد الحج\n",
                     style: TextStyle(
                       fontFamily: "Zarids",
                       fontSize: 35,
@@ -89,7 +136,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   TextSpan(
-                    text: "في سؤال وجواب",
+                    text: "حج التمتع في سؤال وجواب",
                     style: TextStyle(
                       fontFamily: "Zarids",
                       fontSize: 25,
