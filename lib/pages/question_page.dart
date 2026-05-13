@@ -201,7 +201,7 @@ ${(kIsWeb ? "${Uri.base.origin}/q/${question!.no}" : "https://app.h-alkalaf.com/
 ${question!.mainTitle} - ${question!.subTitle}
 
 من تطبيق *مرشد الحج* 
-حج المتع في سؤال وجواب
+حج التمتع في سؤال وجواب
 """);
                           } catch (e) {
                             debugPrint(e.toString());
