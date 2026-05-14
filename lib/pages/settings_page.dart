@@ -110,7 +110,7 @@ class _SettingsPageState extends State<SettingsPage> {
               child: Align(
                 alignment: Alignment.centerRight,
                 child: Text(
-                  "الإصدار 1.1.2",
+                  "الإصدار 1.1.3",
                   style: TextStyle(
                       fontSize: 14,
                       color: Theme.of(context)

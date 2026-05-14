@@ -106,6 +106,14 @@ class ContactFooter extends StatelessWidget {
                         : Colors.red,
                     icon: CommunityMaterialIcons.youtube,
                     link: 'https://www.youtube.com/@halkalaf'),
+                const SizedBox(width: 5),
+                ContactButton(
+                    backgroundColor: themeProvider.brightness == Brightness.dark
+                        ? Colors.black26
+                        : Colors.lightBlue,
+                    foregroundColor: Colors.white,
+                    icon: CommunityMaterialIcons.telegram,
+                    link: 'https://t.me/+Av4J3CCOa6lhYTA0'),
                 const SizedBox(width: 10),
                 Text(
                   "@h_alkalaf",
@@ -281,6 +289,13 @@ class ContactFooterImageTemplate extends StatelessWidget {
                   icon: CommunityMaterialIcons.youtube,
                   link: 'https://www.youtube.com/@halkalaf',
                 ),
+                const SizedBox(width: 5),
+                const ContactButton(
+                  backgroundColor: Colors.lightBlue,
+                  foregroundColor: Colors.white,
+                  icon: CommunityMaterialIcons.telegram,
+                  link: 'https://example.com',
+                ),
 
                 const SizedBox(width: 10),
                 Text("@h_alkalaf",
@@ -404,6 +419,26 @@ class ContactFooterImage extends StatelessWidget {
                     }
                   },
                   icon: const Icon(CommunityMaterialIcons.youtube),
+                ),
+                const SizedBox(width: 5),
+                IconButton(
+                  style: ButtonStyle(
+                    shape: WidgetStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    backgroundColor: WidgetStateProperty.all(Colors.lightBlue),
+                  ),
+                  color: Colors.white,
+                  onPressed: () async {
+                    Uri url = Uri.parse('https://example.com');
+                    // open link
+                    if (!await launchUrl(url)) {
+                      throw Exception('Could not launch $url');
+                    }
+                  },
+                  icon: const Icon(CommunityMaterialIcons.telegram),
                 ),
                 const SizedBox(width: 10),
                 Text("@h_alkalaf",
