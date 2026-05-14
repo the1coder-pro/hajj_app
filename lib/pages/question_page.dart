@@ -200,7 +200,7 @@ ${(kIsWeb ? "${Uri.base.origin}/q/${question!.no}" : "https://app.h-alkalaf.com/
 
 ${question!.mainTitle} - ${question!.subTitle}
 
-من تطبيق *مرشد الحج* 
+من تطبيق *مرشد الحاج* 
 حج التمتع في سؤال وجواب
 """);
                           } catch (e) {
@@ -296,7 +296,7 @@ ${(kIsWeb ? "${Uri.base.origin}/q/${question!.no}" : "https://app.h-alkalaf.com/
 
 ${question!.mainTitle} - ${question!.subTitle}
 
-من تطبيق *مرشد الحج* 
+من تطبيق *مرشد الحاج* 
 حج التمتع في سؤال وجواب
 """);
                                       } catch (e) {
