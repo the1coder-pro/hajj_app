@@ -127,7 +127,7 @@ class _HomePageState extends State<HomePage> {
                     color: Theme.of(context).colorScheme.secondaryContainer),
                 child: Text.rich(TextSpan(children: [
                   TextSpan(
-                    text: "مرشد الحج\n",
+                    text: "مرشد الحاج\n",
                     style: TextStyle(
                       fontFamily: "Zarids",
                       fontSize: 35,

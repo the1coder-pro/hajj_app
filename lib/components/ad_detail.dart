@@ -403,7 +403,7 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
                       if (adUrl.isNotEmpty) {
                         shareText += '\n🔗 رابط الإعلان في التطبيق:\n$adUrl\n';
                       }
-                      shareText += '\n🔗 مشاركة من تطبيق مرشد الحج';
+                      shareText += '\n🔗 مشاركة من تطبيق مرشد الحاج';
 
                       Share.share(shareText);
                     },

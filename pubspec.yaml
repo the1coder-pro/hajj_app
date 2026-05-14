@@ -1,5 +1,5 @@
 name: hajj_app
-description: "تطبيق مرشد الحج: حج التمتع في سؤال وجواب"
+description: "تطبيق مرشد الحاج: حج التمتع في سؤال وجواب"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev

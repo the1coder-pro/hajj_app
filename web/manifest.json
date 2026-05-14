@@ -1,11 +1,11 @@
 {
-    "name": "مرشد الحج",
-    "short_name": "مرشد الحج",
+    "name": "مرشد الحاج",
+    "short_name": "مرشد الحاج",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#f7faf9",
     "theme_color": "#005050",
-    "description": "تطبيق مرشد الحج: حج التمتع في سؤال وجواب",
+    "description": "تطبيق مرشد الحاج: حج التمتع في سؤال وجواب",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "screenshots": [
